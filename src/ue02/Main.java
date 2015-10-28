@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.io.File;
 import java.io.IOException;
+import java.util.Stack;
 
 import javax.imageio.ImageIO;
 
@@ -31,12 +32,15 @@ public class Main {
 	    final int height = img.getHeight();
 
 		int[][] pixels = convertTo2DWithoutUsingGetRGB(img);
+		System.out.println("w: " + pixels[0].length);
+		System.out.println("h: " + pixels[1].length);
 		
 		for(int h = 0; h < height; h++){
     		for(int w = 0; w < width; w++){
     			if ((pixels[h][w] & 0x00ffffff) == 0) {
     				System.out.println(Integer.toHexString(pixels[h][w]));
-    				
+    				FloodFill(pixels, h, w, m);  
+    				m = m + 1;
     			}
     		}
 		}
@@ -44,8 +48,30 @@ public class Main {
 		return null;
 	}
 	
-	private static void FloodFill(BufferedImage img, int u, int v, int label) {
-		
+	private static int[][] FloodFill(int[][] pixels, int u, int v, int label) {
+		Stack<int[]> s = new Stack<int[]>();
+		int[] xy = {u, v};
+		s.push(xy);
+		while (!s.empty())
+		{
+			xy = s.pop();
+			if (xy[0] > -1 && xy[0] < pixels[0].length && 
+				xy[1] > -1 && xy[1] < pixels[1].length && 
+				(pixels[xy[0]][xy[1]] & 0x00ffffff) == 0) {
+				
+				pixels[xy[0]][xy[1]] = label;
+				
+				int[] tmpxy = {xy[0] + 1, xy[1]}; 
+				s.push(tmpxy);
+				tmpxy[0] = xy[0]; tmpxy[1] = xy[1] + 1;
+				s.push(tmpxy);
+				tmpxy[0] = xy[0]; tmpxy[1] = xy[1] - 1;
+				s.push(tmpxy);
+				tmpxy[0] = xy[0] - 1; tmpxy[1] = xy[1];
+				s.push(tmpxy);				
+			}
+		}
+		return pixels;
 	}
 	
 	private static int[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
