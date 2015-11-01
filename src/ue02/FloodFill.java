@@ -1,4 +1,11 @@
 package ue02;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -39,54 +46,111 @@ public class FloodFill {
 	private void SequentialLabeling(int [][] pixels){
 		
 		int m = 2;
-		Set<int []> c = new TreeSet<int []>();
-		
+//		Set<Set> c = new TreeSet<Set>();		
+		TreeSet c = new TreeSet();
+		HashMap coll = new HashMap();
+		ArrayList<Set> collisions = new ArrayList();
+
 		for(int u = 0; u < pixels.length; u++){
 			
 			for(int v = 0; v < pixels[u].length; v++){
 				
 				if(pixels[u][v] == 1){
-					
-					if(checkNeighbors(pixels, u, v) == 0){
+
+					ArrayList neighbors = checkNeighbors(pixels, u, v);
+
+					//Wenn alle Nachbarn Hintergrund sind
+					if(neighbors.size() == 0){
 						pixels[u][v] = m;
-						m++;						
+						m++;
 					}
-				}    			
+					//Wenn genau ein Nachbar gefunden wurde
+					else if(neighbors.size() == 1){
+						pixels[u][v] = (int) neighbors.get(0);					
+					}
+					//Wenn mehrere Nachbarn gefunden wurden nehme kleinsten Wert
+					else{
+						int minIndex = neighbors.indexOf(Collections.min(neighbors));
+						pixels[u][v] = (int) neighbors.get(minIndex);
+
+						//Sammle Kollisionen
+						for(int t = 0; t < neighbors.size(); t++){
+
+							if(minIndex != t){
+								
+								Set set = new TreeSet();
+								set.add(m);
+								set.add(t);								
+								
+								if(!collisions.contains(set)){
+									collisions.add(set);
+								}
+								
+								if(!coll.containsKey(m)){		
+									coll.put(m, t);
+								}
+								if(!coll.containsKey(t)){
+									coll.put(t, m);									
+								}
+								else{
+									
+									if(!coll.containsKey(m)){
+										coll.put(m, t);
+									}
+									else{
+										coll.put(t, m);										
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
-		int b = 0;
-		int a = b;
 	}
-	
-	private int checkNeighbors(int [][] pixels, int u, int v){
 
+	
+	
+	private ArrayList checkNeighbors(int [][] pixels, int u, int v){
+
+		ArrayList foundNeighbors = new ArrayList<Integer>();
 		int next = 0;
+		int neighbor = 0;
 		//oben links
-		if(u-1 >= pixels.length && v-1 >= 0){
+		if(u-1 >= 0 && v-1 >= 0){
 			if(pixels[u-1][v-1] > 1){
-				next = next > pixels[u-1][v-1] ? next : pixels[u-1][v-1];
+//				next = next > pixels[u-1][v-1] ? next : pixels[u-1][v-1];
+				neighbor = pixels[u-1][v-1];	
+				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}
 		}
 		
 		//oben
-		if(u-1 >= pixels.length){
+		if(u-1 >= 0){
 			if(pixels[u-1][v] > 1){
-				next = next > pixels[u-1][v] ? next : pixels[u-1][v];	
+				//next = next > pixels[u-1][v] ? next : pixels[u-1][v];
+				neighbor = pixels[u-1][v];					
+				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}
 		}
 		//oben rechts
-		if(u-1 >= pixels.length && v+1 <= pixels[u].length){
+		if(u-1 >= 0 && v+1 < pixels[u].length){
 			if(pixels[u-1][v+1] > 1){
-				next = next > pixels[u-1][v] ? next : pixels[u-1][v+1];
+//				next = next > pixels[u-1][v] ? next : pixels[u-1][v+1];
+				neighbor = pixels[u-1][v+1];					
+				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
+
 			}
 		}
 		//links
 		if(v-1 >= 0){
 			if(pixels[u][v-1] > 1){
-				next = next > pixels[u][v] ? next : pixels[u][v-1];				
+	//			next = next > pixels[u][v] ? next : pixels[u][v-1];				
+				neighbor = pixels[u][v-1];					
+				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}				
 		}
-		return next;
+		return foundNeighbors;
 	}
 	
 	public void RegionLabeling(int [] pixels, int width, int height, FillMode mode){
@@ -95,6 +159,7 @@ public class FloodFill {
 		
 		if(mode == FillMode.SEQUENTIAL){
 			SequentialLabeling(labledPixels);
+			printResults(labledPixels);
 			return;
 		}		
 		int m = 2;
@@ -114,11 +179,26 @@ public class FloodFill {
 	
 	public static void main(String[] args) {
 		
-		int [] pixels = {0, 0, 255, 0, 255, 255, 255, 0, 0 , 0 ,255, 255, 255, 0, 0, 0, 255};
+		int [] pixels = {0, 0, 255, 0, 255, 0, 255, 0, 0 , 0 ,255, 255, 255, 0, 0, 0, 255};
+		
 		int width = 4;
 		int height = 4;
 		
 		FloodFill fill = new FloodFill();
 		fill.RegionLabeling(pixels, width, height, FillMode.SEQUENTIAL);
+	}
+	
+	/**Gibt die markierten Pixel-Bereiche aus.
+	 * @param pixels Ein 2 dimensionales Array mit markierten Bereichen*/
+	private void printResults(int [][] pixels){
+		
+		for(int u = 0; u < pixels.length; u++){
+			
+			for(int v = 0; v < pixels[u].length; v++){
+				
+				System.out.print(pixels[u][v] + " ");
+			}
+			System.out.print("\n");
+		}
 	}
 }

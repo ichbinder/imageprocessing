@@ -9,6 +9,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import ue02.FloodFill.FillMode;
+
 import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
@@ -42,6 +45,8 @@ public class Binarize extends JPanel {
     private JLabel thresholdGUI; // the current threshold value to display
 	final private short maxK = 50; // Maximum number of iterations to find the perfect threshold for the Isodata-Algorithm
 	private JCheckBox checkboxOutline; //Checkbox to enable/disable outline on binarize picture
+	private FloodFill floodFill; //Object to use the method for FloodFilling
+
 	
 	public Binarize() {
         super(new BorderLayout(border, border));
@@ -73,7 +78,7 @@ public class Binarize extends JPanel {
          
         // selector for the binarization method
         JLabel methodText = new JLabel("Methode:");
-        String[] methodNames = {"Schwellwert", "Iso-Data-Algorithmus"};
+        String[] methodNames = {"Schwellwert", "Iso-Data-Algorithmus", "FloodFill-Sequential"};
         
         methodList = new JComboBox<String>(methodNames);
         methodList.setSelectedIndex(0);		// set initial method
@@ -148,6 +153,9 @@ public class Binarize extends JPanel {
                        
         setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
         // perform the initial binarization
+        
+        floodFill = new FloodFill();
+        
         binarizeImage();
 	}
 	
@@ -227,6 +235,9 @@ public class Binarize extends JPanel {
     		thresholdGUI.setText("Threshold: " + slider.getValue());
     		binarize(dstPixels, isoThreshold);    		
     		break;
+    	case 2: 
+    		binarizeToByteRange(dstPixels, slider.getValue());
+    		floodFill.RegionLabeling(dstPixels, width, height, FillMode.SEQUENTIAL);
     	}
     	
     	if(checkboxOutline.isSelected()){    		
@@ -257,6 +268,14 @@ public class Binarize extends JPanel {
     		pixels[i] = gray < maxValue ? 0xff000000 : 0xffffffff;
     	}    	
     }
+    
+
+    void binarizeToByteRange(int pixels[], int maxValue) {
+    	for(int i = 0; i < pixels.length; i++) {
+    		int gray = ((pixels[i] & 0xff) + ((pixels[i] & 0xff00) >> 8) + ((pixels[i] & 0xff0000) >> 16)) / 3;    		
+    		pixels[i] = gray < maxValue ? 0 : 255;
+    	}    	
+    }    
     
     private int [] createHistogram(int pixels[]){
     	
