@@ -122,7 +122,7 @@ public class BreadthFirstJakob {
 		int g = (int) (Math.random() * 256); // green
 		int b = (int) (Math.random() * 256); // blue
 
-		int p = (a << 24) | (r << 16) | (g << 8) | b;
+		int randomColor = (a << 24) | (r << 16) | (g << 8) | b;
 		
 		while (!q.isEmpty()) {
 			
@@ -134,7 +134,7 @@ public class BreadthFirstJakob {
 			if (xy[0] > -1 && xy[0] < pixels[0].length && xy[1] > -1 && xy[1] < pixels[1].length
 					&& (pixels[xy[0]][xy[1]] & 0x00ffffff) == 0) {
 
-				pixels[xy[0]][xy[1]] = p;
+				pixels[xy[0]][xy[1]] = randomColor;
 				
 				if ((xy[0] + 1) < pixels[0].length && 
 					(pixels[(xy[0] + 1)][xy[1]] & 0x00ffffff) == 0) {
