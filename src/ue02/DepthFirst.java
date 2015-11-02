@@ -11,61 +11,76 @@ import javax.imageio.ImageIO;
 
 import java.awt.image.DataBufferByte;
 
-public class FloodFillJakob {
+public class DepthFirst {
 
 	private int lengthOfS = 0;
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		FloodFillJakob fillJakob = new FloodFillJakob();
+		DepthFirst fillJakob = new DepthFirst();
+	}
+	
+	public DepthFirst(){
+		
 	}
 
-	public FloodFillJakob() throws InterruptedException, IOException {
-		File f = new File("src/ue02/META-INF/tools.png");
-		BufferedImage img = ImageIO.read(f);
-		this.RegionLabeling(img);
+	/**Bildet ein 1-dimensionales in ein 2-dimensionales Pixel-Array
+	 * @param src Pixeldaten (1 dim)
+	 * @param width Bildbreite
+	 * @param height Bildhöhe
+	 * @return 2-dimensionales Pixel-Array*/
+	private int [][] prepareBinaryImage(int [] src, int width, int height){
+		
+		int [][] pixels = new int [height][width];
+		int i = 0;
+		
+		for(int h = 0; h < height; h++){
+			
+			for(int w = 0; w < width; w++){
+				
+				pixels[h][w] = src[i];
+				i++;
+			}
+		}		
+		return pixels;
 	}
-
-	private Image RegionLabeling(BufferedImage img) throws InterruptedException {
+	
+	public void RegionLabeling(int [] input, int width, int height) {
 		int m = 2;
-		final int width = img.getWidth();
-		final int height = img.getHeight();
-		int[][] pixels = convertTo2DWithoutUsingGetRGB(img);
 
-		BufferedImage imgOutput = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		int[][] pixels = prepareBinaryImage(input, width, height);
 
 		long timeStart = System.nanoTime();
 		
 		for (int h = 0; h < height; h++) {
 			for (int w = 0; w < width; w++) {
 				if ((pixels[h][w] & 0x00ffffff) == 0) {
-					pixels = this.FloodFill8Without(pixels, h, w, m);
-//					pixels = this.FloodFill8(pixels, h, w, m);
+					pixels = this.BreadthFirst8Without(pixels, h, w, m);
 					m = m + 1;
-					System.out.println(pixels[h][w]);
+//					System.out.println(pixels[h][w]);
 				}
 			}
 		}
 		
+		int outputPixels[] = new int [width * height];
+		int i = 0;
+		for(int h = 0; h < height; h++){
+			for(int w = 0; w < width; w++){
+				
+				
+				outputPixels[i] = pixels[h][w];
+				i++;
+			}
+		}
+		System.arraycopy(outputPixels, 0, input, 0, input.length);
+		
 		long timeStop = System.nanoTime();
 		
 		System.out.println("Calc Time: " + (timeStop - timeStart));
-		System.out.println("Stack max length: " + lengthOfS);
-		
-	    for(int i=0; i < height; i++)
-	        for(int j=0; j < width; j++)
-	        	imgOutput.setRGB(j, i, pixels[i][j]);
-	    
-		try {
-			File f = new File("src/ue02/META-INF/Output.png");
-			ImageIO.write(imgOutput, "png", f);
-		} catch (IOException e) {
-			System.out.println("Error: " + e);
-		}
-
-		return null;
+		System.out.println("Stack max length: " + lengthOfS);		
 	}
+	
 
-	private int[][] FloodFill8(int[][] pixels, int u, int v, int label) {
+	private int[][] BreadthFirst8(int[][] pixels, int u, int v, int label) {
 		Stack<int[]> s = new Stack<int[]>();
 		int[] xy = { u, v };
 		s.push(xy);
@@ -109,7 +124,7 @@ public class FloodFillJakob {
 		return pixels;
 	}
 	
-	private int[][] FloodFill8Without(int[][] pixels, int u, int v, int label) {
+	private int[][] BreadthFirst8Without(int[][] pixels, int u, int v, int label) {
 		Stack<int[]> s = new Stack<int[]>();
 		int[] xy = { u, v };
 		s.push(xy);
@@ -178,7 +193,7 @@ public class FloodFillJakob {
 		return pixels;
 	}
 	
-	private int[][] FloodFill4(int[][] pixels, int u, int v, int label) {
+	private int[][] BreadthFirst4(int[][] pixels, int u, int v, int label) {
 		Stack<int[]> s = new Stack<int[]>();
 		int[] xy = { u, v };
 		s.push(xy);
@@ -210,48 +225,5 @@ public class FloodFillJakob {
 			}
 		}
 		return pixels;
-	}
-	
-	private static int[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
-
-		final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-		final int width = image.getWidth();
-		final int height = image.getHeight();
-		final boolean hasAlphaChannel = image.getAlphaRaster() != null;
-
-		int[][] result = new int[height][width];
-		if (hasAlphaChannel) {
-			final int pixelLength = 4;
-			for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
-				int argb = 0;
-				argb += (((int) pixels[pixel] & 0xff) << 24); // alpha
-				argb += ((int) pixels[pixel + 1] & 0xff); // blue
-				argb += (((int) pixels[pixel + 2] & 0xff) << 8); // green
-				argb += (((int) pixels[pixel + 3] & 0xff) << 16); // red
-				result[row][col] = argb;
-				col++;
-				if (col == width) {
-					col = 0;
-					row++;
-				}
-			}
-		} else {
-			final int pixelLength = 3;
-			for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
-				int argb = 0;
-				argb += -16777216; // 255 alpha
-				argb += ((int) pixels[pixel] & 0xff); // blue
-				argb += (((int) pixels[pixel + 1] & 0xff) << 8); // green
-				argb += (((int) pixels[pixel + 2] & 0xff) << 16); // red
-				result[row][col] = argb;
-				col++;
-				if (col == width) {
-					col = 0;
-					row++;
-				}
-			}
-		}
-
-		return result;
-	}
+	}	
 }

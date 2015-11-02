@@ -10,7 +10,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import ue02.FloodFill.FillMode;
+import ue02.SequentialLabeling.FillMode;
 
 import java.awt.event.*;
 import java.awt.*;
@@ -45,8 +45,9 @@ public class Binarize extends JPanel {
     private JLabel thresholdGUI; // the current threshold value to display
 	final private short maxK = 50; // Maximum number of iterations to find the perfect threshold for the Isodata-Algorithm
 	private JCheckBox checkboxOutline; //Checkbox to enable/disable outline on binarize picture
-	private FloodFill floodFill; //Object to use the method for FloodFilling
-
+	private SequentialLabeling sequentialLabeling; //Object to use the method for FloodFilling
+	private BreadthFirst breathFirst;
+	private DepthFirst depthFirst;
 	
 	public Binarize() {
         super(new BorderLayout(border, border));
@@ -78,7 +79,7 @@ public class Binarize extends JPanel {
          
         // selector for the binarization method
         JLabel methodText = new JLabel("Methode:");
-        String[] methodNames = {"Schwellwert", "Iso-Data-Algorithmus", "FloodFill-Sequential"};
+        String[] methodNames = {"BreadthFirst", "DepthFirst", "FloodFill-Sequential"};
         
         methodList = new JComboBox<String>(methodNames);
         methodList.setSelectedIndex(0);		// set initial method
@@ -154,7 +155,9 @@ public class Binarize extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
         // perform the initial binarization
         
-        floodFill = new FloodFill();
+        sequentialLabeling = new SequentialLabeling();
+        breathFirst = new BreadthFirst();
+        depthFirst = new DepthFirst();
         
         binarizeImage();
 	}
@@ -222,22 +225,16 @@ public class Binarize extends JPanel {
 		long startTime = System.currentTimeMillis();
 		
     	switch(methodList.getSelectedIndex()) {
-    	case 0:	// 50% Schwellwert
-//    		binarize50(dstPixels);
-    		thresholdGUI.setText("Threshold: " + slider.getValue());
-    		binarize(dstPixels, slider.getValue());    		
+    	case 0:	// BreathFirst
+    		breathFirst.RegionLabeling(dstPixels, width, height);   
     		break;
-    	case 1:	// ISO-Data-Algorithmus
-//    		java.util.Arrays.fill(dstPixels, 0xffffffff);
-    		short k = 0;
-    		int isoThreshold = isoDataAlgorithm(createHistogram((dstPixels)), 128, k);
-    		slider.setValue(isoThreshold);
-    		thresholdGUI.setText("Threshold: " + slider.getValue());
-    		binarize(dstPixels, isoThreshold);    		
+    	case 1:	// Depth-First
+    		depthFirst.RegionLabeling(dstPixels, width, height);
     		break;
-    	case 2: 
+    	case 2: //Sequential Labeling
     		binarizeToByteRange(dstPixels, slider.getValue());
-    		floodFill.RegionLabeling(dstPixels, width, height, FillMode.SEQUENTIAL);
+    		sequentialLabeling.SequentialLabeling(dstPixels, width, height);
+    		break;
     	}
     	
     	if(checkboxOutline.isSelected()){    		

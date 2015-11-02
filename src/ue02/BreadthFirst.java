@@ -14,28 +14,40 @@ import javax.imageio.ImageIO;
 
 import java.awt.image.DataBufferByte;
 
-public class BreadthFirstJakob {
+public class BreadthFirst {
 
 	private int lengthOfQ = 0;
 
-	public static void main(String[] args) throws InterruptedException, IOException {
-		BreadthFirstJakob fillJakob = new BreadthFirstJakob();
+	public BreadthFirst(){
+		
 	}
 
-	public BreadthFirstJakob() throws InterruptedException, IOException {
-		File f = new File("src/ue02/META-INF/tools.png");
-		BufferedImage img = ImageIO.read(f);
-		this.RegionLabeling(img);
+	/**Bildet ein 1-dimensionales in ein 2-dimensionales Pixel-Array
+	 * @param src Pixeldaten (1 dim)
+	 * @param width Bildbreite
+	 * @param height Bildhöhe
+	 * @return 2-dimensionales Pixel-Array*/
+	private int [][] prepareBinaryImage(int [] src, int width, int height){
+		
+		int [][] pixels = new int [height][width];
+		int i = 0;
+		
+		for(int h = 0; h < height; h++){
+			
+			for(int w = 0; w < width; w++){
+				
+				pixels[h][w] = src[i];
+				i++;
+			}
+		}		
+		return pixels;
 	}
-
-	private Image RegionLabeling(BufferedImage img) throws InterruptedException {
+	
+	
+	public void RegionLabeling(int [] input, int width, int height){
 		int m = 2;
-		final int width = img.getWidth();
-		final int height = img.getHeight();
-		int[][] pixels = convertTo2DWithoutUsingGetRGB(img);
-
-		BufferedImage imgOutput = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
+		
+		int[][] pixels = prepareBinaryImage(input, width, height);
 		long timeStart = System.nanoTime();
 		
 		for (int h = 0; h < height; h++) {
@@ -53,20 +65,20 @@ public class BreadthFirstJakob {
 		System.out.println("Calc Time: " + (timeStop - timeStart));
 		System.out.println("Queue max length: " + lengthOfQ);
 		
-	    for(int i=0; i < height; i++)
-	        for(int j=0; j < width; j++)
-	        	imgOutput.setRGB(j, i, pixels[i][j]);
-	    
-		try {
-			File f = new File("src/ue02/META-INF/Output.png");
-			ImageIO.write(imgOutput, "png", f);
-		} catch (IOException e) {
-			System.out.println("Error: " + e);
+		int outputPixels[] = new int [width * height];
+		int i = 0;
+		for(int h = 0; h < height; h++){
+			for(int w = 0; w < width; w++){
+				
+				
+				outputPixels[i] = pixels[h][w];
+				i++;
+			}
 		}
-
-		return null;
+		System.arraycopy(outputPixels, 0, input, 0, outputPixels.length);
 	}
 
+	
 	private int[][] BreadthFirst8(int[][] pixels, int u, int v, int label) {
 		ArrayBlockingQueue<int[]> q = new ArrayBlockingQueue<>(pixels[0].length * pixels[1].length);
 		int[] xy = { u, v };
@@ -212,48 +224,5 @@ public class BreadthFirstJakob {
 			}
 		}
 		return pixels;
-	}
-	
-	private static int[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
-
-		final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-		final int width = image.getWidth();
-		final int height = image.getHeight();
-		final boolean hasAlphaChannel = image.getAlphaRaster() != null;
-
-		int[][] result = new int[height][width];
-		if (hasAlphaChannel) {
-			final int pixelLength = 4;
-			for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
-				int argb = 0;
-				argb += (((int) pixels[pixel] & 0xff) << 24); // alpha
-				argb += ((int) pixels[pixel + 1] & 0xff); // blue
-				argb += (((int) pixels[pixel + 2] & 0xff) << 8); // green
-				argb += (((int) pixels[pixel + 3] & 0xff) << 16); // red
-				result[row][col] = argb;
-				col++;
-				if (col == width) {
-					col = 0;
-					row++;
-				}
-			}
-		} else {
-			final int pixelLength = 3;
-			for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
-				int argb = 0;
-				argb += -16777216; // 255 alpha
-				argb += ((int) pixels[pixel] & 0xff); // blue
-				argb += (((int) pixels[pixel + 1] & 0xff) << 8); // green
-				argb += (((int) pixels[pixel + 2] & 0xff) << 16); // red
-				result[row][col] = argb;
-				col++;
-				if (col == width) {
-					col = 0;
-					row++;
-				}
-			}
-		}
-
-		return result;
-	}
+	}	
 }

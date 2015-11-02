@@ -24,11 +24,12 @@ import java.util.TreeSet;
 import javax.imageio.ImageIO;
 import javax.swing.plaf.synth.Region;
 
-
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 
 //authors: 	André Vallentin
 //			Jakob Warnow
-public class FloodFill {
+public class SequentialLabeling {
 
 	public enum FillMode { DEPTHFIRST, BREADTHFIRST, SEQUENTIAL};
 	
@@ -52,65 +53,37 @@ public class FloodFill {
 				pixels[h][w] = src[i] == 0 ? 1 : 0;
 				i++;
 			}
-		}
-		
+		}		
 		return pixels;
 	}
 
-	private int[] SequentialLabeling(int [][] pixels, int width, int height){
+	/**Markiert Bildregionen */
+	public void SequentialLabeling(int []pixels, int width, int height){
 		
+		int [][] labledPixels = prepareBinaryImage(pixels, width, height);
+
 		ArrayList<Set> collisions = new ArrayList();
-		long timeStart = System.nanoTime();
 		int m = 2;
-		m = AssignIntialLabels(pixels, m, collisions);
+		m = AssignIntialLabels(labledPixels, m, collisions);
 
-		//---------------------------------------
-		/*
-		int [] preColors = getRGBColors(m);		
-		for(int u = 0; u < height; u++){
-			
-			for(int v = 0; v < width; v++){
-
-				int value = pixels[u][v];
-				if(value > 1) pixels[u][v] = preColors[value];
-				else pixels[u][v] =  0xffffffff;
-			}
-		}
-		
-		PrintPicture(pixels, width, height, "out_label");
-		*/
-	/*	
-		Set [] unsorted = new Set[collisions.size()];
-		for(int i= 0; i < unsorted.length; i++){
-			
-			unsorted[i] = collisions.get(i);
-		}
-		
-		int [] preColors = getRGBColors(unsorted);		
-		RelabelTheImage(pixels, unsorted, preColors);
-		PrintPicture(pixels, width, height, "out_label");
-		//---------------------------------------
-*/
-//		printResults(pixels);
 		Set [] resolvedLabels = ResolveLabelCollisions(m, collisions);
-//		int [] colors = getRGBColors(resolvedLabels);
 		int [] colors = getRGBColorsRandom(resolvedLabels);
 	
-		RelabelTheImage(pixels, resolvedLabels, colors);
-//		PrintPicture(pixels, width, height, "out_color" );
-		
+		RelabelTheImage(labledPixels, resolvedLabels, colors);
+		PrintPicture(labledPixels, width, height, "out_color" );
 
 		int outputPixels[] = new int [width * height];
 		int i = 0;
 		for(int h = 0; h < height; h++){
 			for(int w = 0; w < width; w++){
-				outputPixels[i] = pixels[h][w];
+				outputPixels[i] = labledPixels[h][w];
 				i++;
 			}
 		}
-		return outputPixels;
+		System.arraycopy(outputPixels, 0, pixels, 0, pixels.length);
 	}
 
+	
 	private int AssignIntialLabels(int [][] pixels, int m, ArrayList<Set> collisions){
 		
 		for(int u = 0; u < pixels.length; u++){
@@ -133,7 +106,6 @@ public class FloodFill {
 					//Wenn mehrere Nachbarn gefunden wurden nehme kleinsten Wert
 					else{
 						
-//						int minIndex = neighbors.indexOf(neighbors.indexOf(Collections.min(neighbors)));
 						int minimum = findMinimum(neighbors);						
 						pixels[u][v] = minimum;
 
@@ -142,7 +114,6 @@ public class FloodFill {
 
 						for(int t = 0; t < neighbors.size(); t++){								
 							set.add((int) neighbors.get(t)); // m	
-//							set.add((int) neighbors.get(t+1));
 						}
 						if(!collisions.contains(set)){
 							collisions.add(set);
@@ -170,8 +141,7 @@ public class FloodFill {
 			if(!set[i].isEmpty()){
 				colors[i] = Color.HSBtoRGB(1.0f - diff * i, 1.0f, 1.0f);
 			}
-		}
-		
+		}		
 		return colors;
 	}
 	
@@ -184,7 +154,6 @@ public class FloodFill {
 				colors[i] = Color.HSBtoRGB( (float) Math.random(), 1.0f, 1.0f);
 			}
 		}
-		
 		return colors;
 	}
 	
@@ -199,7 +168,6 @@ public class FloodFill {
 		for(int i = 2; i < max; i++){
 			colors[i] = Color.HSBtoRGB(1.0f - diff * i, 1.0f, 1.0f);
 		}
-		
 		return colors;
 	}
 	
@@ -246,47 +214,7 @@ public class FloodFill {
 		minimum =  (int) list.iterator().next();
 		return minimum;
 	}
-	/*
-	/**Durchsucht die vorhandenen Kollisionen ob ein bestimmter Wert wieder in anderen Sets gefunden wird.
-	 * Sollten andere Wertepaare mit dem gesuchten Wert existieren, werden diese vermerkt und gesaausgegeben.
-	 * Bei einer passenden Kollision wird jene aus der Gesamt-Kollisionsliste entfernt.
-	 * @param collisions Alle vorhandenen Kollisionen
-	 * @param vec Kollisionsvector für alle Labels
-	 * @param searchedLabel Das Label welches durchsucht wird
-	 * @return eine Liste für alle gefundenen Partner
-	private ArrayList findLabels(ArrayList<Set> collisions, Set [] vec, int searchedLabel){
 		
-		ArrayList matchedPartners = new ArrayList();
-		for(int i = 0; i < collisions.size(); i++){
-			
-			Set oneCollision = collisions.get(i);	
-			if(oneCollision.contains(searchedLabel)){
-				Iterator it = oneCollision.iterator();
-			
-				int first = (int) it.next();
-				int second = (int) it.next();
-			
-				int minimum = first < second ? first : second;
-				int maximum = first > second ? first : second;
-			
-				if(first == searchedLabel){
-					matchedPartners.add(maximum);
-					collisions.remove(i);					
-					vec[maximum].remove(maximum);					
-					matchedPartners.addAll(findLabels(collisions, vec, maximum));
-				}
-				else if(second == searchedLabel){
-					matchedPartners.add(minimum);
-					collisions.remove(i);
-					vec[minimum].remove(minimum);
-					matchedPartners.addAll(findLabels(collisions, vec, minimum));
-				}
-			}
-		}
-		return matchedPartners;
-	}
-	*/
-	
 	/**Löst Kollisionen zwischen Labels auf und gibt am Ende einen Set-Vektor zurück.
 	 * @param maxLabel Die maximal erreichte Labelnummer (m). 
 	 * @param collisions Alle gefundenen Kollisionen
@@ -340,7 +268,6 @@ public class FloodFill {
 		//oben links
 		if(u-1 >= 0 && v-1 >= 0){
 			if(pixels[u-1][v-1] > 1){
-//				next = next > pixels[u-1][v-1] ? next : pixels[u-1][v-1];
 				neighbor = pixels[u-1][v-1];
 				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}
@@ -349,7 +276,6 @@ public class FloodFill {
 		//oben
 		if(u-1 >= 0){
 			if(pixels[u-1][v] > 1){
-				//next = next > pixels[u-1][v] ? next : pixels[u-1][v];
 				neighbor = pixels[u-1][v];	
 				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}
@@ -357,7 +283,6 @@ public class FloodFill {
 		//oben rechts
 		if(u-1 >= 0 && v+1 < pixels[u].length){
 			if(pixels[u-1][v+1] > 1){
-//				next = next > pixels[u-1][v] ? next : pixels[u-1][v+1];
 				neighbor = pixels[u-1][v+1];	
 				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}
@@ -365,43 +290,14 @@ public class FloodFill {
 		//links
 		if(v-1 >= 0){
 			if(pixels[u][v-1] > 1){
-	//			next = next > pixels[u][v] ? next : pixels[u][v-1];				
 				neighbor = pixels[u][v-1];					
 				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
-			}				
+			}
 		}
 		return foundNeighbors;
 	}
 	
-	
-	public void RegionLabeling(int [] pixels, int width, int height, FillMode mode){
-
-		int [][] labledPixels = prepareBinaryImage(pixels, width, height);
-		
-		
-		if(mode == FillMode.SEQUENTIAL){
-			long timeStart = System.nanoTime();
-			int [] seqPixels = SequentialLabeling(labledPixels, width, height);		
-			long timeStop = System.nanoTime();
-			System.arraycopy(seqPixels, 0, pixels, 0, seqPixels.length);
-			System.out.println("Time: " + (timeStop-timeStart));
-//			printResults(labledPixels);
-			return;
-		}		
-		int m = 2;
-		
-		for(int h = 0; h < height; h++){
-			
-			for(int w = 0; w < width; w++){
-				
-    			if(labledPixels[h][w] == 1){
-    				
-    				if(mode == FillMode.BREADTHFIRST){} 
-    				else if(mode == FillMode.DEPTHFIRST){}
-    			} 
-			}
-		}
-	}
+	//#----------------------------------- Zusatz
 	
 	/**Sichert eine Bilddatei.*/
 	private void PrintPicture(int [][] pixels, int width, int height, String name){
@@ -419,17 +315,6 @@ public class FloodFill {
 			System.out.println("Error: " + e);
 		}
 	}
-	/*
-	public static void main(String[] args) {
-		
-		int [] pixels = {0, 0, 255, 0, 255, 0, 255, 0, 0 , 0 ,255, 255, 255, 0, 0, 0, 255};
-		
-		int width = 4;
-		int height = 4;
-		
-		FloodFill fill = new FloodFill();
-		fill.RegionLabeling(pixels, width, height, FillMode.SEQUENTIAL);
-	}*/
 	
 	/**Gibt die markierten Pixel-Bereiche aus.
 	 * @param pixels Ein 2 dimensionales Array mit markierten Bereichen*/
