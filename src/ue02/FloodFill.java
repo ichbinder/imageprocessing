@@ -3,19 +3,29 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.plaf.synth.Region;
+
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 
 //authors: 	André Vallentin
 //			Jakob Warnow
@@ -48,21 +58,56 @@ public class FloodFill {
 		return pixels;
 	}
 
-	
-	private void SequentialLabeling(int [][] pixels, int width, int height){
+	private int[] SequentialLabeling(int [][] pixels, int width, int height){
 		
-//		Set<Set> c = new TreeSet<Set>();		
-		TreeSet c = new TreeSet();
-		HashMap coll = new HashMap();
 		ArrayList<Set> collisions = new ArrayList();
 		int m = 2;
 		m = AssignIntialLabels(pixels, m, collisions);
-		printResults(pixels);
-		Set [] resolvedLabels = ResolveLabelCollisions(m, collisions);
-		int [] colors = getRGBColors(resolvedLabels);
+
+		//---------------------------------------
+		/*
+		int [] preColors = getRGBColors(m);		
+		for(int u = 0; u < height; u++){
+			
+			for(int v = 0; v < width; v++){
+
+				int value = pixels[u][v];
+				if(value > 1) pixels[u][v] = preColors[value];
+				else pixels[u][v] =  0xffffffff;
+			}
+		}
 		
+		PrintPicture(pixels, width, height, "out_label");
+		*/
+	/*	
+		Set [] unsorted = new Set[collisions.size()];
+		for(int i= 0; i < unsorted.length; i++){
+			
+			unsorted[i] = collisions.get(i);
+		}
+		
+		int [] preColors = getRGBColors(unsorted);		
+		RelabelTheImage(pixels, unsorted, preColors);
+		PrintPicture(pixels, width, height, "out_label");
+		//---------------------------------------
+*/
+//		printResults(pixels);
+		Set [] resolvedLabels = ResolveLabelCollisions(m, collisions);
+//		int [] colors = getRGBColors(resolvedLabels);
+		int [] colors = getRGBColorsRandom(resolvedLabels);
+	
 		RelabelTheImage(pixels, resolvedLabels, colors);
-		PrintPicture(pixels, width, height, "dog" );
+		PrintPicture(pixels, width, height, "out_color" );
+
+		int outputPixels[] = new int [width * height];
+		int i = 0;
+		for(int h = 0; h < height; h++){
+			for(int w = 0; w < width; w++){
+				outputPixels[i] = pixels[h][w];
+				i++;
+			}
+		}
+		return outputPixels;
 	}
 
 	private int AssignIntialLabels(int [][] pixels, int m, ArrayList<Set> collisions){
@@ -92,24 +137,25 @@ public class FloodFill {
 						pixels[u][v] = minimum;
 
 						//Sammle Kollisionen
-						for(int t = 0; t < neighbors.size(); t+=2){								
-							Set set = new TreeSet();							
-							set.add((int) neighbors.get(t)); // m							
-							set.add((int) neighbors.get(t+1));
-							if(!collisions.contains(set)){
-								collisions.add(set);
-							}
+						Set set = new TreeSet();							
+
+						for(int t = 0; t < neighbors.size(); t++){								
+							set.add((int) neighbors.get(t)); // m	
+//							set.add((int) neighbors.get(t+1));
+						}
+						if(!collisions.contains(set)){
+							collisions.add(set);
 						}
 					}
 				}
 			}
-		}//Ende Labeling
+		}//Ende Labeling		
 		return m;
 	}
 
 	private int [] getRGBColors(Set [] set){
 
-		int colorCounter = 2;
+		int colorCounter = 0;
 		for(int i = 2; i < set.length; i++){
 			if(!set[i].isEmpty()) colorCounter++;
 		}
@@ -117,7 +163,7 @@ public class FloodFill {
 		int [] colors = new int [set.length];
 				
 		Color.HSBtoRGB(1.0f, 1.0f, 1.0f);
-		float diff = 1.0f / (colorCounter -2);
+		float diff = 1.0f / (colorCounter);
 		
 		for(int i = 2; i < set.length; i++){
 			if(!set[i].isEmpty()){
@@ -125,8 +171,33 @@ public class FloodFill {
 			}
 		}
 		
-//		float[] hsv = new float[3];
-//		Color.RGBtoHSB(r,g,b,hsv);
+		return colors;
+	}
+	
+	private int [] getRGBColorsRandom(Set [] set){
+		
+		int [] colors = new int [set.length];
+		
+		for(int i = 2; i < set.length; i++){
+			if(!set[i].isEmpty()){
+				colors[i] = Color.HSBtoRGB( (float) Math.random(), 1.0f, 1.0f);
+			}
+		}
+		
+		return colors;
+	}
+	
+	
+	private int [] getRGBColors(int max){
+
+		int [] colors = new int [max];
+				
+		Color.HSBtoRGB(1.0f, 1.0f, 1.0f);
+		float diff = 1.0f / (max -2);
+		
+		for(int i = 2; i < max; i++){
+			colors[i] = Color.HSBtoRGB(1.0f - diff * i, 1.0f, 1.0f);
+		}
 		
 		return colors;
 	}
@@ -146,14 +217,19 @@ public class FloodFill {
 			for(int v = 0; v < labeledPixels[u].length; v++){
 				
 				int value = labeledPixels[u][v];
-				
+								
 				if(value > 1){
-				
+									
 					for(int i = 2; i < sortedLabels.length; i++){
 					
 						//Sollte der Wert im jeweiligen Set enthalten sein, hole Farbwert im Bezug zum Set-Index.
-						if(sortedLabels[i].contains(value)) labeledPixels[u][v] = colors[i];
-					}
+						if(sortedLabels[i].contains(value)){
+							
+							labeledPixels[u][v] = colors[i];
+						} 					
+					}					
+				}else{
+					labeledPixels[u][v] = 0xffffffff;
 				}
 			}
 		}		
@@ -164,24 +240,19 @@ public class FloodFill {
 	 * @return den kleinsten Eintrag in der Liste*/
 	private int findMinimum(ArrayList list){
 		
-		int minimum = 2;
-		
-		for(int i = 0; i < list.size(); i++){
-			
-			if(minimum >= (int) list.get(i)){
-				minimum = (int) list.get(i);
-			}
-		}		
+		int minimum = 0;
+		Collections.sort(list);		
+		minimum =  (int) list.iterator().next();
 		return minimum;
 	}
-	
+	/*
 	/**Durchsucht die vorhandenen Kollisionen ob ein bestimmter Wert wieder in anderen Sets gefunden wird.
 	 * Sollten andere Wertepaare mit dem gesuchten Wert existieren, werden diese vermerkt und gesaausgegeben.
 	 * Bei einer passenden Kollision wird jene aus der Gesamt-Kollisionsliste entfernt.
 	 * @param collisions Alle vorhandenen Kollisionen
 	 * @param vec Kollisionsvector für alle Labels
 	 * @param searchedLabel Das Label welches durchsucht wird
-	 * @return eine Liste für alle gefundenen Partner*/
+	 * @return eine Liste für alle gefundenen Partner
 	private ArrayList findLabels(ArrayList<Set> collisions, Set [] vec, int searchedLabel){
 		
 		ArrayList matchedPartners = new ArrayList();
@@ -200,17 +271,20 @@ public class FloodFill {
 				if(first == searchedLabel){
 					matchedPartners.add(maximum);
 					collisions.remove(i);					
-					vec[maximum].remove(maximum);
+					vec[maximum].remove(maximum);					
+					matchedPartners.addAll(findLabels(collisions, vec, maximum));
 				}
 				else if(second == searchedLabel){
 					matchedPartners.add(minimum);
 					collisions.remove(i);
 					vec[minimum].remove(minimum);
+					matchedPartners.addAll(findLabels(collisions, vec, minimum));
 				}
 			}
 		}
 		return matchedPartners;
 	}
+	*/
 	
 	/**Löst Kollisionen zwischen Labels auf und gibt am Ende einen Set-Vektor zurück.
 	 * @param maxLabel Die maximal erreichte Labelnummer (m). 
@@ -224,35 +298,31 @@ public class FloodFill {
 			set.add(i);
 			vec[i] = set;			
 		}		
-
-		while(!collisions.isEmpty()){
-
-			Iterator collIterator = collisions.iterator();		
-			Set oneCollision = (Set) collIterator.next();	
-			Iterator it = oneCollision.iterator();
-			
-			int first = (int) it.next();
-			int second = (int) it.next();
-			
-			int minimum = first < second ? first : second;
-			int maximum = first > second ? first : second;
-			
-			if(!vec[minimum].contains(maximum)){
-				vec[minimum].add(maximum);
-			}
-			collisions.remove(oneCollision);
-			vec[maximum].remove(maximum);
-			
-			//Finde alle CollisionsPartner von Maximum und übertrage nach Minimum
-			ArrayList collisionPartners = findLabels(collisions, vec, maximum);
-			
-			for(int j = 0; j < collisionPartners.size(); j++){
-				vec[minimum].add(collisionPartners.get(j));
-			}
-		}
 				
+		for(int i = 0; i < collisions.size(); i++){
+			
+			Iterator tempIterator = collisions.get(i).iterator();
+			int lA = (int) tempIterator.next();
+			int lB = (int) tempIterator.next();
+			
+			Set rA = null;
+			Set rB = null;
+			
+			for(int j = 2; j < vec.length; j++){
+				
+				if(vec[j].contains(lA)) rA = vec[j];
+				if(vec[j].contains(lB)) rB = vec[j];				
+			}
+						
+			if(rA != rB){
+				rA.addAll(rB);
+				rB.removeAll(rB);
+			}
+		}		
 		return vec;
 	}
+
+	
 	
 	/**Prüft von einer Pixel-Position die Nachbarpixel mit einer 8er Nachbarschaft.
 	 * Gesammelt werden hierbei alle Nachbarn die ein Label > 1 besitzen.
@@ -270,7 +340,7 @@ public class FloodFill {
 		if(u-1 >= 0 && v-1 >= 0){
 			if(pixels[u-1][v-1] > 1){
 //				next = next > pixels[u-1][v-1] ? next : pixels[u-1][v-1];
-				neighbor = pixels[u-1][v-1];	
+				neighbor = pixels[u-1][v-1];
 				if (!foundNeighbors.contains(neighbor)) foundNeighbors.add(neighbor);
 			}
 		}
@@ -307,8 +377,11 @@ public class FloodFill {
 
 		int [][] labledPixels = prepareBinaryImage(pixels, width, height);
 		
+		
 		if(mode == FillMode.SEQUENTIAL){
-			SequentialLabeling(labledPixels, width, height);
+			int [] seqPixels = SequentialLabeling(labledPixels, width, height);			
+			System.arraycopy(seqPixels, 0, pixels, 0, seqPixels.length);
+
 //			printResults(labledPixels);
 			return;
 		}		
