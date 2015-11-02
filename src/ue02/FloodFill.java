@@ -24,8 +24,7 @@ import java.util.TreeSet;
 import javax.imageio.ImageIO;
 import javax.swing.plaf.synth.Region;
 
-import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
+
 
 //authors: 	André Vallentin
 //			Jakob Warnow
@@ -61,6 +60,7 @@ public class FloodFill {
 	private int[] SequentialLabeling(int [][] pixels, int width, int height){
 		
 		ArrayList<Set> collisions = new ArrayList();
+		long timeStart = System.nanoTime();
 		int m = 2;
 		m = AssignIntialLabels(pixels, m, collisions);
 
@@ -97,7 +97,8 @@ public class FloodFill {
 		int [] colors = getRGBColorsRandom(resolvedLabels);
 	
 		RelabelTheImage(pixels, resolvedLabels, colors);
-		PrintPicture(pixels, width, height, "out_color" );
+//		PrintPicture(pixels, width, height, "out_color" );
+		
 
 		int outputPixels[] = new int [width * height];
 		int i = 0;
@@ -379,9 +380,11 @@ public class FloodFill {
 		
 		
 		if(mode == FillMode.SEQUENTIAL){
-			int [] seqPixels = SequentialLabeling(labledPixels, width, height);			
+			long timeStart = System.nanoTime();
+			int [] seqPixels = SequentialLabeling(labledPixels, width, height);		
+			long timeStop = System.nanoTime();
 			System.arraycopy(seqPixels, 0, pixels, 0, seqPixels.length);
-
+			System.out.println("Time: " + (timeStop-timeStart));
 //			printResults(labledPixels);
 			return;
 		}		
