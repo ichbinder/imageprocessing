@@ -45,12 +45,18 @@ public class FloodFill {
 	
 	private void SequentialLabeling(int [][] pixels){
 		
-		int m = 2;
 //		Set<Set> c = new TreeSet<Set>();		
 		TreeSet c = new TreeSet();
 		HashMap coll = new HashMap();
 		ArrayList<Set> collisions = new ArrayList();
+		int m = 2;
+		m = AssignIntialLabels(pixels, m, collisions);
+		printResults(pixels);
+		ResolveLabelCollisions(m, collisions);
+	}
 
+	private int AssignIntialLabels(int [][] pixels, int m, ArrayList<Set> collisions){
+		
 		for(int u = 0; u < pixels.length; u++){
 			
 			for(int v = 0; v < pixels[u].length; v++){
@@ -70,22 +76,24 @@ public class FloodFill {
 					}
 					//Wenn mehrere Nachbarn gefunden wurden nehme kleinsten Wert
 					else{
-						int minIndex = neighbors.indexOf(Collections.min(neighbors));
-						pixels[u][v] = (int) neighbors.get(minIndex);
+						
+//						int minIndex = neighbors.indexOf(neighbors.indexOf(Collections.min(neighbors)));
+						int minimum = findMinimum(neighbors);						
+						pixels[u][v] = minimum;
 
 						//Sammle Kollisionen
 						for(int t = 0; t < neighbors.size(); t++){
-
-							if(minIndex != t){
+														
+//							if(minimum != (int) neighbors.get(t)){
 								
 								Set set = new TreeSet();
 								set.add(m);
-								set.add(t);								
+								set.add((int) neighbors.get(t));							
 								
 								if(!collisions.contains(set)){
 									collisions.add(set);
 								}
-								
+								/*
 								if(!coll.containsKey(m)){		
 									coll.put(m, t);
 								}
@@ -100,16 +108,57 @@ public class FloodFill {
 									else{
 										coll.put(t, m);										
 									}
-								}
-							}
+								}*/
+//							}
 						}
 					}
 				}
 			}
+		}//Ende Labeling
+		return m;
+	}
+	
+	private int findMinimum(ArrayList list){
+		
+		int minimum = 2;
+		
+		for(int i = 0; i < list.size(); i++){
+			
+			if(minimum >= (int) list.get(i)){
+				minimum = (int) list.get(i);
+			}
+		}
+		
+		return minimum;
+	}
+	
+	private void ResolveLabelCollisions(int maxLabel, ArrayList<Set> collisions){
+				
+		HashMap map = new HashMap<>();
+		
+		for(int i = 2; i < maxLabel; i++){
+			
+			map.put(i, new TreeSet());
+		}
+		
+		for(int i = 0; i < collisions.size(); i++){
+			
+			int first = (int) collisions.get(i).iterator().next();
+//			collisions.get(i).iterator().
+			/*
+			int second = (int) collisions.get(i).iterator().next();
+			
+			int minimum = first < second ? first : second;
+			int maximum = first > second ? first : second;
+			*/
+			/*
+			Set temp = (Set) map.get(minimum);
+			if(!temp.contains(maximum)){
+				temp.add(maximum);
+				map.remove(maximum);
+			}*/
 		}
 	}
-
-	
 	
 	private ArrayList checkNeighbors(int [][] pixels, int u, int v){
 
@@ -176,7 +225,7 @@ public class FloodFill {
 			}
 		}
 	}
-	
+	/*
 	public static void main(String[] args) {
 		
 		int [] pixels = {0, 0, 255, 0, 255, 0, 255, 0, 0 , 0 ,255, 255, 255, 0, 0, 0, 255};
@@ -186,7 +235,7 @@ public class FloodFill {
 		
 		FloodFill fill = new FloodFill();
 		fill.RegionLabeling(pixels, width, height, FillMode.SEQUENTIAL);
-	}
+	}*/
 	
 	/**Gibt die markierten Pixel-Bereiche aus.
 	 * @param pixels Ein 2 dimensionales Array mit markierten Bereichen*/
