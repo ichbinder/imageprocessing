@@ -41,7 +41,7 @@ public class Binarize extends JPanel {
 	private JComboBox<String> methodList;	// the selected binarization method
 	private JLabel statusLine;				// to print some status text
 
-    private JSlider slider; //to set the binarize percentage value
+//    private JSlider slider; //to set the binarize percentage value
     private JLabel thresholdGUI; // the current threshold value to display
 	final private short maxK = 50; // Maximum number of iterations to find the perfect threshold for the Isodata-Algorithm
 	private JCheckBox checkboxOutline; //Checkbox to enable/disable outline on binarize picture
@@ -89,10 +89,11 @@ public class Binarize extends JPanel {
         	}
         });
         
-        slider = new JSlider(0, 255);
+//        slider = new JSlider(0, 255);
 //        slider.setMinorTickSpacing(25);
-        slider.setMajorTickSpacing(255/2);
-        
+//        slider.setMajorTickSpacing(255/2);
+
+        /*
       //Create the label table
         Hashtable labelTable = new Hashtable();
         labelTable.put( new Integer( 0 ), new JLabel("0") );
@@ -111,7 +112,7 @@ public class Binarize extends JPanel {
 				binarizeImage();
 			}
 		});
-        
+        */
         thresholdGUI = new JLabel("Threshold: ");
         
         checkboxOutline = new JCheckBox("Outline");
@@ -135,14 +136,15 @@ public class Binarize extends JPanel {
         controls.add(methodText, c);
         controls.add(methodList, c);
 //---------------------
+/*        
         JPanel customControl = new JPanel();
         customControl.setLayout(new BoxLayout(customControl, BoxLayout.PAGE_AXIS)); //Vertikal
         customControl.add(slider);
         customControl.add(thresholdGUI);               
 //---------------------
-        
-        controls.add(customControl);
-        controls.add(checkboxOutline);
+*/        
+//        controls.add(customControl);
+//        controls.add(checkboxOutline);
         
         JPanel images = new JPanel(new FlowLayout());
         images.add(srcView);
@@ -232,15 +234,15 @@ public class Binarize extends JPanel {
     		depthFirst.RegionLabeling(dstPixels, width, height);
     		break;
     	case 2: //Sequential Labeling
-    		binarizeToByteRange(dstPixels, slider.getValue());
+    		binarizeToByteRange(dstPixels, 128);
     		sequentialLabeling.SequentialLabeling(dstPixels, width, height);
     		break;
     	}
     	
-    	if(checkboxOutline.isSelected()){    		
+/*    	if(checkboxOutline.isSelected()){    		
     		outline(dstPixels, width, height);
     	}
-    	
+  */  	
 		long time = System.currentTimeMillis() - startTime;
 		   	
         dstView.setPixels(dstPixels, width, height);
