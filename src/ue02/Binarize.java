@@ -31,7 +31,7 @@ public class Binarize extends JPanel {
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
-	private static final String initalOpen = "tools1.png";
+	private static final String initalOpen = "tools.png";
 	
 	private static JFrame frame;
 	
@@ -79,7 +79,7 @@ public class Binarize extends JPanel {
          
         // selector for the binarization method
         JLabel methodText = new JLabel("Methode:");
-        String[] methodNames = {"BreadthFirst", "DepthFirst", "FloodFill-Sequential"};
+        String[] methodNames = {"BreadthFirst", "DepthFirst", "Sequential"};
         
         methodList = new JComboBox<String>(methodNames);
         methodList.setSelectedIndex(0);		// set initial method

@@ -14,10 +14,6 @@ import java.awt.image.DataBufferByte;
 public class DepthFirst {
 
 	private int lengthOfS = 0;
-
-	public static void main(String[] args) throws InterruptedException, IOException {
-		DepthFirst fillJakob = new DepthFirst();
-	}
 	
 	public DepthFirst(){
 		
