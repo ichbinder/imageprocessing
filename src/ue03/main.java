@@ -1,10 +1,45 @@
 package ue03;
 
+import java.awt.Point;
+
 public class main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		
+		int [] array = new int []{0,1,1,1};
+		
+		double arrowDirection = 270;
+		Point [] pixelCoordinates = new Point[] { new Point(1,2), new Point(1,3), new Point(2,2), new Point(2,3)};
+		
+		System.out.println(array[0] + "|" +array[1]);
+		System.out.println(array[2] + "|" +array[3]);
+		
+		main m = new main();
+/*		
+		int [] rotate = m.rotate(90, array);
+		System.out.println("----90");
+		System.out.println(rotate[0] + "|" +rotate[1]);
+		System.out.println(rotate[2] + "|" +rotate[3]);
+		*/
+		System.out.println("----180");
+		
+		int [] rotate2 = m.rotate(180, array);
+		
+		System.out.println(rotate2[0] + "|" +rotate2[1]);
+		System.out.println(rotate2[2] + "|" +rotate2[3]);
+		
+		System.out.println("FORWARD");
+		
+		
+/*		
+		System.out.println("----270");
+		
+		int [] rotate3 = m.rotate(270, array);
+		
+		System.out.println(rotate3[0] + "|" +rotate3[1]);
+		System.out.println(rotate3[2] + "|" +rotate3[3]);
+*/				
 	}
 	
 
@@ -66,6 +101,33 @@ public class main {
 	
 	public void potrace(int[][] pixels, int height, int width) {
 		
+	}
+	
+	private int [] rotate(double degree, int [] input){
+		
+		int [] rotatedArray = new int [4];
+		
+//		System.arraycopy(input, 0, rotatedArray, 0, rotatedArray.length);
+		
+		if(degree == 90){
+			rotatedArray[0] = input[1];
+			rotatedArray[1] = input[3];
+			rotatedArray[2] = input[0];
+			rotatedArray[3] = input[2];			
+		}
+		
+		else if (degree == 180){
+			
+			rotatedArray = rotate(90, input);			
+			rotatedArray = rotate(90, rotatedArray);
+		}
+		else if (degree == 270){
+			
+			rotatedArray = rotate(180, input);			
+			rotatedArray = rotate(90, rotatedArray);			
+		}
+		
+		return rotatedArray;
 	}
 
 }
