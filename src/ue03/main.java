@@ -1,5 +1,8 @@
 package ue03;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class main {
 
 	public static void main(String[] args) {
@@ -65,7 +68,16 @@ public class main {
 	}
 	
 	public void potrace(int[][] pixels, int height, int width) {
+		int[] start = {height, width};
+		Set edge = new HashSet<>();
+		int[] end = {};
 		
+		while (!(start==end)) {
+			if (end[0] > -1 && end[0] < pixels[0].length && end[1] > -1 && end[1] < pixels[1].length
+					&& (pixels[end[0]][end[1]] & 0x00ffffff) == 0) {	
+				
+			}
+		}
 	}
 
 }
