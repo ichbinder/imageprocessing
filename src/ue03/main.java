@@ -12,6 +12,10 @@ import javax.imageio.ImageIO;
 import com.sun.javafx.geom.Vec2d;
 
 public class main {
+	
+	private int arrowDirection = 0;
+	private int[][] pixels;
+
 
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// TODO Auto-generated method stub
@@ -58,7 +62,7 @@ public class main {
 
 	public void RegionLabeling(int[] input, int width, int height) {
 
-		int[][] pixels = prepareBinaryImage(input, width, height);
+		pixels = prepareBinaryImage(input, width, height);
 
 		long timeStart = System.nanoTime();
 
@@ -114,9 +118,8 @@ public class main {
 		vecQueue.add(vg2d);
 
 		while (!(start == end)) {
-			end[0] = x;
-			end[1] = y;
-//			v
+			end[0] = y;
+			end[1] = x;
 				
 				while (arrowDirection != 360) {
 					if (arrowDirection == 0) {
@@ -140,14 +143,11 @@ public class main {
 												
 //						patern = rotate(180, patern);
 						checkPattern(patern, 180);
-						
-						
-						
-						
+												
 					} else if (arrowDirection == 90) {
 						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
-						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
+						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0] + 1][end[1] + 1] + " " + (end[0] + 1) + ":" + (end[1] + 1));
 						
 						patern[1] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
@@ -162,18 +162,33 @@ public class main {
 						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0] - 1][end[1] + 1] + " " + (end[0] - 1) + ":" + (end[1] + 1));
 						
-						patern[1] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
 						
 						checkPattern(patern, 0);
 						
+						patern[2] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
+						patern[3] = pixels[end[0] + 1][end[1] + 1] == -1 ? 0 : 1;
+						patern = rotate(arrowDirection, patern);
+//						checkPatern(patern, arrowDirection);
+					} else if (arrowDirection == 180) {
+						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + end[1]);
+						System.out.println(pixels[end[0] - 1][end[1] + 1] + " " + (end[0] - 1) + ":" + (end[1] + 1));
+						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
+						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
+						
+						patern[0] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
+						patern[1] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
+						patern[2] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
+						patern[3] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
+//						checkPatern(patern, arrowDirection);
 					} else if (arrowDirection == 270) {
-						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
+						System.out.println(pixels[end[0] - 1][end[1] - 1] + " " + (end[0] - 1) + ":" + (end[1] - 1));
 						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0]][end[1] - 1] + " " + (end[0]) + ":" + (end[1] - 1));
-						System.out.println(pixels[end[0] - 1][end[1] - 1] + " " + (end[0] - 1) + ":" + (end[1] - 1));
+						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
 						
+						patern[0] = pixels[end[0] - 1][end[1] - 1] == -1 ? 0 : 1;
 						patern[1] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0] - 1][end[1] - 1] == -1 ? 0 : 1;
@@ -183,26 +198,26 @@ public class main {
 					}
 					arrowDirection = arrowDirection + 90; 
 					
+						patern[3] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
+						patern = rotate(arrowDirection, patern);
+//						checkPatern(patern, arrowDirection);
+					}					
 				}
 //			}
 		}
-	}
 
 	/*
 	 * Patern id:
 	 * 
-	 * |2|3| 
-	 * |0|1|
+	 * |0|1| 
+	 * |2|3|
 	 */
-	
-	
 	private void checkPattern(int[][] pattern, int rotate) {
 		
 		//Rotiere hier erst das Pattern
 		pattern = rotate(rotate, pattern);
 		
-		if (pattern.length != 4) 
-			throw new IllegalArgumentException();
+		if (pattern.length != 4) throw new IllegalArgumentException();
 		
 		//Rechts abbiegen // -> 
 		if (pattern[0][0] == 0 & pattern[0][1] == 0 & pattern[1][0] == 0 & pattern[1][1] == 1) {
