@@ -1,5 +1,6 @@
 package ue03;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.io.File;
@@ -9,6 +10,7 @@ import java.util.Queue;
 
 import javax.imageio.ImageIO;
 
+import com.sun.javafx.geom.Edge;
 import com.sun.javafx.geom.Vec2d;
 
 public class main {
@@ -104,8 +106,17 @@ public class main {
 	
 	public void potrace(int[][] pixels, int x, int y) {
 
-		Queue vecQueue = new LinkedList<Vec2d>();
-		Vec2d vg2d = new Vec2d();		
+		Queue pathQueue = new LinkedList<Point []>();
+
+		Point [] edge = new Point[2];
+
+		Point pS = new Point();
+		Point pE = new Point();
+		
+		edge[0] = pS;
+		edge[1] = pE;
+
+		
 		int[] start = { x, y };
 		int[] end = {0, 0};
 		int arrowDirection = 0;
@@ -113,10 +124,7 @@ public class main {
 		
 		int[][] pattern2D = new int [2][2];
 		
-		vg2d.set(x, y);
 		
-		vecQueue.add(vg2d);
-
 		while (!(start == end)) {
 			end[0] = y;
 			end[1] = x;
