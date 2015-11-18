@@ -10,7 +10,10 @@ public class main {
 
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// TODO Auto-generated method stub
-		File imgFile = new File("/home/jakob/git/imageprocessing/klein.png");
+//		File imgFile = new File("/home/jakob/git/imageprocessing/klein.png");
+		File imgFile = new File("./klein.png");
+		System.out.println(imgFile.getAbsolutePath());
+		
 	    BufferedImage hugeImage = ImageIO.read(imgFile);
 		PixelGrabber pg = new PixelGrabber(hugeImage, 0, 0, hugeImage.getWidth(), hugeImage.getHeight(), false);
 
@@ -151,9 +154,13 @@ public class main {
 	private void checkPatern(int[] patern) {
 		if (patern.length != 4) 
 			throw new IllegalArgumentException();
-		if (patern[0] == 1 & patern[1] == 1 & patern[2] == 0 & patern[3] == 1) {
-			
-		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 0 && patern[3] == 1) {
+		
+		//Rechts abbiegen
+		if (patern[0] == 0 & patern[1] == 0 & patern[2] == 0 & patern[3] == 1) {
+			patern[1] = 2;
+		} 
+		//Gerade aus
+		else if (patern[0] == 0 && patern[1] == 1 && patern[2] == 0 && patern[3] == 1) {
 			
 		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 0 && patern[3] == 1) {
 			
