@@ -7,6 +7,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class main {
+	
+	private int arrowDirection = 0;
+
 
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// TODO Auto-generated method stub
@@ -78,64 +81,69 @@ public class main {
 		System.out.println("Calc Time: " + (timeStop - timeStart));
 	}
 
-	public void potrace(int[][] pixels, int x, int y) {
-		int[] start = { x, y };
+	public void potrace(int[][] pixels, int y, int x) {
+		int[] start = { y, x };
 		int[] end = {0, 0};
-		int arrowDirection = 0;
 		int[] patern = {0, 0, 0, 0};
 
 		while (!(start == end)) {
-			end[0] = x;
-			end[1] = y;
-//			v
+			end[0] = y;
+			end[1] = x;
 				
 				while (arrowDirection != 360) {
 					if (arrowDirection == 0) {
-						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
-						System.out.println(pixels[end[0]][end[1] - 1] + " " + (end[0]) + ":" + (end[1] - 1));
-						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
+						System.out.println(pixels[end[0]][end[1] - 1] + " " + end[0] + ":" + (end[1] - 1));
+						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
 						System.out.println(pixels[end[0] + 1][end[1] - 1] + " " + (end[0] + 1) + ":" + (end[1] - 1));
+						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
 						
-						patern[1] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
-						patern[2] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0] + 1][end[1] - 1] == -1 ? 0 : 1;
+						patern[0] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
+						patern[1] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
+						patern[2] = pixels[end[0] + 1][end[1] - 1] == -1 ? 0 : 1;
+						patern[3] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
 						patern = rotate(180, patern);
 						checkPatern(patern);
 					} else if (arrowDirection == 90) {
 						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
-						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
+						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0] + 1][end[1] + 1] + " " + (end[0] + 1) + ":" + (end[1] + 1));
 						
-						patern[1] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
-						patern[2] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
+						patern[0] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
+						patern[1] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
+						patern[2] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0] + 1][end[1] + 1] == -1 ? 0 : 1;
 						patern = rotate(90, patern);
 						checkPatern(patern);
 					} else if (arrowDirection == 180) {
-						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
-						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
-						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
+						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + end[1]);
 						System.out.println(pixels[end[0] - 1][end[1] + 1] + " " + (end[0] - 1) + ":" + (end[1] + 1));
+						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
+						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
 						
-						patern[1] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
-						patern[2] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
+						patern[0] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
+						patern[1] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
+						patern[2] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
+						patern[3] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
 						checkPatern(patern);
 					} else if (arrowDirection == 270) {
-						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
+						System.out.println(pixels[end[0] - 1][end[1] - 1] + " " + (end[0] - 1) + ":" + (end[1] - 1));
 						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
 						System.out.println(pixels[end[0]][end[1] - 1] + " " + (end[0]) + ":" + (end[1] - 1));
-						System.out.println(pixels[end[0] - 1][end[1] - 1] + " " + (end[0] - 1) + ":" + (end[1] - 1));
+						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
 						
+						patern[0] = pixels[end[0] - 1][end[1] - 1] == -1 ? 0 : 1;
 						patern[1] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0] - 1][end[1] - 1] == -1 ? 0 : 1;
+						patern[3] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
 						patern = rotate(270, patern);
 						checkPatern(patern);
 					}
-					arrowDirection = arrowDirection + 90; 
 					
+					if (arrowDirection == 270)
+						arrowDirection = 0;
+					else
+						arrowDirection = arrowDirection + 90;					
 				}
 //			}
 		}
@@ -144,21 +152,21 @@ public class main {
 	/*
 	 * Patern id:
 	 * 
-	 * |2|3| 
-	 * |0|1|
+	 * |0|1| 
+	 * |2|3|
 	 */
 
 	private void checkPatern(int[] patern) {
 		if (patern.length != 4) 
 			throw new IllegalArgumentException();
-		if (patern[0] == 1 & patern[1] == 1 & patern[2] == 0 & patern[3] == 1) {
-			
-		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 0 && patern[3] == 1) {
-			
-		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 0 && patern[3] == 1) {
-			
-		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 0 && patern[3] == 1) {
-			
+		if (patern[0] == 1 & patern[1] == 1 & patern[2] == 1 & patern[3] == 0) {
+			System.out.println("nach rechts");
+		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 1 && patern[3] == 0) {
+			System.out.println("gradeaus");
+		} else if (patern[0] == 1 && patern[1] == 0 && patern[2] == 0 && patern[3] == 0) {
+			System.out.println("nach links");
+		} else if (patern[0] == 0 && patern[1] == 1 && patern[2] == 0 && patern[3] == 1) {
+			System.out.println("?nach Rechts");
 		}
 	}
 
