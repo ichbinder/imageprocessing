@@ -207,6 +207,7 @@ public class main {
 		//Rechts abbiegen // -> 
 		if (pattern[0][0] == 0 & pattern[0][1] == 0 & pattern[1][0] == 0 & pattern[1][1] == 1) {
 			pattern[0][1] = 2;
+			//Hier steht was.
 		} 
 		//Geradeaus
 		else if (pattern[0][0] == 0 && pattern[0][1] == 1 && pattern[1][0] == 0 && pattern[1][1] == 1) {
