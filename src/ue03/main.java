@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 public class main {
 	
 	private int arrowDirection = 0;
+	private int[][] pixels;
 
 
 	public static void main(String[] args) throws InterruptedException, IOException {
@@ -53,14 +54,14 @@ public class main {
 
 	public void RegionLabeling(int[] input, int width, int height) {
 
-		int[][] pixels = prepareBinaryImage(input, width, height);
+		pixels = prepareBinaryImage(input, width, height);
 
 		long timeStart = System.nanoTime();
 
 		for (int h = 0; h < height; h++) {
 			for (int w = 0; w < width; w++) {
 				if ((pixels[h][w] & 0x00ffffff) == 0) {
-					potrace(pixels, h, w);
+					potrace(h, w);
 				}
 			}
 		}
@@ -81,7 +82,7 @@ public class main {
 		System.out.println("Calc Time: " + (timeStop - timeStart));
 	}
 
-	public void potrace(int[][] pixels, int y, int x) {
+	public void potrace(int y, int x) {
 		int[] start = { y, x };
 		int[] end = {0, 0};
 		int[] patern = {0, 0, 0, 0};
@@ -96,13 +97,13 @@ public class main {
 						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
 						System.out.println(pixels[end[0] + 1][end[1] - 1] + " " + (end[0] + 1) + ":" + (end[1] - 1));
 						System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
-						
+					
 						patern[0] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
 						patern[1] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0] + 1][end[1] - 1] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
-						patern = rotate(180, patern);
-						checkPatern(patern);
+						patern = rotate(arrowDirection, patern);
+						checkPatern(patern, arrowDirection);
 					} else if (arrowDirection == 90) {
 						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
 						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
@@ -113,8 +114,8 @@ public class main {
 						patern[1] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0] + 1][end[1] + 1] == -1 ? 0 : 1;
-						patern = rotate(90, patern);
-						checkPatern(patern);
+						patern = rotate(arrowDirection, patern);
+						checkPatern(patern, arrowDirection);
 					} else if (arrowDirection == 180) {
 						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + end[1]);
 						System.out.println(pixels[end[0] - 1][end[1] + 1] + " " + (end[0] - 1) + ":" + (end[1] + 1));
@@ -125,7 +126,7 @@ public class main {
 						patern[1] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
-						checkPatern(patern);
+						checkPatern(patern, arrowDirection);
 					} else if (arrowDirection == 270) {
 						System.out.println(pixels[end[0] - 1][end[1] - 1] + " " + (end[0] - 1) + ":" + (end[1] - 1));
 						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
@@ -136,14 +137,9 @@ public class main {
 						patern[1] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
 						patern[2] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
 						patern[3] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
-						patern = rotate(270, patern);
-						checkPatern(patern);
-					}
-					
-					if (arrowDirection == 270)
-						arrowDirection = 0;
-					else
-						arrowDirection = arrowDirection + 90;					
+						patern = rotate(arrowDirection, patern);
+						checkPatern(patern, arrowDirection);
+					}					
 				}
 //			}
 		}
@@ -156,7 +152,7 @@ public class main {
 	 * |2|3|
 	 */
 
-	private void checkPatern(int[] patern) {
+	private void checkPatern(int[] patern, int direction) {
 		if (patern.length != 4) 
 			throw new IllegalArgumentException();
 		if (patern[0] == 1 & patern[1] == 1 & patern[2] == 1 & patern[3] == 0) {
