@@ -1,5 +1,7 @@
 package ue03;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
@@ -27,7 +29,7 @@ public class Potrace {
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// TODO Auto-generated method stub
 //		File imgFile = new File("/home/jakob/git/imageprocessing/klein.png");
-		File imgFile = new File("./test.png");
+		File imgFile = new File("./test2.png");
 		System.out.println(imgFile.getAbsolutePath());
 		
 	    BufferedImage hugeImage = ImageIO.read(imgFile);
@@ -41,14 +43,12 @@ public class Potrace {
 	}
 
 	/**
-	 * Bildet ein 1-dimensionales in ein 2-dimensionales Pixel-Array
+	 * Bildet ein 1-dimensionales in ein 2-dimensionales Pixel-Array und setzt Label für Vordergrund- (1) 
+	 * und Hintergrundpixel (0).
 	 * 
-	 * @param src
-	 *            Pixeldaten (1 dim)
-	 * @param width
-	 *            Bildbreite
-	 * @param height
-	 *            Bildhöhe
+	 * @param src Pixeldaten (1 dim)
+	 * @param width Bildbreite
+	 * @param height Bildhöhe
 	 * @return 2-dimensionales Pixel-Array
 	 */
 	private int[][] prepareBinaryImage(int[] src, int width, int height) {
@@ -103,6 +103,8 @@ public class Potrace {
 		
 		return value == -1 ? 0 : 1; 
 	}
+	
+	
 	private void convertPattern(int [][] pattern){
 		
 		for(int i = 0; i < 2; i++){			
@@ -115,99 +117,43 @@ public class Potrace {
 		Queue path = new LinkedList<Point>();
 
 		Point startPoint = new Point(x, y);
-		Point endPoint = new Point(x, y+1);		
-		
-		int[] start = { x, y };
-		
-		int[] end = {0, 0};
-		int arrowDirection = 0;
-//		PathDirection direction = PathDirection.DOWN;
+		Point endPoint = new Point(x, y);		
+
+		direction = PathDirection.RIGHT;
 		
 		int[][] pattern2D = new int [2][2];
 
 		printPixels(pixels);
 		System.out.println("---------------");
 		
-		while (!(startPoint == endPoint)) {
-
-			endPoint = checkPattern(pixels,y,x, endPoint);												
-
+		boolean diffX = false;
+		boolean diffY = false;
+		boolean together = true;
+		
+		do {
+			endPoint = checkPattern(pixels,y,x, endPoint);
 			path.add(endPoint);
-			/*
-			while (arrowDirection != 360) {
-				if(direction == PathDirection.DOWN)
-//				if (arrowDirection == 0) {
-					
-					checkPattern(pixels,y,x, secondPoint);												
-				} 
-			 if (arrowDirection == 90) {
-					System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
-					System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
-					System.out.println(pixels[end[0] + 1][end[1]] + " " + (end[0] + 1) + ":" + (end[1]));
-					System.out.println(pixels[end[0] + 1][end[1] + 1] + " " + (end[0] + 1) + ":" + (end[1] + 1));
-						
-					patern[1] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
-					patern[2] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
-					patern[3] = pixels[end[0] + 1][end[1] + 1] == -1 ? 0 : 1;
-//					patern = rotate(90, patern);
-					checkPattern(patern, 90);
-												
-				} else if (arrowDirection == 180) {
-						System.out.println(pixels[end[0]][end[1]] + " " + end[0] + ":" + end[1]);
-						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
-						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
-						System.out.println(pixels[end[0] - 1][end[1] + 1] + " " + (end[0] - 1) + ":" + (end[1] + 1));
-						
-						patern[2] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
-						
-						checkPattern(patern, 0);
-						
-						patern[2] = pixels[end[0] + 1][end[1]] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0] + 1][end[1] + 1] == -1 ? 0 : 1;
-						patern = rotate(arrowDirection, patern);
-												
-//						checkPatern(patern, arrowDirection);
-				} else if (arrowDirection == 180) {
-						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + end[1]);
-						System.out.println(pixels[end[0] - 1][end[1] + 1] + " " + (end[0] - 1) + ":" + (end[1] + 1));
-						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
-						System.out.println(pixels[end[0]][end[1] + 1] + " " + (end[0]) + ":" + (end[1] + 1));
-						
-						patern[0] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
-						patern[1] = pixels[end[0] - 1][end[1] + 1] == -1 ? 0 : 1;
-						patern[2] = pixels[end[0]][end[1]] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0]][end[1] + 1] == -1 ? 0 : 1;
-//						checkPatern(patern, arrowDirection);
-				} else if (arrowDirection == 270) {
-						System.out.println(pixels[end[0] - 1][end[1] - 1] + " " + (end[0] - 1) + ":" + (end[1] - 1));
-						System.out.println(pixels[end[0] - 1][end[1]] + " " + (end[0] - 1) + ":" + (end[1]));
-						System.out.println(pixels[end[0]][end[1] - 1] + " " + (end[0]) + ":" + (end[1] - 1));
-						System.out.println(pixels[end[0]][end[1]] + " " + (end[0]) + ":" + (end[1]));
-						
-						patern[0] = pixels[end[0] - 1][end[1] - 1] == -1 ? 0 : 1;
-						patern[1] = pixels[end[0] - 1][end[1]] == -1 ? 0 : 1;
-						patern[2] = pixels[end[0]][end[1] - 1] == -1 ? 0 : 1;
-						patern[3] = pixels[end[0] - 1][end[1] - 1] == -1 ? 0 : 1;
-						
-						checkPattern(patern,270);
-				}
-				*/
-			}					
-		}
-
-	/*
-	 * Patern id:
-	 * 
-	 * |0|1| 
-	 * |2|3|
-	 */
+			
+			diffX = false;
+			diffY = false;
+			if(startPoint.x != endPoint.x) diffX = true;
+			if(startPoint.y != endPoint.y) diffY = true;			
+			if(diffX == false &&  diffY == false) together = false;
+			
+		} while (together);
+	}
 	
-/*	
-	pattern2D[0][0] = pixels[y][x-1];
-	pattern2D[0][1] = pixels[y][x];
-	pattern2D[1][0] = pixels[y+1][x];
-	pattern2D[1][1] = pixels[y+1][x+1];	*/
+	private void drawBorder(Queue<Point> path, Graphics g, Color c){
+		
+		//Vor der For-Loop der erste Eintrag
+		Point last = path.poll();
+		for (Point element : path) {
+			
+			Point next = path.poll();	
+			g.drawLine(last.x, last.y, next.x, next.y);
+			last = next;
+		}		
+	}
 
 	private Point getNextPos(Point [] possiblePoints, PathDirection dir){
 		
@@ -217,6 +163,7 @@ public class Potrace {
 		else return possiblePoints[3];
 	}
 	
+	/**BENÖTIGT RANDBEHANDLUNG*/
 	private int [][] createPattern(int [][] pixels, Point currentPoint){
 		
 		int y = currentPoint.y, x = currentPoint.x;
@@ -265,39 +212,7 @@ public class Potrace {
 		points[2] = new Point(x+1, y);// Rechts	
 		points[3] = new Point(x, y+1); //Unten
 
-/*		
-		if(dir == PathDirection.DOWN){
-			
-/*			
-			points[0] = new Point(x-1, y); //Links
-			points[1] = new Point(x, y+1); //Oben
-			points[2] = new Point(x+1, y);// Rechts	
-			points[3] = new Point(x, y-1); //Unten
-*/
-			/*
-			points[0] = new Point(x-1, y);
-			points[1] = new Point(x, y+1);
-			points[2] = new Point(x+1, y);			
-		}
-		else if (dir == PathDirection.LEFT){
-			
-			points[0] = new Point(x, y-1); //Links
-			points[1] = new Point(x-1, y); //Oben
-			points[2] = new Point(x, y+1); //Rechts	
-			points[3] = new Point(x+1, y); //Unten				
-			
-			points[0] = new Point(x, y+1); //Links
-			points[1] = new Point(x-1, y); //Oben
-			points[2] = new Point(x, y-1); //Rechts	
-			points[3] = new Point(x, y-1); //Unten				
 
-		}	
-		else if (dir == PathDirection.UP){
-			
-		}
-		//270
-		else {}
-		*/
 		return points;
 	}
 	
@@ -305,30 +220,23 @@ public class Potrace {
 	private Point checkPattern(int[][] pixels, int y, int x, Point lastPoint) {
 				
 		Point nextPoint = null;
-		//Erzeuge Pattern aus Bildpixeln -> Berücksichtigung mit  Richtung der letzten Kante
-//		int [][] pattern = createPattern(pixels, y, x, direction);
-		
+		//Erzeuge Pattern aus Bildpixeln		
 		int [][] pattern = createPattern(pixels, lastPoint);		
 		printPixels(pattern);
 		
 		Point[] lookupPoints = createLookupPoints(direction,lastPoint);
 		
-		//Rotiere Patten damit Kantenstartpunkt immer unten liegt.		
+		//Rotiere Pattern damit Kantenstartpunkt immer unten liegt.		
 		int rotateAngle = 0;
 		if(direction == PathDirection.RIGHT) rotateAngle = 90;
 		else if(direction == PathDirection.DOWN) rotateAngle = 180;
 		else if(direction == PathDirection.LEFT) rotateAngle = 270;
 		
 		//Rotiere das Pattern
-		pattern = rotate(rotateAngle, pattern);
-						
-		/*
-		pattern2D[0][0] = pixels[y][x-1];
-		pattern2D[0][1] = pixels[y][x];
-		pattern2D[1][0] = pixels[y+1][x];
-		pattern2D[1][1] = pixels[y+1][x+1];	*/
-		
+		pattern = rotate(rotateAngle, pattern);		
 		PathDirection curveAngle = null; //Abbiegerichtung
+		
+		//--------- Prüfabfragen müssen Randbehandlung (weniger Pixel zum Vergleichen) behandeln
 		
 		//Rechts abbiegen
 		if (pattern[0][0] == 1 & pattern[0][1] == 1 & pattern[1][0] == 1 & pattern[1][1] == 0) {			
@@ -345,10 +253,12 @@ public class Potrace {
 		
 			curveAngle = PathDirection.LEFT;
 		} 		
-		else if (pattern[0][0] == 0 && pattern[0][1] == 0 && pattern[1][0] == 1 && pattern[1][1] == 0) {
+		else {
+//		else if (pattern[0][0] == 0 && pattern[0][1] == 0 && pattern[1][0] == 1 && pattern[1][1] == 0) {
 			
-			//Noch kein Plan
-		}		
+			//Wieder rechts abbiegen weil Regel -> Immer rechts
+			curveAngle = PathDirection.RIGHT;
+		}
 
 		//Rotiere hier die echte Richung heraus
 		direction = rotateDirection(360-rotateAngle, curveAngle);
@@ -450,6 +360,7 @@ public class Potrace {
 		
 		return directions.get(index);
 	}
+	
 	
 	private void printPixels(int [][] pix){
 		
