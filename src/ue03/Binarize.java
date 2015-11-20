@@ -11,22 +11,26 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.awt.*;
 import java.io.File;
 import java.util.Hashtable;
+
+import java.awt.Dimension;
+import java.awt.image.DataBufferInt;
 
 public class Binarize extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final int border = 10;
-	private static final int maxWidth = 400;
-	private static final int maxHeight = 400;
+	private static final int maxWidth = 600;
+	private static final int maxHeight = 600;
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
 	private static final String initalOpen = "tools.png";
 	
-	private int zoom = 100;
+	private int zoom = 5;
 	
 	
 	private static JFrame frame;
@@ -49,6 +53,7 @@ public class Binarize extends JPanel {
         
         srcView = new ImageView(input);
         srcView.setMaxSize(new Dimension(maxWidth, maxHeight));
+        
        
 		// create an empty destination image
 		dstView = new ImageView(srcView.getImgWidth(), srcView.getImgHeight());
@@ -79,16 +84,16 @@ public class Binarize extends JPanel {
         	}
         });
         
-        slider = new JSlider(0, 255);
-        slider.setMinorTickSpacing(25);
-        slider.setMajorTickSpacing(255/2);
+        slider = new JSlider(0, 100);
+        slider.setMinorTickSpacing(10);
+        slider.setMajorTickSpacing(100/2);
 
         
       //Create the label table
         Hashtable labelTable = new Hashtable();
         labelTable.put( new Integer( 0 ), new JLabel("0") );
-        labelTable.put( new Integer( 128 ), new JLabel("128") );
-        labelTable.put( new Integer( 255 ), new JLabel("255") );
+        labelTable.put( new Integer( 50 ), new JLabel("50") );
+        labelTable.put( new Integer( 100 ), new JLabel("100") );
         slider.setLabelTable( labelTable );
         slider.setPaintTicks(true);        
         slider.setPaintLabels(true);
@@ -96,7 +101,9 @@ public class Binarize extends JPanel {
         slider.addChangeListener(new ChangeListener() {
 			
 			public void stateChanged(ChangeEvent e) {
-				
+				srcView.setZoom(slider.getValue()*0.055);
+				dstView.setZoom(slider.getValue()*0.055);
+				System.out.println(slider.getValue()*0.055);
 				methodList.setSelectedIndex(0);
 				binarizeImage();
 			}
@@ -199,18 +206,25 @@ public class Binarize extends JPanel {
 
 		long startTime = System.currentTimeMillis();
 		
-//    	switch(methodList.getSelectedIndex()) {
-//    	case 0:	// BreathFirst
-//    		breathFirst.RegionLabeling(dstPixels, width, height);   
-//    		break;
-//    	case 1:	// Depth-First
+    	switch(methodList.getSelectedIndex()) {
+    	case 0:	// BreathFirst
+//	        int[] srcPixels2 = srcView.getPixels();
+//	        BufferedImage originalImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//	        int[] pixel = ((DataBufferInt) originalImage.getRaster().getDataBuffer()).getData();
+//	        System.arraycopy(srcPixels2, 0, pixel, 0, srcPixels2.length);
+//    		srcView.zoom(originalImage., srcView.getImgWidth()+100, srcView.getImgHeight()+100);  
+    		break;
+    	case 1:	// Depth-First
+
+    		srcView.setZoom(1.5);
+    				    		    
 //    		depthFirst.RegionLabeling(dstPixels, width, height);
-//    		break;
+    		break;
 //    	case 2: //Sequential Labeling
 //    		binarizeToByteRange(dstPixels, 128);
 //    		sequentialLabeling.SequentialLabeling(dstPixels, width, height);
 //    		break;
-//    	}
+    	}
     	
 /*    	if(checkboxOutline.isSelected()){    		
     		outline(dstPixels, width, height);
@@ -220,7 +234,8 @@ public class Binarize extends JPanel {
 		   	
         dstView.setPixels(dstPixels, width, height);
         
-        dstView.setPixels(dstView.getPixels(), width*zoom, height*zoom);
+        
+        
         //dstView.saveImage("out.png");
     	
         frame.pack();

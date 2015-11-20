@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.io.File;
 
 import javax.imageio.ImageIO;
@@ -31,6 +32,7 @@ public class ImageView extends JScrollPane{
 	private double maxViewMagnification = 1.0;		// use 0.0 to disable limits 
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
+	private double zoom = 1;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -62,6 +64,11 @@ public class ImageView extends JScrollPane{
 
 	public int getImgHeight() {
 		return screen.image.getHeight();
+	}
+	
+	public void setZoom(double zoom) {
+		this.zoom = zoom;
+		screen.revalidate();
 	}
 	
 	public void resetToSize(int width, int height) {
@@ -112,7 +119,6 @@ public class ImageView extends JScrollPane{
 		}
 		
 		screen.image.setRGB(0, 0, width, height, pix, 0, width);
-		
 		if(pixels != null && pix != pixels) {
 			// update internal pixels array
 			System.arraycopy(pix, 0, pixels, 0, Math.min(pix.length, pixels.length));
@@ -238,6 +244,10 @@ public class ImageView extends JScrollPane{
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
+					maxWidth = (int) (maxWidth * zoom);
+					maxHeight = (int) (maxHeight * zoom);
+					System.out.println(maxWidth);
+					System.out.println(maxHeight);
 					
 					if(r.width  > maxWidth) r.width = maxWidth;
 					if(r.height  > maxHeight) r.height = maxHeight;
@@ -278,7 +288,7 @@ public class ImageView extends JScrollPane{
 		
 		public Dimension getPreferredSize() {
 			if(image != null) 
-				return new Dimension(image.getWidth(), image.getHeight());
+				return new Dimension((int) (image.getWidth() * zoom), (int) (image.getHeight() * zoom));
 			else
 				return new Dimension(100, 60);
 		}
