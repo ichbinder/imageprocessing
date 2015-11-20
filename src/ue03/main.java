@@ -9,7 +9,6 @@ import java.util.Queue;
 
 import javax.imageio.ImageIO;
 
-import com.sun.javafx.geom.Vec2d;
 
 public class main {
 	
@@ -103,19 +102,13 @@ public class main {
 	}
 	
 	public void potrace(int[][] pixels, int x, int y) {
-
-		Queue vecQueue = new LinkedList<Vec2d>();
-		Vec2d vg2d = new Vec2d();		
+	
 		int[] start = { x, y };
 		int[] end = {0, 0};
 		int arrowDirection = 0;
 		int[] patern = {0, 0, 0, 0};		
 		
 		int[][] pattern2D = new int [2][2];
-		
-		vg2d.set(x, y);
-		
-		vecQueue.add(vg2d);
 
 		while (!(start == end)) {
 			end[0] = y;
