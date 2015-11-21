@@ -32,7 +32,7 @@ public class ImageView extends JScrollPane{
 	private double maxViewMagnification = 1.0;		// use 0.0 to disable limits 
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
-	private double zoom = 1;
+	private double zoom = 1.0;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -43,8 +43,21 @@ public class ImageView extends JScrollPane{
 		init(bi, true);
 	}
 	
+	public ImageView(int width, int height, double zoom) {
+		this.zoom = zoom;
+		// construct empty image of given size
+		BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		init(bi, true);
+	}	
+
 	public ImageView(File file) {
 		// construct image from file
+		loadImage(file);
+	}
+	
+	public ImageView(File file, double zoom) {
+		this.zoom = zoom;
 		loadImage(file);
 	}
 	
@@ -53,9 +66,26 @@ public class ImageView extends JScrollPane{
 		maxSize = new Dimension(dim);
 		
 		Dimension size = new Dimension(maxSize);
-		if(size.width - borderX > screen.image.getWidth()) size.width = screen.image.getWidth() + borderX;
-		if(size.height - borderY > screen.image.getHeight()) size.height = screen.image.getHeight() + borderY;
+		if(size.width - borderX > screen.image.getWidth()) 
+			size.width = screen.image.getWidth() + borderX;
+		if(size.height - borderY > screen.image.getHeight()) 
+			size.height = screen.image.getHeight() + borderY;
 		setPreferredSize(size);
+	}
+	
+	public void setMinSize(int width, int height) {
+		// resize image and erase all content
+		if(width == getImgWidth() && height == getImgHeight()) return;
+		
+		Dimension size = new Dimension(maxSize);
+		if(size.width - borderX > width) 
+			size.width = width + borderX;
+		if(size.height - borderY > height) 
+			size.height = height + borderY;
+		setPreferredSize(size);
+
+		screen.invalidate();
+		screen.repaint();
 	}
 	
 	public int getImgWidth() {
@@ -69,6 +99,7 @@ public class ImageView extends JScrollPane{
 	public void setZoom(double zoom) {
 		this.zoom = zoom;
 		screen.revalidate();
+		screen.repaint();
 	}
 	
 	public void resetToSize(int width, int height) {
@@ -80,8 +111,10 @@ public class ImageView extends JScrollPane{
 		screen.image.getRGB(0, 0, getImgWidth(), getImgHeight(), pixels, 0, getImgWidth());
 		
 		Dimension size = new Dimension(maxSize);
-		if(size.width - borderX > width) size.width = width + borderX;
-		if(size.height - borderY > height) size.height = height + borderY;
+		if(size.width - borderX > width) 
+			size.width = width + borderX;
+		if(size.height - borderY > height) 
+			size.height = height + borderY;
 		setPreferredSize(size);
 
 		screen.invalidate();
@@ -125,8 +158,10 @@ public class ImageView extends JScrollPane{
 		}
 		
 		Dimension size = new Dimension(maxSize);
-		if(size.width - borderX > width) size.width = width + borderX;
-		if(size.height - borderY > height) size.height = height + borderY;
+		if(size.width - borderX > width) 
+			size.width = width + borderX;
+		if(size.height - borderY > height) 
+			size.height = height + borderY;
 		setPreferredSize(size);
 
 		screen.invalidate();
@@ -212,8 +247,10 @@ public class ImageView extends JScrollPane{
 				
 		maxSize = new Dimension(getPreferredSize());
 		
-		if(borderX < 0) borderX = maxSize.width - bi.getWidth();
-		if(borderY < 0) borderY = maxSize.height - bi.getHeight();
+		if(borderX < 0) 
+			borderX = maxSize.width - bi.getWidth();
+		if(borderY < 0) 
+			borderY = maxSize.height - bi.getHeight();
 		
 		if(clear) clearImage();
 		
@@ -240,12 +277,13 @@ public class ImageView extends JScrollPane{
 			if (image != null) {
 				Rectangle r = this.getBounds();
 								
+//				image.getScaledInstance(image.getHeight() * (int)zoom, image.getWidth() * (int)zoom, Image.SCALE_DEFAULT);
 				// limit image view magnification
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
-					maxWidth = (int) (maxWidth * zoom);
-					maxHeight = (int) (maxHeight * zoom);
+					maxWidth = (int) ((int) maxWidth * zoom);
+					maxHeight = (int) ((int) maxHeight * zoom);
 					System.out.println(maxWidth);
 					System.out.println(maxHeight);
 					
@@ -269,14 +307,16 @@ public class ImageView extends JScrollPane{
 				// set background for regions not covered by image
 				if(r.height < getBounds().height) {
 					g.setColor(SystemColor.window);
-					if(centered) offsetY = (getBounds().height - r.height)/2;
+					if(centered) 
+						offsetY = (getBounds().height - r.height)/2;
 					g.fillRect(0, 0, getBounds().width, offsetY);
 					g.fillRect(0, r.height + offsetY, getBounds().width, getBounds().height - r.height - offsetY);
 				}
 				
 				if(r.width < getBounds().width) {
 					g.setColor(SystemColor.window );
-					if(centered) offsetX = (getBounds().width - r.width)/2;
+					if(centered) 
+						offsetX = (getBounds().width - r.width)/2;
 					g.fillRect(0, offsetY, offsetX, r.height);
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
