@@ -101,7 +101,7 @@ public class Binarize extends JPanel {
         
         
 //        magnification = new JSlider(JSlider.HORIZONTAL,10,10000,10);
-        magnification = new JSlider(JSlider.HORIZONTAL,10,100,10);
+        magnification = new JSlider(JSlider.HORIZONTAL,10,1000,10);
 
         magnification.setMinorTickSpacing(1); //Abstände im Feinraster
         magnification.setMajorTickSpacing(10);

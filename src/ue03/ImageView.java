@@ -389,9 +389,10 @@ public class ImageView extends JScrollPane{
 				if ((outsidePath != null || insidePath != null) && (!outsidePath.isEmpty())) {
 					Point lastPoint = outsidePath.poll();
 					g2d.setColor(Color.RED);
+					g2d.setStroke(new BasicStroke(5));
 					while (!outsidePath.isEmpty()) {
 						Point nextPoint = outsidePath.poll();
-						g2d.draw(new Line2D.Double(lastPoint.x*zoom, lastPoint.y*zoom, nextPoint.x*zoom, nextPoint.y*zoom));
+						g2d.draw(new Line2D.Double(offsetX+lastPoint.x*zoom, offsetY+lastPoint.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
 						lastPoint = nextPoint;
 					}
 					
