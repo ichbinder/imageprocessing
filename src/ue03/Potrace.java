@@ -92,9 +92,9 @@ public class Potrace {
 					
 					Point startPoint = new Point(w, h);
 					//Prüft ob der gefundene Punkt schon enthalten ist
-					if(!allPoints.contains(startPoint)){ 
+//					if(!allPoints.contains(startPoint)){ 
 						potrace(pixels, h, w, height, width);
-					}
+//					}
 				}
 			}
 		}
@@ -119,6 +119,19 @@ public class Potrace {
 	    return 0xFF000000 | Red | Green | Blue; //0xFF000000 for 100% Alpha. Bitwise OR everything together.
 	}
 	
+	private Queue<Point> copyPath(Queue<Point> ori){
+		
+		Queue<Point> copy = new LinkedList<Point>();
+		
+		for(Point p : ori){
+			
+			copy.add(p);
+		}
+		
+		return copy;
+	}
+	
+	
 	public void potrace(int[][] pixels, int y, int x, int h, int w) {
 
 		Queue<Point> outerPath = findPath(pixels, x, y);
@@ -130,8 +143,9 @@ public class Potrace {
 		
 		//Copy Pixels		
 		int [][] insidePixels = copyPixels(pixels, h, w);
+		
+		Queue<Point> outCopy = copyPath(outerPath);		
 		retrieveInsidePixels(outerPath, insidePixels);
-
 		
 		for(int i = 0; i < h; i++){
 			
@@ -146,6 +160,8 @@ public class Potrace {
 				}
 			}
 		}		
+		setLabelForFoundPixels(outCopy, pixels);
+
 	}
 	
 	private int [][] copyPixels(int [][] original, int h, int w){
@@ -210,6 +226,36 @@ public class Potrace {
 			collect.add(p);
 		}		
 	}
+	
+	
+	private void setLabelForFoundPixels(Queue<Point> path, int [][] pixels){
+
+		Queue<Point> collect = new LinkedList<Point>();
+		Point lastPoint = path.poll();
+		int lastY = lastPoint.y;
+		
+		collect.add(lastPoint);
+		while(!path.isEmpty()){
+
+			Point p = path.poll();
+			if(p.y > lastY){
+				setLabelLine(pixels, p.x, lastY);
+			}
+			else if(p.y < lastY){
+				setLabelLine(pixels, p.x, p.y);
+			}
+			lastY = p.y;
+			collect.add(p);
+		}
+	}
+
+	private void setLabelLine(int [][] pixels, int x, int y){
+		
+		for(int i = x; i < pixels[y].length; i++){	
+			if(pixels[y][i] == 1) pixels[y][i] = 2;
+		}
+	}
+
 	
 	private void invertLine(int [][] pixels, int x, int y){
 		
@@ -368,7 +414,6 @@ public class Potrace {
 			System.out.println();
 		}
 		System.out.println("---------------");
-
 	}		
 	
 	public void resetPaths(){
