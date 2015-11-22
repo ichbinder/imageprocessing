@@ -47,6 +47,7 @@ public class Binarize extends JPanel {
 	private JLabel statusLine; // to print some status text
 	
 	private JCheckBox drawPaths;
+	private JCheckBox grit;
 	
 	private Potrace potrace;
 	
@@ -154,10 +155,17 @@ public class Binarize extends JPanel {
             	binarizeImage();
             }
           });
+        grit = new JCheckBox("Show grit");
+        grit.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	binarizeImage();
+            }
+          });
         
         
         southControls.setLayout(new BoxLayout(southControls, BoxLayout.PAGE_AXIS)); //Vertikal
         southControls.add(drawPaths);
+        southControls.add(grit);
         southControls.add(statusLine);
         
 //        add(statusLine, BorderLayout.SOUTH);
@@ -238,6 +246,11 @@ public class Binarize extends JPanel {
 			potrace.RegionLabeling(dstPixels, width, height);
 //			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
 //	        dstView.setPixels(pathPics, width, height);
+		}
+		if(grit.isSelected()){
+			dstView.setGrit(true);
+		} else {
+			dstView.setGrit(false);
 		}
         dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
 
