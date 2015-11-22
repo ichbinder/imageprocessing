@@ -16,12 +16,18 @@ import javax.imageio.ImageIO;
 
 public class Potrace {
 	
-	private int arrowDirection = 0;
 	private int[][] pixels;
 
+	public Queue<Point> paths;
 	public enum PathDirection {LEFT, RIGHT, UP, DOWN};
 	
-	private PathDirection direction = PathDirection.DOWN;
+	private PathDirection direction;
+	
+	public Potrace(){
+		direction = PathDirection.RIGHT;
+		paths = new LinkedList<Point>();
+	}
+	
 	
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// TODO Auto-generated method stub
@@ -68,13 +74,12 @@ public class Potrace {
 	public void RegionLabeling(int[] input, int width, int height) {
 
 		pixels = prepareBinaryImage(input, width, height);
-
 		long timeStart = System.nanoTime();
 
 		for (int h = 0; h < height; h++) {
 			for (int w = 0; w < width; w++) {
 				if (pixels[h][w] == 1) {
-					potrace(pixels, h, w);
+					potrace(pixels, h, w, height, width);
 				}
 			}
 		}
@@ -84,14 +89,12 @@ public class Potrace {
 		for (int h = 0; h < height; h++) {
 			for (int w = 0; w < width; w++) {
 
-				outputPixels[i] = pixels[h][w];
+				outputPixels[i] = pixels[h][w+1];
 				i++;
 			}
 		}
 		System.arraycopy(outputPixels, 0, input, 0, input.length);
-
 		long timeStop = System.nanoTime();
-
 		System.out.println("Calc Time: " + (timeStop - timeStart));
 	}
 
@@ -101,7 +104,6 @@ public class Potrace {
 		return value == -1 ? 0 : 1; 
 	}
 	
-	
 	private void convertPattern(int [][] pattern){
 		
 		for(int i = 0; i < 2; i++){			
@@ -109,17 +111,42 @@ public class Potrace {
 		}
 	}
 	
-	public void potrace(int[][] pixels, int y, int x) {
+	public void potrace(int[][] pixels, int y, int x, int h, int w) {
 
-		Queue path = new LinkedList<Point>();
-
+		Queue<Point> outerPath = findPath(pixels, x, y);
+		
+		//Copy Pixels		
+		int [][] insidePixels = copy2DPicture(pixels, h, w);
+		retrieveInsidePixels(outerPath, insidePixels);	
+		printPixels(pixels);
+		
+				
+		Queue<Point> insidePath = findPath(insidePixels, x, y);
+		
+		
+	}
+	
+	public int [][] copy2DPicture(int [][] original, int h, int w){
+		
+		int [][] copy = new int [h][w];
+		
+		for(int i = 0; i < h; i++){
+			
+			for(int j = 0; j < w; j++){
+				System.arraycopy(copy[i], 0, original[i], 0, original.length);
+			}
+		}
+		
+		return copy;
+	}
+	
+	private Queue<Point> findPath(int [][] pixels, int x, int y){
+		
+		Queue<Point> path = new LinkedList<Point>();
 		Point startPoint = new Point(x, y);
 		Point endPoint = new Point(x, y);		
 
-		direction = PathDirection.RIGHT;
-		
-		int[][] pattern2D = new int [2][2];
-
+		path.add(startPoint);
 		printPixels(pixels);
 		System.out.println("---------------");
 		
@@ -138,16 +165,50 @@ public class Potrace {
 			if(diffX == false &&  diffY == false) together = false;
 			
 		} while (together);
+
+		return path;
 	}
 	
-	private void drawBorder(Queue<Point> path, Graphics g, Color c){
+	private void retrieveInsidePixels(Queue<Point> path, int [][] pixels){
+
+		Queue<Point> collect = new LinkedList<Point>();
+		Point lastPoint = path.poll();
+		int lastY = lastPoint.y;
+		
+		collect.add(lastPoint);
+		while(!path.isEmpty()){
+
+			Point p = path.poll();
+			if(p.y > lastY){
+				invertLine(pixels, p.x, lastY);
+				
+//				invertLine(pixels, p.x, p.y - lastY);
+			}
+			else if(p.y < lastY){
+				invertLine(pixels, p.x, p.y);
+			}
+			lastY = p.y;
+			collect.add(p);
+		}		
+	}
+	
+	private void invertLine(int [][] pixels, int x, int y){
+		
+		for(int i = x; i < pixels[y].length; i++){	
+			
+			if(pixels[y][i] == 1) pixels[y][i] = 0;
+			else pixels[y][i] = 1;
+		}
+	}
+	
+	private void drawBorder(Queue<Point> path, int [][] outputPixels, Color c){
 		
 		//Vor der For-Loop der erste Eintrag
 		Point last = path.poll();
 		for (Point element : path) {
 			
-			Point next = path.poll();	
-			g.drawLine(last.x, last.y, next.x, next.y);
+			Point next = path.poll();
+			
 			last = next;
 		}		
 	}
@@ -369,5 +430,15 @@ public class Potrace {
 		}
 		System.out.println("---------------");
 
+	}
+	
+	public class DirectionPoint extends Point{
+
+		PathDirection lookingDirection;
+		public DirectionPoint(int x, int y, PathDirection dir){
+			
+			
+		}
+		
 	}
 }

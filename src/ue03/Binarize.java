@@ -14,6 +14,8 @@ import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Binarize extends JPanel {
 	
@@ -25,7 +27,7 @@ public class Binarize extends JPanel {
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
 	private static final String initalOpen = "tools.png";
-	
+		
 	private int zoom = 100;
 	
 	
@@ -38,6 +40,9 @@ public class Binarize extends JPanel {
 	private JLabel statusLine;				// to print some status text
 
     private JSlider slider; //to set the binarize percentage value
+
+    private javax.swing.JCheckBox potraceCB;
+    private Potrace potrace;
 
 	public Binarize() {
         super(new BorderLayout(border, border));
@@ -55,7 +60,7 @@ public class Binarize extends JPanel {
 		dstView.setMaxSize(new Dimension(maxWidth, maxHeight));
 		
 		// load image button
-        JButton load = new JButton("Bild �ffnen");
+        JButton load = new JButton("Bild öffnen");
         load.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		File input = openFile();
@@ -128,12 +133,27 @@ public class Binarize extends JPanel {
         
         add(controls, BorderLayout.NORTH);
         add(images, BorderLayout.CENTER);
-        add(statusLine, BorderLayout.SOUTH);
-                       
-        setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
-        // perform the initial binarization
+
+        potraceCB = new javax.swing.JCheckBox("Potrace", false);
+        potrace = new Potrace();
+
+        potraceCB.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	binarizeImage();
+            }
+          });
 
         
+        JPanel southControls = new JPanel();
+        southControls.setLayout(new BoxLayout(southControls, BoxLayout.PAGE_AXIS)); //Vertikal
+        southControls.add(statusLine);
+        southControls.add(potraceCB);
+        
+//        add(statusLine, BorderLayout.SOUTH);
+        add(southControls, BorderLayout.SOUTH);
+        
+        setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
+        // perform the initial binarization        
         binarizeImage();
 	}
 	
@@ -216,11 +236,17 @@ public class Binarize extends JPanel {
     		outline(dstPixels, width, height);
     	}
   */  	
+		
+		if(potraceCB.isSelected()){ 
+			potrace.RegionLabeling(dstPixels, width, height);
+			Queue<Point> paths = potrace.paths;
+		};
+		
 		long time = System.currentTimeMillis() - startTime;
 		   	
         dstView.setPixels(dstPixels, width, height);
         
-        dstView.setPixels(dstView.getPixels(), width*zoom, height*zoom);
+//        dstView.setPixels(dstView.getPixels(), width*zoom, height*zoom);
         //dstView.saveImage("out.png");
     	
         frame.pack();
