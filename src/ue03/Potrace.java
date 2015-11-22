@@ -9,8 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -19,13 +21,20 @@ public class Potrace {
 	private int[][] pixels;
 
 	public Queue<Point> outSidePaths;
+	public Queue<Point> insidePaths;
+
 	public enum PathDirection {LEFT, RIGHT, UP, DOWN};
 	
 	private PathDirection direction;
 	
+	private Set<Point> allPoints;
+	
+	
 	public Potrace(){
 		direction = PathDirection.RIGHT;
+		allPoints = new HashSet<Point>();
 		outSidePaths = new LinkedList<Point>();
+		insidePaths = new LinkedList<Point>();
 	}
 	
 	
@@ -79,12 +88,17 @@ public class Potrace {
 
 		boolean testStop = false;
 		for (int h = 0; h < height; h++) {
-			if(testStop) break;
+//			if(testStop) break;
 			for (int w = 0; w < width; w++) {
 				if (pixels[h][w] == 1) {
-					potrace(pixels, h, w, height, width);
-					testStop = true;
-					break;
+					
+					Point startPoint = new Point(w, h);
+					if(!allPoints.contains(startPoint)){ 
+						//Prüft ob der gefundene Punkt schon enthalten ist
+						potrace(pixels, h, w, height, width);
+//						testStop = true;
+//						break;
+					}
 				}
 			}
 		}
@@ -100,7 +114,6 @@ public class Potrace {
 		return outputPixels;
 	}
 
-	
 	private int convertToLabeling(int value){
 		
 		return value == -1 ? 0 : 1; 
@@ -121,19 +134,32 @@ public class Potrace {
 		Queue<Point> outerPath = findPath(pixels, x, y);
 		
 		outSidePaths.addAll(outerPath);
+		allPoints.addAll(outerPath);
 		
 		int color = getIntFromColor(255, 0, 0);
 		
-		drawShape(pixels, outSidePaths, color);
+//		drawShape(pixels, outSidePaths, color);
 		
-		
-		/*
 		//Copy Pixels		
 		int [][] insidePixels = copyPixels(pixels, h, w);
-		retrieveInsidePixels(outerPath, insidePixels);	
-		printPixels(pixels);
-		Queue<Point> insidePath = findPath(insidePixels, x, y);				
-		*/
+		retrieveInsidePixels(outerPath, insidePixels);
+
+		
+		for(int i = 0; i < h; i++){
+			
+			for(int j = 0; j < w; j++){
+				if(insidePixels[i][j] == 1){
+					Point insidePoint = new Point(j, i);
+					if(!allPoints.contains(insidePoint)) {
+						Queue<Point> insidePath = findPath(insidePixels, x, y);
+						
+						insidePaths.addAll(insidePath);
+						allPoints.addAll(insidePath);
+					}
+				}
+			}
+		}
+		
 	}
 		
 	private void drawShape(int pixels [][], Queue<Point> path, int color){
@@ -168,9 +194,7 @@ public class Potrace {
 		
 		for(int i = 0; i < h; i++){
 			
-			for(int j = 0; j < w; j++){
-				System.arraycopy(copy[i], 0, original[i], 0, original.length);
-			}
+			System.arraycopy(original[i], 0, copy[i], 0, copy[i].length);
 		}
 		return copy;
 	}
@@ -246,14 +270,15 @@ public class Potrace {
 	}
 	
 	/**BENÖTIGT RANDBEHANDLUNG*/
-	private int [][] createPattern(int [][] pixels, Point currentPoint){
+	private int [][] createPattern(int [][] pixels, Point currentPoint, int width, int height){
 		
 		int y = currentPoint.y, x = currentPoint.x;
 		
 		int pattern2D [][] = new int [2][2];
-		pattern2D[0][0] = pixels[y-1][x-1];
-		pattern2D[0][1] = pixels[y-1][x];
-		pattern2D[1][0] = pixels[y][x-1];
+		
+		if(y-1 >= 0 && x-1 >= 0) pattern2D[0][0] = pixels[y-1][x-1];
+		if(y-1 >= 0) pattern2D[0][1] = pixels[y-1][x];
+		if (x-1 >= 0) pattern2D[1][0] = pixels[y][x-1];
 		pattern2D[1][1] = pixels[y][x];
 
 		return pattern2D;
@@ -303,7 +328,7 @@ public class Potrace {
 				
 		Point nextPoint = null;
 		//Erzeuge Pattern aus Bildpixeln		
-		int [][] pattern = createPattern(pixels, lastPoint);		
+		int [][] pattern = createPattern(pixels, lastPoint, pixels[0].length, pixels.length);		
 		printPixels(pattern);
 		
 		Point[] lookupPoints = createLookupPoints(direction,lastPoint);
@@ -462,7 +487,11 @@ public class Potrace {
 		public DirectionPoint(int x, int y, PathDirection dir){
 			
 			
-		}
+		}		
+	}
+	
+	private void labelingPixelPath(Queue<Point> path, int [][] pixels){
+		
 		
 	}
 }
