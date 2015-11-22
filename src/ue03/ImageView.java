@@ -45,6 +45,7 @@ public class ImageView extends JScrollPane{
 	private double orginalImgH = 0.0;
 	private Queue<Point> outsidePath = new LinkedList<Point>();
 	private Queue<Point> insidePath = new LinkedList<Point>();
+	private boolean grit;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -288,6 +289,10 @@ public class ImageView extends JScrollPane{
 		pixels = null;
 	}
 	
+	public void setGrit(boolean gtit) {
+		this.grit = gtit;
+	}
+	
 	private void updatePixels() {
 		if(pixels != null) screen.image.getRGB(0, 0, getImgWidth(), getImgHeight(), pixels, 0, getImgWidth());
 	}
@@ -391,6 +396,21 @@ public class ImageView extends JScrollPane{
 				}
 
 				setPath(collectOutside, collectInside, false);
+				
+				if (grit) {
+					if (zoom > 1) {
+						for (int i = 0; i < image.getHeight(); i++) {
+							for (int j = 0; j < image.getWidth(); j++) {
+								g2d.setStroke(new BasicStroke(1));
+								g2d.setColor(Color.gray);
+								g2d.drawLine(offsetX+0, (int)(offsetY+i*zoom), (int)(offsetX+image.getWidth()*zoom), (int)(offsetY+i*zoom));
+								g2d.drawLine((int)(offsetX+j*zoom), offsetY+0, (int)(offsetX+j*zoom), (int)(offsetY+image.getHeight()*zoom));
+		
+							}
+						}
+					}
+					
+				}
 				
 				
 				g2d.dispose();
