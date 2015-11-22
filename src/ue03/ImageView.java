@@ -7,10 +7,13 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.io.File;
 
 import javax.imageio.ImageIO;
@@ -31,6 +34,7 @@ public class ImageView extends JScrollPane{
 	private double maxViewMagnification = 1.0;		// use 0.0 to disable limits 
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
+	private double zoom = 1.0;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -41,8 +45,21 @@ public class ImageView extends JScrollPane{
 		init(bi, true);
 	}
 	
+	public ImageView(int width, int height, double zoom) {
+		this.zoom = zoom;
+		// construct empty image of given size
+		BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		init(bi, true);
+	}	
+
 	public ImageView(File file) {
 		// construct image from file
+		loadImage(file);
+	}
+	
+	public ImageView(File file, double zoom) {
+		this.zoom = zoom;
 		loadImage(file);
 	}
 	
@@ -51,9 +68,26 @@ public class ImageView extends JScrollPane{
 		maxSize = new Dimension(dim);
 		
 		Dimension size = new Dimension(maxSize);
-		if(size.width - borderX > screen.image.getWidth()) size.width = screen.image.getWidth() + borderX;
-		if(size.height - borderY > screen.image.getHeight()) size.height = screen.image.getHeight() + borderY;
+		if(size.width - borderX > screen.image.getWidth()) 
+			size.width = screen.image.getWidth() + borderX;
+		if(size.height - borderY > screen.image.getHeight()) 
+			size.height = screen.image.getHeight() + borderY;
 		setPreferredSize(size);
+	}
+	
+	public void setMinSize(int width, int height) {
+		// resize image and erase all content
+		if(width == getImgWidth() && height == getImgHeight()) return;
+		
+		Dimension size = new Dimension(maxSize);
+		if(size.width - borderX > width) 
+			size.width = width + borderX;
+		if(size.height - borderY > height) 
+			size.height = height + borderY;
+		setPreferredSize(size);
+
+		screen.invalidate();
+		screen.repaint();
 	}
 	
 	public int getImgWidth() {
@@ -62,6 +96,12 @@ public class ImageView extends JScrollPane{
 
 	public int getImgHeight() {
 		return screen.image.getHeight();
+	}
+	
+	public void setZoom(double zoom) {
+		this.zoom = zoom;
+		screen.revalidate();
+		screen.repaint();
 	}
 	
 	public void resetToSize(int width, int height) {
@@ -73,8 +113,10 @@ public class ImageView extends JScrollPane{
 		screen.image.getRGB(0, 0, getImgWidth(), getImgHeight(), pixels, 0, getImgWidth());
 		
 		Dimension size = new Dimension(maxSize);
-		if(size.width - borderX > width) size.width = width + borderX;
-		if(size.height - borderY > height) size.height = height + borderY;
+		if(size.width - borderX > width) 
+			size.width = width + borderX;
+		if(size.height - borderY > height) 
+			size.height = height + borderY;
 		setPreferredSize(size);
 
 		screen.invalidate();
@@ -112,15 +154,16 @@ public class ImageView extends JScrollPane{
 		}
 		
 		screen.image.setRGB(0, 0, width, height, pix, 0, width);
-		
 		if(pixels != null && pix != pixels) {
 			// update internal pixels array
 			System.arraycopy(pix, 0, pixels, 0, Math.min(pix.length, pixels.length));
 		}
 		
 		Dimension size = new Dimension(maxSize);
-		if(size.width - borderX > width) size.width = width + borderX;
-		if(size.height - borderY > height) size.height = height + borderY;
+		if(size.width - borderX > width) 
+			size.width = width + borderX;
+		if(size.height - borderY > height) 
+			size.height = height + borderY;
 		setPreferredSize(size);
 
 		screen.invalidate();
@@ -206,8 +249,10 @@ public class ImageView extends JScrollPane{
 				
 		maxSize = new Dimension(getPreferredSize());
 		
-		if(borderX < 0) borderX = maxSize.width - bi.getWidth();
-		if(borderY < 0) borderY = maxSize.height - bi.getHeight();
+		if(borderX < 0) 
+			borderX = maxSize.width - bi.getWidth();
+		if(borderY < 0) 
+			borderY = maxSize.height - bi.getHeight();
 		
 		if(clear) clearImage();
 		
@@ -230,14 +275,20 @@ public class ImageView extends JScrollPane{
 		}
 		
 		public void paintComponent(Graphics g) {
+			 super.paintComponent(g);
 			
 			if (image != null) {
 				Rectangle r = this.getBounds();
 								
+//				image.getScaledInstance(image.getHeight() * (int)zoom, image.getWidth() * (int)zoom, Image.SCALE_DEFAULT);
 				// limit image view magnification
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
+					maxWidth = (int) ((int) maxWidth * zoom);
+					maxHeight = (int) ((int) maxHeight * zoom);
+					System.out.println(maxWidth);
+					System.out.println(maxHeight);
 					
 					if(r.width  > maxWidth) r.width = maxWidth;
 					if(r.height  > maxHeight) r.height = maxHeight;
@@ -259,26 +310,48 @@ public class ImageView extends JScrollPane{
 				// set background for regions not covered by image
 				if(r.height < getBounds().height) {
 					g.setColor(SystemColor.window);
-					if(centered) offsetY = (getBounds().height - r.height)/2;
+					if(centered) 
+						offsetY = (getBounds().height - r.height)/2;
 					g.fillRect(0, 0, getBounds().width, offsetY);
 					g.fillRect(0, r.height + offsetY, getBounds().width, getBounds().height - r.height - offsetY);
 				}
 				
 				if(r.width < getBounds().width) {
 					g.setColor(SystemColor.window );
-					if(centered) offsetX = (getBounds().width - r.width)/2;
+					if(centered) 
+						offsetX = (getBounds().width - r.width)/2;
 					g.fillRect(0, offsetY, offsetX, r.height);
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
 				
+				Graphics2D g2d = (Graphics2D) g.create();
+				
+				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+				// Grit anfang
+				if (zoom > 1) {
+					for (int i = 0; i < image.getHeight(); i++) {
+						for (int j = 0; j < image.getWidth(); j++) {
+//							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom+image.getWidth()), 0);
+							g2d.setStroke(new BasicStroke(1));
+							g2d.drawLine(0, (int)(i*zoom), (int)(image.getWidth()*zoom), (int)(i*zoom));
+							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom), (int)(image.getHeight()*zoom));
+
+//			                g2d.draw(new Line2D.Double(0, (i*zoom), (image.getWidth()*zoom), (i*zoom)));
+						}
+					}
+				}
+				//grit ende
+				
+				g2d.dispose();
+				
 				// draw image
-				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+//				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
 			}
 		}
 		
 		public Dimension getPreferredSize() {
 			if(image != null) 
-				return new Dimension(image.getWidth(), image.getHeight());
+				return new Dimension((int) (image.getWidth() * zoom), (int) (image.getHeight() * zoom));
 			else
 				return new Dimension(100, 60);
 		}
