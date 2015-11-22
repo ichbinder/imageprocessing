@@ -293,8 +293,8 @@ public class ImageView extends JScrollPane{
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(orginalImgW * maxViewMagnification + 0.5);
 					int maxHeight = (int)(orginalImgH * maxViewMagnification + 0.5);
-					maxWidth = (int) ((int) maxWidth * zoom);
-					maxHeight = (int) ((int) maxHeight * zoom);
+//					maxWidth = (int) ((int) maxWidth * zoom);
+//					maxHeight = (int) ((int) maxHeight * zoom);
 					System.out.println(maxWidth);
 					System.out.println(maxHeight);
 					
@@ -332,7 +332,7 @@ public class ImageView extends JScrollPane{
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
 //				 Graphics2D g2d = (Graphics2D) g;
-//				 Graphics2D g2d = (Graphics2D) g.create();
+				 Graphics2D g2d = (Graphics2D) g.create();
 
 			    // Backup original transform
 //			    AffineTransform originalTransform = g2d.getTransform();
@@ -345,13 +345,13 @@ public class ImageView extends JScrollPane{
 
 			    // Restore original transform
 			    
-				Graphics2D g2d = (Graphics2D) g.create();
-				BufferedImage resizedImage = new BufferedImage((int)(r.width), (int)(r.height), BufferedImage.TYPE_INT_RGB);
-			    Graphics2D g2dre = resizedImage.createGraphics();
-			    g2dre.drawImage(image, 0, 0, (int)(r.width), (int)(r.height), null);
-			    image = resizedImage;
-			    System.out.println(zoom+"zoom");
-			    g2dre.dispose();
+//				Graphics2D g2d = (Graphics2D) g.create();
+//				BufferedImage resizedImage = new BufferedImage((int)(r.width), (int)(r.height), BufferedImage.TYPE_INT_RGB);
+//			    Graphics2D g2dre = resizedImage.createGraphics();
+//			    g2dre.drawImage(image, 0, 0, (int)(r.width), (int)(r.height), null);
+//			    image = resizedImage;
+//			    System.out.println(zoom+"zoom");
+//			    g2dre.dispose();
 //			    g2d.setComposite(AlphaComposite.Src);
 //			    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 //			    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -359,7 +359,7 @@ public class ImageView extends JScrollPane{
 
 //			    g2d.translate(panX, panY);
 //				g2d.scale(zoom, zoom);
-				g2d.drawImage(image, offsetX, offsetY, image.getWidth(), image.getHeight(), this);
+				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
 //				g2d.setTransform(originalTransform);
 				// Grit anfang
 //				if (zoom > 1) {
@@ -376,7 +376,7 @@ public class ImageView extends JScrollPane{
 //				}
 				//grit ende
 				
-//				g2d.dispose();
+				g2d.dispose();
 				
 				// draw image
 //				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);

@@ -123,15 +123,15 @@ public class Binarize extends JPanel {
 			
 			public void stateChanged(ChangeEvent e) {
 				
-				currentZoom = magnification.getValue();
+//				currentZoom = magnification.getValue();
 //        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
 //        		dstView.setMinSize(maxWidth, maxHeight);
 
         		//srcView.setZoom(currentZoom);
-        		dstView.setZoom(currentZoom);
+//        		dstView.setZoom(currentZoom);
 //				srcView.setZoom(magnification.getValue()/10);
 //				dstView.setZoom(magnification.getValue()/10);
-				System.out.println(magnification.getValue() + "jojo");
+//				System.out.println(magnification.getValue() + "jojo");
 //				methodList.setSelectedIndex(0);
 				binarizeImage();
 			}
