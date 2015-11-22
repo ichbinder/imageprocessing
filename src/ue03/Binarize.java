@@ -33,7 +33,7 @@ public class Binarize extends JPanel {
 	private static final int maxHeight = 450;
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
-	private static final String author = "Vallentin, Andre, Jakob Warnow";
+	private static final String author = "Vallentin, Andrezz, Jakob Warnow";
 	private static final String initalOpen = "test2.png";	
 	private static final double initalZoom = 1;
 	private static double currentZoom = initalZoom;
@@ -113,7 +113,7 @@ public class Binarize extends JPanel {
 //        markLabels.put(new Integer(60), new JLabel("60x"));
 //        markLabels.put(new Integer(80), new JLabel("80x"));
         markLabels.put(new Integer(100), new JLabel("100x"));
-        markLabels.put(new Integer(1000), new JLabel("1000x"));
+//        markLabels.put(new Integer(1000), new JLabel("1000x"));
 
         magnification.setLabelTable(markLabels);
         magnification.setPaintLabels(true);
@@ -124,14 +124,14 @@ public class Binarize extends JPanel {
 			public void stateChanged(ChangeEvent e) {
 				
 				currentZoom = magnification.getValue();
-        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
-        		dstView.setMinSize(maxWidth, maxHeight);
+//        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
+//        		dstView.setMinSize(maxWidth, maxHeight);
 
         		//srcView.setZoom(currentZoom);
-        		dstView.setZoom(currentZoom);
+        		dstView.setZoom(currentZoom/10);
 //				srcView.setZoom(magnification.getValue()/10);
 //				dstView.setZoom(magnification.getValue()/10);
-//				System.out.println(magnification.getValue()/10);
+				System.out.println(magnification.getValue()/10 + "jojo");
 //				methodList.setSelectedIndex(0);
 				binarizeImage();
 			}

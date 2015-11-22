@@ -6,11 +6,13 @@ package ue03;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.SystemColor;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -286,8 +288,8 @@ public class ImageView extends JScrollPane{
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
-					maxWidth = (int) ((int) maxWidth * zoom);
-					maxHeight = (int) ((int) maxHeight * zoom);
+//					maxWidth = (int) ((int) maxWidth * zoom);
+//					maxHeight = (int) ((int) maxHeight * zoom);
 					System.out.println(maxWidth);
 					System.out.println(maxHeight);
 					
@@ -324,30 +326,51 @@ public class ImageView extends JScrollPane{
 					g.fillRect(0, offsetY, offsetX, r.height);
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
-				
+//				 Graphics2D g2d = (Graphics2D) g;
+//				 Graphics2D g2d = (Graphics2D) g.create();
+
+			    // Backup original transform
+//			    AffineTransform originalTransform = g2d.getTransform();
+
+//			    g2d.translate(r.width/2, r.height/2);
+//			    g2d.scale(zoom, zoom);
+
+			    // paint the image here with no scaling
+//			    g2d.drawImage(img, 0, 0, null);
+
+			    // Restore original transform
+			    
 				Graphics2D g2d = (Graphics2D) g.create();
-				AffineTransform originalTransform = g2d.getTransform();
+				BufferedImage resizedImage = new BufferedImage((int)(r.width*zoom), (int)(r.height*zoom), BufferedImage.TYPE_INT_RGB);
+			    Graphics2D g2dre = resizedImage.createGraphics();
+			    g2dre.drawImage(image, 0, 0, (int)(r.width*zoom), (int)(r.height*zoom), null);
+			    image = resizedImage;
+			    g2dre.dispose();
+//			    g2d.setComposite(AlphaComposite.Src);
+//			    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+//			    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+//			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 //			    g2d.translate(panX, panY);
-				g2d.scale(zoom, zoom);
-				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
-				g2d.setTransform(originalTransform);
+//				g2d.scale(zoom, zoom);
+				g2d.drawImage(image, offsetX, offsetY, image.getWidth(), image.getHeight(), this);
+//				g2d.setTransform(originalTransform);
 				// Grit anfang
-				if (zoom > 1) {
-					for (int i = 0; i < image.getHeight(); i++) {
-						for (int j = 0; j < image.getWidth(); j++) {
-//							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom+image.getWidth()), 0);
-							g2d.setStroke(new BasicStroke(1));
-							g2d.drawLine(0, (int)(i*zoom), (int)(image.getWidth()*zoom), (int)(i*zoom));
-							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom), (int)(image.getHeight()*zoom));
-
-//			                g2d.draw(new Line2D.Double(0, (i*zoom), (image.getWidth()*zoom), (i*zoom)));
-						}
-					}
-				}
+//				if (zoom > 1) {
+//					for (int i = 0; i < image.getHeight(); i++) {
+//						for (int j = 0; j < image.getWidth(); j++) {
+////							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom+image.getWidth()), 0);
+//							g2d.setStroke(new BasicStroke(1));
+//							g2d.drawLine(0, (int)(i*zoom), (int)(image.getWidth()*zoom), (int)(i*zoom));
+//							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom), (int)(image.getHeight()*zoom));
+//
+////			                g2d.draw(new Line2D.Double(0, (i*zoom), (image.getWidth()*zoom), (i*zoom)));
+//						}
+//					}
+//				}
 				//grit ende
 				
-				g2d.dispose();
+//				g2d.dispose();
 				
 				// draw image
 //				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
