@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
@@ -325,8 +326,12 @@ public class ImageView extends JScrollPane{
 				}
 				
 				Graphics2D g2d = (Graphics2D) g.create();
-				
+				AffineTransform originalTransform = g2d.getTransform();
+
+//			    g2d.translate(panX, panY);
+				g2d.scale(zoom, zoom);
 				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+				g2d.setTransform(originalTransform);
 				// Grit anfang
 				if (zoom > 1) {
 					for (int i = 0; i < image.getHeight(); i++) {
