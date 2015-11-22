@@ -123,12 +123,12 @@ public class Binarize extends JPanel {
 			
 			public void stateChanged(ChangeEvent e) {
 				
-//				currentZoom = magnification.getValue();
-//        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
-//        		dstView.setMinSize(maxWidth, maxHeight);
+				currentZoom = magnification.getValue()/10;
+        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
+        		dstView.setMinSize(maxWidth, maxHeight);
 
-        		//srcView.setZoom(currentZoom);
-//        		dstView.setZoom(currentZoom);
+//        		srcView.setZoom(currentZoom);
+        		dstView.setZoom(currentZoom);
 //				srcView.setZoom(magnification.getValue()/10);
 //				dstView.setZoom(magnification.getValue()/10);
 //				System.out.println(magnification.getValue() + "jojo");
@@ -252,8 +252,9 @@ public class Binarize extends JPanel {
 		if(drawPaths.isSelected()){
 			
 			int [] pathPics = potrace.RegionLabeling(dstPixels, width, height);
-			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
-	        dstView.setPixels(pathPics, width, height);
+//			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
+//	        dstView.setPixels(pathPics, width, height);
+	        dstView.setPath(potrace.outSidePaths, potrace.insidePaths);
 		}
 			
 		long time = System.currentTimeMillis() - startTime;

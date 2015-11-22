@@ -17,7 +17,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.io.File;
+import java.util.Queue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -40,6 +42,8 @@ public class ImageView extends JScrollPane{
 	private double zoom = 1.0;
 	private double orginalImgW = 0.0;
 	private double orginalImgH = 0.0;
+	private Queue<Point> outsidePath = null;
+	private Queue<Point> insidePath = null;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -106,6 +110,13 @@ public class ImageView extends JScrollPane{
 	public void setZoom(double zoom) {
 		this.zoom = zoom;
 		screen.revalidate();
+		screen.repaint();
+	}
+	
+	public void setPath(Queue<Point> outside, Queue<Point> inside) {
+		outsidePath = outside;
+		insidePath = inside;
+		screen.invalidate();
 		screen.repaint();
 	}
 	
@@ -291,10 +302,10 @@ public class ImageView extends JScrollPane{
 //				image.getScaledInstance(image.getHeight() * (int)zoom, image.getWidth() * (int)zoom, Image.SCALE_DEFAULT);
 				// limit image view magnification
 				if(maxViewMagnification > 0.0) {
-					int maxWidth = (int)(orginalImgW * maxViewMagnification + 0.5);
-					int maxHeight = (int)(orginalImgH * maxViewMagnification + 0.5);
-//					maxWidth = (int) ((int) maxWidth * zoom);
-//					maxHeight = (int) ((int) maxHeight * zoom);
+					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
+					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
+					maxWidth = (int) ((int) maxWidth * zoom);
+					maxHeight = (int) ((int) maxHeight * zoom);
 					System.out.println(maxWidth);
 					System.out.println(maxHeight);
 					
@@ -375,6 +386,17 @@ public class ImageView extends JScrollPane{
 //					}
 //				}
 				//grit ende
+				if ((outsidePath != null || insidePath != null) && (!outsidePath.isEmpty())) {
+					Point lastPoint = outsidePath.poll();
+					g2d.setColor(Color.RED);
+					while (!outsidePath.isEmpty()) {
+						Point nextPoint = outsidePath.poll();
+						g2d.draw(new Line2D.Double(lastPoint.x*zoom, lastPoint.y*zoom, nextPoint.x*zoom, nextPoint.y*zoom));
+						lastPoint = nextPoint;
+					}
+					
+				}
+				
 				
 				g2d.dispose();
 				
