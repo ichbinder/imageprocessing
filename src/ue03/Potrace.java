@@ -16,12 +16,18 @@ import javax.imageio.ImageIO;
 
 public class Potrace {
 	
-	private int arrowDirection = 0;
 	private int[][] pixels;
 
+	public Queue<Point> outSidePaths;
 	public enum PathDirection {LEFT, RIGHT, UP, DOWN};
 	
-	private PathDirection direction = PathDirection.DOWN;
+	private PathDirection direction;
+	
+	public Potrace(){
+		direction = PathDirection.RIGHT;
+		outSidePaths = new LinkedList<Point>();
+	}
+	
 	
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// TODO Auto-generated method stub
@@ -65,34 +71,33 @@ public class Potrace {
 		return pixels;
 	}
 
-	public void RegionLabeling(int[] input, int width, int height) {
+	public int [] RegionLabeling(int[] input, int width, int height) {
 
 		pixels = prepareBinaryImage(input, width, height);
-
+		int [] outputPixels = new int[input.length];
 		long timeStart = System.nanoTime();
 
+		boolean testStop = false;
 		for (int h = 0; h < height; h++) {
+			if(testStop) break;
 			for (int w = 0; w < width; w++) {
 				if (pixels[h][w] == 1) {
-					potrace(pixels, h, w);
+					potrace(pixels, h, w, height, width);
+					testStop = true;
+					break;
 				}
 			}
 		}
-
-		int outputPixels[] = new int[width * height];
+		
 		int i = 0;
-		for (int h = 0; h < height; h++) {
-			for (int w = 0; w < width; w++) {
-
+		for(int h = 0; h < height; h++){
+			
+			for(int w = 0; w < width; w++){
 				outputPixels[i] = pixels[h][w];
 				i++;
 			}
 		}
-		System.arraycopy(outputPixels, 0, input, 0, input.length);
-
-		long timeStop = System.nanoTime();
-
-		System.out.println("Calc Time: " + (timeStop - timeStart));
+		return outputPixels;
 	}
 
 	
@@ -102,24 +107,81 @@ public class Potrace {
 	}
 	
 	
-	private void convertPattern(int [][] pattern){
-		
-		for(int i = 0; i < 2; i++){			
-			for(int j = 0; j < 2; j++) pattern[i][j] = convertToLabeling(pattern[i][j]);
-		}
+	
+	public int getIntFromColor(int Red, int Green, int Blue){
+	    Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
+	    Green = (Green << 8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
+	    Blue = Blue & 0x000000FF; //Mask out anything not blue.
+
+	    return 0xFF000000 | Red | Green | Blue; //0xFF000000 for 100% Alpha. Bitwise OR everything together.
 	}
 	
-	public void potrace(int[][] pixels, int y, int x) {
+	public void potrace(int[][] pixels, int y, int x, int h, int w) {
 
-		Queue path = new LinkedList<Point>();
+		Queue<Point> outerPath = findPath(pixels, x, y);
+		
+		outSidePaths.addAll(outerPath);
+		
+		int color = getIntFromColor(255, 0, 0);
+		
+		drawShape(pixels, outSidePaths, color);
+		
+		
+		/*
+		//Copy Pixels		
+		int [][] insidePixels = copyPixels(pixels, h, w);
+		retrieveInsidePixels(outerPath, insidePixels);	
+		printPixels(pixels);
+		Queue<Point> insidePath = findPath(insidePixels, x, y);				
+		*/
+	}
+		
+	private void drawShape(int pixels [][], Queue<Point> path, int color){
 
+		if(path.isEmpty()) return;
+
+		int lastY = path.poll().y;
+		while(!path.isEmpty()){
+
+			Point p = path.poll();
+			if(p.y > lastY){
+				pixels[lastY][p.x] = color;				
+			}
+			else if(p.y < lastY){
+				pixels[p.y][p.x] = color;
+			}
+			lastY = p.y;
+		}		
+	}
+	
+	
+	private Point[][] getMinimumMaximumPath(Queue<Point> points){
+		
+		Point [][] minMaxPoints = null;
+		
+		return minMaxPoints;
+	}
+	
+	private int [][] copyPixels(int [][] original, int h, int w){
+		
+		int [][] copy = new int [h][w];
+		
+		for(int i = 0; i < h; i++){
+			
+			for(int j = 0; j < w; j++){
+				System.arraycopy(copy[i], 0, original[i], 0, original.length);
+			}
+		}
+		return copy;
+	}
+		
+	private Queue<Point> findPath(int [][] pixels, int x, int y){
+		
+		Queue<Point> path = new LinkedList<Point>();
 		Point startPoint = new Point(x, y);
 		Point endPoint = new Point(x, y);		
 
-		direction = PathDirection.RIGHT;
-		
-		int[][] pattern2D = new int [2][2];
-
+		path.add(startPoint);
 		printPixels(pixels);
 		System.out.println("---------------");
 		
@@ -138,19 +200,42 @@ public class Potrace {
 			if(diffX == false &&  diffY == false) together = false;
 			
 		} while (together);
+
+		return path;
 	}
 	
-	private void drawBorder(Queue<Point> path, Graphics g, Color c){
+	private void retrieveInsidePixels(Queue<Point> path, int [][] pixels){
+
+		Queue<Point> collect = new LinkedList<Point>();
+		Point lastPoint = path.poll();
+		int lastY = lastPoint.y;
 		
-		//Vor der For-Loop der erste Eintrag
-		Point last = path.poll();
-		for (Point element : path) {
-			
-			Point next = path.poll();	
-			g.drawLine(last.x, last.y, next.x, next.y);
-			last = next;
+		collect.add(lastPoint);
+		while(!path.isEmpty()){
+
+			Point p = path.poll();
+			if(p.y > lastY){
+				invertLine(pixels, p.x, lastY);
+				
+//				invertLine(pixels, p.x, p.y - lastY);
+			}
+			else if(p.y < lastY){
+				invertLine(pixels, p.x, p.y);
+			}
+			lastY = p.y;
+			collect.add(p);
 		}		
 	}
+	
+	private void invertLine(int [][] pixels, int x, int y){
+		
+		for(int i = x; i < pixels[y].length; i++){	
+			
+			if(pixels[y][i] == 1) pixels[y][i] = 0;
+			else pixels[y][i] = 1;
+		}
+	}
+	
 
 	private Point getNextPos(Point [] possiblePoints, PathDirection dir){
 		
@@ -369,5 +454,15 @@ public class Potrace {
 		}
 		System.out.println("---------------");
 
+	}
+	
+	public class DirectionPoint extends Point{
+
+		PathDirection lookingDirection;
+		public DirectionPoint(int x, int y, PathDirection dir){
+			
+			
+		}
+		
 	}
 }

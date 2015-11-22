@@ -1,6 +1,8 @@
 package ue03;
 // Copyright (C) 2014 by Klaus Jung
 
+import javax.imageio.ImageIO;
+
 // All rights reserved.
 // Date: 2014-10-02
 // Authors: André Vallentin: 	527538
@@ -15,7 +17,10 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import java.awt.Dimension;
 import java.awt.image.DataBufferInt;
@@ -29,11 +34,10 @@ public class Binarize extends JPanel {
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
-	private static final String initalOpen = "klein.png";
+	private static final String initalOpen = "test2.png";	
 	private static final double initalZoom = 1;
-
-	private double zoomlvl = 1;
-
+	private static double currentZoom = initalZoom;
+	
 	private static JFrame frame;
 
 	private ImageView srcView; // source image view
@@ -41,7 +45,11 @@ public class Binarize extends JPanel {
 
 	private JComboBox<String> methodList; // the selected binarization method
 	private JLabel statusLine; // to print some status text
-
+	
+	private JCheckBox drawPaths;
+	
+	private Potrace potrace;
+	
 	private JSlider magnification; // to set the binarize percentage value
 
 	public Binarize() {
@@ -58,22 +66,22 @@ public class Binarize extends JPanel {
         srcView.setMinSize(maxWidth, maxHeight);
        
 		// create an empty destination image
-        dstView = new ImageView(input, initalZoom);
-		dstView.setMaxSize(new Dimension(maxWidth, maxHeight));
+        dstView = new ImageView(input, currentZoom);
+		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
+		
 		dstView.setMinSize(maxWidth, maxHeight);
 		
 		// load image button
-        JButton load = new JButton("Bild �ffnen");
+        JButton load = new JButton("Bild öffnen");
         load.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		File input = openFile();
         		if(input != null) {
-	        		srcView.loadImage(input);
-	        		srcView.setMaxSize(new Dimension(maxWidth, maxHeight));
+	        		srcView.loadImage(input);	        		
 	        		srcView.setMinSize(maxWidth, maxHeight);
 	        		dstView.loadImage(input);
-	        		dstView.setMaxSize(new Dimension(maxWidth, maxHeight));
-	        		dstView.setMinSize(maxWidth, maxHeight);
+	        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
+	        		dstView.setMinSize(maxWidth, maxHeight);	        		
 	                binarizeImage();
         		}
         	}        	
@@ -90,7 +98,11 @@ public class Binarize extends JPanel {
                 binarizeImage();
         	}
         });
+        
+        
+//        magnification = new JSlider(JSlider.HORIZONTAL,10,10000,10);
         magnification = new JSlider(JSlider.HORIZONTAL,10,100,10);
+
         magnification.setMinorTickSpacing(1); //Abstände im Feinraster
         magnification.setMajorTickSpacing(10);
         magnification.setPaintTicks(true);
@@ -101,29 +113,26 @@ public class Binarize extends JPanel {
 //        markLabels.put(new Integer(60), new JLabel("60x"));
 //        markLabels.put(new Integer(80), new JLabel("80x"));
         markLabels.put(new Integer(100), new JLabel("100x"));
+        markLabels.put(new Integer(1000), new JLabel("1000x"));
+
         magnification.setLabelTable(markLabels);
         magnification.setPaintLabels(true);
         magnification.setSnapToTicks(true);
         
-//        magnification.addChangeListener(new BoundedChangeListener());
-
-//        
-//      //Create the label table
-//        Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
-//        labelTable.put( new Integer( 0 ), new JLabel("0") );
-//        labelTable.put( new Integer( 50 ), new JLabel("50") );
-//        labelTable.put( new Integer( 100 ), new JLabel("100") );
-//        magnification.setLabelTable( labelTable );
-//        magnification.setPaintTicks(true);        
-//        magnification.setPaintLabels(true);
-
         magnification.addChangeListener(new ChangeListener() {
 			
 			public void stateChanged(ChangeEvent e) {
-				srcView.setZoom(magnification.getValue()/10);
-				dstView.setZoom(magnification.getValue()/10);
-				System.out.println(magnification.getValue()/10);
-				methodList.setSelectedIndex(0);
+				
+				currentZoom = magnification.getValue();
+        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
+        		dstView.setMinSize(maxWidth, maxHeight);
+
+        		//srcView.setZoom(currentZoom);
+        		dstView.setZoom(currentZoom);
+//				srcView.setZoom(magnification.getValue()/10);
+//				dstView.setZoom(magnification.getValue()/10);
+//				System.out.println(magnification.getValue()/10);
+//				methodList.setSelectedIndex(0);
 				binarizeImage();
 			}
 		});
@@ -154,12 +163,26 @@ public class Binarize extends JPanel {
         
         add(controls, BorderLayout.NORTH);
         add(images, BorderLayout.CENTER);
-        add(statusLine, BorderLayout.SOUTH);
-                       
-        setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
-        // perform the initial binarization
-
         
+        potrace = new Potrace();
+        JPanel southControls = new JPanel();
+        drawPaths = new JCheckBox("Show paths");
+        drawPaths.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	binarizeImage();
+            }
+          });
+        
+        
+        southControls.setLayout(new BoxLayout(southControls, BoxLayout.PAGE_AXIS)); //Vertikal
+        southControls.add(drawPaths);
+        southControls.add(statusLine);
+        
+//        add(statusLine, BorderLayout.SOUTH);
+        add(southControls, BorderLayout.SOUTH);
+        
+        setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
+        // perform the initial binarization        
         binarizeImage();
 	}
 
@@ -212,49 +235,27 @@ public class Binarize extends JPanel {
 		String methodName = (String) methodList.getSelectedItem();
 
 		// // image dimensions
-		// int width = srcView.getImgWidth();
-		// int height = srcView.getImgHeight();
-		//
-		// // get pixels arrays
-		// int[] srcPixels = srcView.getPixels();
-		// int dstPixels[] = java.util.Arrays.copyOf(srcPixels,
-		// srcPixels.length);
+		int width  = dstView.getImgWidth();
+		int height = dstView.getImgHeight();
 
+		// // get pixels arrays
+		int[] srcPixels = dstView.getPixels();
+		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
+				
 		String message = "Binarisieren mit \"" + methodName + "\"";
 
 		statusLine.setText(message);
 
 		long startTime = System.currentTimeMillis();
-
-		switch (methodList.getSelectedIndex()) {
-		case 0: // BreathFirst
-			// int[] srcPixels2 = srcView.getPixels();
-			// BufferedImage originalImage = new BufferedImage(width, height,
-			// BufferedImage.TYPE_INT_ARGB);
-			// int[] pixel = ((DataBufferInt)
-			// originalImage.getRaster().getDataBuffer()).getData();
-			// System.arraycopy(srcPixels2, 0, pixel, 0, srcPixels2.length);
-			// srcView.zoom(originalImage., srcView.getImgWidth()+100,
-			// srcView.getImgHeight()+100);
-			break;
-		case 1: // Depth-First
-
-			srcView.setZoom(1.5);
-
-			// depthFirst.RegionLabeling(dstPixels, width, height);
-			break;
-		// case 2: //Sequential Labeling
-		// binarizeToByteRange(dstPixels, 128);
-		// sequentialLabeling.SequentialLabeling(dstPixels, width, height);
-		// break;
+		
+		if(drawPaths.isSelected()){
+			
+			int [] pathPics = potrace.RegionLabeling(dstPixels, width, height);
+			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
+	        dstView.setPixels(pathPics, width, height);
 		}
-
-		/*
-		 * if(checkboxOutline.isSelected()){ outline(dstPixels, width, height);
-		 * }
-		 */
+			
 		long time = System.currentTimeMillis() - startTime;
-
 		// dstView.setPixels(dstPixels, width, height);
 
 		frame.pack();
