@@ -30,7 +30,7 @@ public class Binarize extends JPanel {
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
 	private static final String initalOpen = "klein.png";
-	private static final double initalZoom = 2;
+	private static final double initalZoom = 1;
 
 	private double zoomlvl = 1;
 

@@ -7,8 +7,10 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -273,6 +275,7 @@ public class ImageView extends JScrollPane{
 		}
 		
 		public void paintComponent(Graphics g) {
+			 super.paintComponent(g);
 			
 			if (image != null) {
 				Rectangle r = this.getBounds();
@@ -321,8 +324,27 @@ public class ImageView extends JScrollPane{
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
 				
+				Graphics2D g2d = (Graphics2D) g.create();
+				
+				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+				
+				if (zoom > 1) {
+					for (int i = 0; i < image.getHeight(); i++) {
+						for (int j = 0; j < image.getWidth(); j++) {
+//							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom+image.getWidth()), 0);
+							g2d.setStroke(new BasicStroke(1));
+							g2d.drawLine(0, (int)(i*zoom), (int)(image.getWidth()*zoom), (int)(i*zoom));
+							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom), (int)(image.getHeight()*zoom));
+
+//			                g2d.draw(new Line2D.Double(0, (i*zoom), (image.getWidth()*zoom), (i*zoom)));
+						}
+					}
+				}
+				
+				g2d.dispose();
+				
 				// draw image
-				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+//				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
 			}
 		}
 		
