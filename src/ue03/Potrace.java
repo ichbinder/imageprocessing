@@ -21,16 +21,20 @@ public class Potrace {
 	private int[][] pixels;
 
 	public Queue<Point> outSidePaths;
+	public Queue<Point> insidePaths;
+
 	public enum PathDirection {LEFT, RIGHT, UP, DOWN};
 	
 	private PathDirection direction;
 	
 	private Set<Point> allPoints;
 	
+	
 	public Potrace(){
 		direction = PathDirection.RIGHT;
 		allPoints = new HashSet<Point>();
 		outSidePaths = new LinkedList<Point>();
+		insidePaths = new LinkedList<Point>();
 	}
 	
 	
@@ -148,6 +152,8 @@ public class Potrace {
 					Point insidePoint = new Point(j, i);
 					if(!allPoints.contains(insidePoint)) {
 						Queue<Point> insidePath = findPath(insidePixels, x, y);
+						
+						insidePaths.addAll(insidePath);
 						allPoints.addAll(insidePath);
 					}
 				}
