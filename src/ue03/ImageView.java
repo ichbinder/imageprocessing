@@ -327,7 +327,7 @@ public class ImageView extends JScrollPane{
 				Graphics2D g2d = (Graphics2D) g.create();
 				
 				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
-				
+				// Grit anfang
 				if (zoom > 1) {
 					for (int i = 0; i < image.getHeight(); i++) {
 						for (int j = 0; j < image.getWidth(); j++) {
@@ -340,6 +340,7 @@ public class ImageView extends JScrollPane{
 						}
 					}
 				}
+				//grit ende
 				
 				g2d.dispose();
 				
