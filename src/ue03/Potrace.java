@@ -182,8 +182,8 @@ public class Potrace {
 		Point endPoint = new Point(x, y);		
 
 		path.add(startPoint);
-		printPixels(pixels);
-		System.out.println("---------------");
+//		printPixels(pixels);
+//		System.out.println("---------------");
 		
 		boolean diffX = false;
 		boolean diffY = false;
@@ -311,7 +311,7 @@ public class Potrace {
 		Point nextPoint = null;
 		//Erzeuge Pattern aus Bildpixeln		
 		int [][] pattern = createPattern(pixels, lastPoint, pixels[0].length, pixels.length);		
-		printPixels(pattern);
+//		printPixels(pattern);
 		
 		Point[] lookupPoints = createLookupPoints(direction,lastPoint);
 		
