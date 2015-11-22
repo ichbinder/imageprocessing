@@ -33,7 +33,7 @@ public class Binarize extends JPanel {
 	private static final int maxHeight = 450;
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
-	private static final String author = "Vallentin, Andre, Jakob Warnow";
+	private static final String author = "Vallentin, Andrezz, Jakob Warnow";
 	private static final String initalOpen = "test2.png";	
 	private static final double initalZoom = 1;
 	private static double currentZoom = initalZoom;
@@ -101,19 +101,19 @@ public class Binarize extends JPanel {
         
         
 //        magnification = new JSlider(JSlider.HORIZONTAL,10,10000,10);
-        magnification = new JSlider(JSlider.HORIZONTAL,10,100,10);
+        magnification = new JSlider(JSlider.HORIZONTAL,1,3,1);
 
         magnification.setMinorTickSpacing(1); //Abstände im Feinraster
         magnification.setMajorTickSpacing(10);
         magnification.setPaintTicks(true);
         Hashtable<Integer, JLabel> markLabels = new Hashtable<Integer, JLabel>();
-        markLabels.put(new Integer(10), new JLabel("10x"));
+        markLabels.put(new Integer(1), new JLabel("10x"));
 //        markLabels.put(new Integer(20), new JLabel("20x"));
-        markLabels.put(new Integer(50), new JLabel("50x"));
+        markLabels.put(new Integer(2), new JLabel("50x"));
 //        markLabels.put(new Integer(60), new JLabel("60x"));
 //        markLabels.put(new Integer(80), new JLabel("80x"));
-        markLabels.put(new Integer(100), new JLabel("100x"));
-        markLabels.put(new Integer(1000), new JLabel("1000x"));
+        markLabels.put(new Integer(3), new JLabel("100x"));
+//        markLabels.put(new Integer(1000), new JLabel("1000x"));
 
         magnification.setLabelTable(markLabels);
         magnification.setPaintLabels(true);
@@ -124,14 +124,14 @@ public class Binarize extends JPanel {
 			public void stateChanged(ChangeEvent e) {
 				
 				currentZoom = magnification.getValue();
-        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
-        		dstView.setMinSize(maxWidth, maxHeight);
+//        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
+//        		dstView.setMinSize(maxWidth, maxHeight);
 
         		//srcView.setZoom(currentZoom);
         		dstView.setZoom(currentZoom);
 //				srcView.setZoom(magnification.getValue()/10);
 //				dstView.setZoom(magnification.getValue()/10);
-//				System.out.println(magnification.getValue()/10);
+				System.out.println(magnification.getValue() + "jojo");
 //				methodList.setSelectedIndex(0);
 				binarizeImage();
 			}
@@ -239,8 +239,9 @@ public class Binarize extends JPanel {
 		int height = dstView.getImgHeight();
 
 		// // get pixels arrays
-		int[] srcPixels = dstView.getPixels();
-		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
+//		int[] srcPixels = dstView.getPixels();
+//		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
+		int[] dstPixels = dstView.getPixels();
 				
 		String message = "Binarisieren mit \"" + methodName + "\"";
 
