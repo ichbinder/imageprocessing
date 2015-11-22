@@ -116,17 +116,26 @@ public class Potrace {
 		Queue<Point> outerPath = findPath(pixels, x, y);
 		
 		//Copy Pixels		
-		int [][] insidePixels = copy2DPicture(pixels, h, w);
+		int [][] insidePixels = copyPixels(pixels, h, w);
 		retrieveInsidePixels(outerPath, insidePixels);	
 		printPixels(pixels);
-		
-				
-		Queue<Point> insidePath = findPath(insidePixels, x, y);
-		
-		
+		Queue<Point> insidePath = findPath(insidePixels, x, y);				
 	}
 	
-	public int [][] copy2DPicture(int [][] original, int h, int w){
+	private void findFirstInsidePixel(int [][] inPixels, Queue<Point> path){
+		
+				
+	}
+	
+	
+	private Point[][] getMinimumMaximumPath(Queue<Point> points){
+		
+		Point [][] minMaxPoints = null; 
+		
+		return minMaxPoints;
+	}
+	
+	private int [][] copyPixels(int [][] original, int h, int w){
 		
 		int [][] copy = new int [h][w];
 		
@@ -136,10 +145,9 @@ public class Potrace {
 				System.arraycopy(copy[i], 0, original[i], 0, original.length);
 			}
 		}
-		
 		return copy;
 	}
-	
+		
 	private Queue<Point> findPath(int [][] pixels, int x, int y){
 		
 		Queue<Point> path = new LinkedList<Point>();
