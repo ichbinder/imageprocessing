@@ -38,6 +38,8 @@ public class ImageView extends JScrollPane{
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
 	private double zoom = 1.0;
+	private double orginalImgW = 0.0;
+	private double orginalImgH = 0.0;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -229,7 +231,10 @@ public class ImageView extends JScrollPane{
    		 	JOptionPane.showMessageDialog(this, "Bild konnte nicht geladen werden.", "Fehler", JOptionPane.ERROR_MESSAGE);
    		 	bi = new BufferedImage(200, 150, BufferedImage.TYPE_INT_RGB);
 		}
-				
+		
+		orginalImgH = bi.getHeight();
+		orginalImgW = bi.getWidth();
+		
 		init(bi, !success);
 		
 		if(!success) printText(5, getImgHeight()/2, "Bild konnte nicht geladen werden.");
@@ -286,8 +291,8 @@ public class ImageView extends JScrollPane{
 //				image.getScaledInstance(image.getHeight() * (int)zoom, image.getWidth() * (int)zoom, Image.SCALE_DEFAULT);
 				// limit image view magnification
 				if(maxViewMagnification > 0.0) {
-					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
-					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
+					int maxWidth = (int)(orginalImgW * maxViewMagnification + 0.5);
+					int maxHeight = (int)(orginalImgH * maxViewMagnification + 0.5);
 					maxWidth = (int) ((int) maxWidth * zoom);
 					maxHeight = (int) ((int) maxHeight * zoom);
 					System.out.println(maxWidth);

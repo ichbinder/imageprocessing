@@ -101,18 +101,18 @@ public class Binarize extends JPanel {
         
         
 //        magnification = new JSlider(JSlider.HORIZONTAL,10,10000,10);
-        magnification = new JSlider(JSlider.HORIZONTAL,1,3,1);
+        magnification = new JSlider(JSlider.HORIZONTAL,10,100,10);
 
         magnification.setMinorTickSpacing(1); //Abstände im Feinraster
         magnification.setMajorTickSpacing(10);
         magnification.setPaintTicks(true);
         Hashtable<Integer, JLabel> markLabels = new Hashtable<Integer, JLabel>();
-        markLabels.put(new Integer(1), new JLabel("10x"));
+        markLabels.put(new Integer(10), new JLabel("10x"));
 //        markLabels.put(new Integer(20), new JLabel("20x"));
-        markLabels.put(new Integer(2), new JLabel("50x"));
+        markLabels.put(new Integer(50), new JLabel("50x"));
 //        markLabels.put(new Integer(60), new JLabel("60x"));
 //        markLabels.put(new Integer(80), new JLabel("80x"));
-        markLabels.put(new Integer(3), new JLabel("100x"));
+        markLabels.put(new Integer(100), new JLabel("100x"));
 //        markLabels.put(new Integer(1000), new JLabel("1000x"));
 
         magnification.setLabelTable(markLabels);
