@@ -101,18 +101,18 @@ public class Binarize extends JPanel {
         
         
 //        magnification = new JSlider(JSlider.HORIZONTAL,10,10000,10);
-        magnification = new JSlider(JSlider.HORIZONTAL,10,100,10);
+        magnification = new JSlider(JSlider.HORIZONTAL,1,3,1);
 
         magnification.setMinorTickSpacing(1); //Abstände im Feinraster
         magnification.setMajorTickSpacing(10);
         magnification.setPaintTicks(true);
         Hashtable<Integer, JLabel> markLabels = new Hashtable<Integer, JLabel>();
-        markLabels.put(new Integer(10), new JLabel("10x"));
+        markLabels.put(new Integer(1), new JLabel("10x"));
 //        markLabels.put(new Integer(20), new JLabel("20x"));
-        markLabels.put(new Integer(50), new JLabel("50x"));
+        markLabels.put(new Integer(2), new JLabel("50x"));
 //        markLabels.put(new Integer(60), new JLabel("60x"));
 //        markLabels.put(new Integer(80), new JLabel("80x"));
-        markLabels.put(new Integer(100), new JLabel("100x"));
+        markLabels.put(new Integer(3), new JLabel("100x"));
 //        markLabels.put(new Integer(1000), new JLabel("1000x"));
 
         magnification.setLabelTable(markLabels);
@@ -128,10 +128,10 @@ public class Binarize extends JPanel {
 //        		dstView.setMinSize(maxWidth, maxHeight);
 
         		//srcView.setZoom(currentZoom);
-        		dstView.setZoom(currentZoom/10);
+        		dstView.setZoom(currentZoom);
 //				srcView.setZoom(magnification.getValue()/10);
 //				dstView.setZoom(magnification.getValue()/10);
-				System.out.println(magnification.getValue()/10 + "jojo");
+				System.out.println(magnification.getValue() + "jojo");
 //				methodList.setSelectedIndex(0);
 				binarizeImage();
 			}
@@ -239,8 +239,9 @@ public class Binarize extends JPanel {
 		int height = dstView.getImgHeight();
 
 		// // get pixels arrays
-		int[] srcPixels = dstView.getPixels();
-		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
+//		int[] srcPixels = dstView.getPixels();
+//		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
+		int[] dstPixels = dstView.getPixels();
 				
 		String message = "Binarisieren mit \"" + methodName + "\"";
 

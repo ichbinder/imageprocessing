@@ -288,8 +288,8 @@ public class ImageView extends JScrollPane{
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
-//					maxWidth = (int) ((int) maxWidth * zoom);
-//					maxHeight = (int) ((int) maxHeight * zoom);
+					maxWidth = (int) ((int) maxWidth * zoom);
+					maxHeight = (int) ((int) maxHeight * zoom);
 					System.out.println(maxWidth);
 					System.out.println(maxHeight);
 					
@@ -341,10 +341,11 @@ public class ImageView extends JScrollPane{
 			    // Restore original transform
 			    
 				Graphics2D g2d = (Graphics2D) g.create();
-				BufferedImage resizedImage = new BufferedImage((int)(r.width*zoom), (int)(r.height*zoom), BufferedImage.TYPE_INT_RGB);
+				BufferedImage resizedImage = new BufferedImage((int)(r.width), (int)(r.height), BufferedImage.TYPE_INT_RGB);
 			    Graphics2D g2dre = resizedImage.createGraphics();
-			    g2dre.drawImage(image, 0, 0, (int)(r.width*zoom), (int)(r.height*zoom), null);
+			    g2dre.drawImage(image, 0, 0, (int)(r.width), (int)(r.height), null);
 			    image = resizedImage;
+			    System.out.println(zoom+"zoom");
 			    g2dre.dispose();
 //			    g2d.setComposite(AlphaComposite.Src);
 //			    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
