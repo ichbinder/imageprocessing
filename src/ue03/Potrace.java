@@ -86,18 +86,14 @@ public class Potrace {
 		int [] outputPixels = new int[input.length];
 		long timeStart = System.nanoTime();
 
-		boolean testStop = false;
 		for (int h = 0; h < height; h++) {
-//			if(testStop) break;
 			for (int w = 0; w < width; w++) {
 				if (pixels[h][w] == 1) {
 					
 					Point startPoint = new Point(w, h);
+					//Prüft ob der gefundene Punkt schon enthalten ist
 					if(!allPoints.contains(startPoint)){ 
-						//Prüft ob der gefundene Punkt schon enthalten ist
 						potrace(pixels, h, w, height, width);
-//						testStop = true;
-//						break;
 					}
 				}
 			}
@@ -114,12 +110,6 @@ public class Potrace {
 		return outputPixels;
 	}
 
-	private int convertToLabeling(int value){
-		
-		return value == -1 ? 0 : 1; 
-	}
-	
-	
 	
 	public int getIntFromColor(int Red, int Green, int Blue){
 	    Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
@@ -133,12 +123,10 @@ public class Potrace {
 
 		Queue<Point> outerPath = findPath(pixels, x, y);
 		
+		
 		outSidePaths.addAll(outerPath);
 		allPoints.addAll(outerPath);
 		
-		int color = getIntFromColor(255, 0, 0);
-		
-//		drawShape(pixels, outSidePaths, color);
 		
 		//Copy Pixels		
 		int [][] insidePixels = copyPixels(pixels, h, w);
@@ -151,41 +139,13 @@ public class Potrace {
 				if(insidePixels[i][j] == 1){
 					Point insidePoint = new Point(j, i);
 					if(!allPoints.contains(insidePoint)) {
-						Queue<Point> insidePath = findPath(insidePixels, x, y);
-						
+						Queue<Point> insidePath = findPath(insidePixels, j,i);
 						insidePaths.addAll(insidePath);
 						allPoints.addAll(insidePath);
 					}
 				}
 			}
-		}
-		
-	}
-		
-	private void drawShape(int pixels [][], Queue<Point> path, int color){
-
-		if(path.isEmpty()) return;
-
-		int lastY = path.poll().y;
-		while(!path.isEmpty()){
-
-			Point p = path.poll();
-			if(p.y > lastY){
-				pixels[lastY][p.x] = color;				
-			}
-			else if(p.y < lastY){
-				pixels[p.y][p.x] = color;
-			}
-			lastY = p.y;
 		}		
-	}
-	
-	
-	private Point[][] getMinimumMaximumPath(Queue<Point> points){
-		
-		Point [][] minMaxPoints = null;
-		
-		return minMaxPoints;
 	}
 	
 	private int [][] copyPixels(int [][] original, int h, int w){
@@ -269,7 +229,6 @@ public class Potrace {
 		else return possiblePoints[3];
 	}
 	
-	/**BENÖTIGT RANDBEHANDLUNG*/
 	private int [][] createPattern(int [][] pixels, Point currentPoint, int width, int height){
 		
 		int y = currentPoint.y, x = currentPoint.x;
@@ -283,29 +242,7 @@ public class Potrace {
 
 		return pattern2D;
 	}
-	
-	
-	private int [][] createPattern(int [][] pixels, int y, int x, int dir){
-		
-		int pattern2D [][] = new int [2][2];
 
-		if(dir == 0){
-				pattern2D[0][0] = pixels[y][x-1];
-				pattern2D[0][1] = pixels[y][x];
-				pattern2D[1][0] = pixels[y+1][x];
-				pattern2D[1][1] = pixels[y+1][x+1];			
-		}
-		else if (dir == 90){
-			
-			pattern2D[0][0] = pixels[y][x-1];
-			pattern2D[0][1] = pixels[y][x];
-			pattern2D[1][0] = pixels[y+1][x];
-			pattern2D[1][1] = pixels[y+1][x+1];						
-		}
-		
-		return pattern2D;
-	}
-	
 	
 	private Point [] createLookupPoints(PathDirection dir, Point currentPoint){
 		
@@ -318,7 +255,6 @@ public class Potrace {
 		points[1] = new Point(x, y-1); //Oben
 		points[2] = new Point(x+1, y);// Rechts	
 		points[3] = new Point(x, y+1); //Unten
-
 
 		return points;
 	}
@@ -376,51 +312,6 @@ public class Potrace {
 		return nextPoint;
 	}
 
-
-	private void checkPattern(int[] pattern, int rotate) {
-		
-		//Rotiere hier erst das Pattern
-		pattern = rotate(rotate, pattern);
-		
-		if (pattern.length != 4) 
-			throw new IllegalArgumentException();
-		
-		//Rechts abbiegen // -> 
-		if (pattern[0] == 0 & pattern[1] == 0 & pattern[2] == 0 & pattern[3] == 1) {			
-			pattern[1] = 2;
-		} 
-		//Geradeaus
-		else if (pattern[0] == 0 && pattern[1] == 1 && pattern[2] == 0 && pattern[3] == 1) {
-			pattern[0] = 2;
-			
-		}//Links abbiegen
-		else if (pattern[0] == 1 && pattern[1] == 1 && pattern[2] == 0 && pattern[3] == 1) {
-		} else if (pattern[0] == 1 && pattern[1] == 0 && pattern[2] == 0 && pattern[3] == 1) {
-			
-		}
-		//Rotiere das Pattern zurück		
-		pattern = rotate(360 - rotate, pattern);
-	}
-
-	private int[] rotate(double degree, int[] input) {
-
-		int[] rotatedArray = new int[4];
-
-		if (degree == 90) {
-			rotatedArray[0] = input[1];
-			rotatedArray[1] = input[3];
-			rotatedArray[2] = input[0];
-			rotatedArray[3] = input[2];
-		} else if (degree == 180) {
-			rotatedArray = rotate(90, input);
-			rotatedArray = rotate(90, rotatedArray);
-		} else if (degree == 270) {
-			rotatedArray = rotate(180, input);
-			rotatedArray = rotate(90, rotatedArray);
-		}
-
-		return rotatedArray;
-	}
 	
 	private int[][] rotate(double degree, int[][] input) {
 
@@ -468,7 +359,6 @@ public class Potrace {
 		return directions.get(index);
 	}
 	
-	
 	private void printPixels(int [][] pix){
 		
 		for(int h = 0; h < pix.length; h++){
@@ -479,19 +369,12 @@ public class Potrace {
 		}
 		System.out.println("---------------");
 
-	}
+	}		
 	
-	public class DirectionPoint extends Point{
-
-		PathDirection lookingDirection;
-		public DirectionPoint(int x, int y, PathDirection dir){
-			
-			
-		}		
-	}
-	
-	private void labelingPixelPath(Queue<Point> path, int [][] pixels){
+	public void resetPaths(){
 		
-		
+		insidePaths.clear();
+		outSidePaths.clear();
+		allPoints.clear();
 	}
 }

@@ -87,33 +87,15 @@ public class Binarize extends JPanel {
         	}        	
         });
          
-        // selector for the binarization method
-        JLabel methodText = new JLabel("Methode:");
-        String[] methodNames = {"BreadthFirst", "DepthFirst", "Sequential"};
-        
-        methodList = new JComboBox<String>(methodNames);
-        methodList.setSelectedIndex(0);		// set initial method
-        methodList.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-                binarizeImage();
-        	}
-        });
-        
-        
-//        magnification = new JSlider(JSlider.HORIZONTAL,10,10000,10);
         magnification = new JSlider(JSlider.HORIZONTAL,10,1000,10);
 
-        magnification.setMinorTickSpacing(1); //Abstände im Feinraster
-        magnification.setMajorTickSpacing(10);
+        magnification.setMinorTickSpacing(50); //Abstände im Feinraster
+        magnification.setMajorTickSpacing(100);
         magnification.setPaintTicks(true);
         Hashtable<Integer, JLabel> markLabels = new Hashtable<Integer, JLabel>();
-        markLabels.put(new Integer(10), new JLabel("10x"));
-//        markLabels.put(new Integer(20), new JLabel("20x"));
-        markLabels.put(new Integer(50), new JLabel("50x"));
-//        markLabels.put(new Integer(60), new JLabel("60x"));
-//        markLabels.put(new Integer(80), new JLabel("80x"));
-        markLabels.put(new Integer(100), new JLabel("100x"));
-//        markLabels.put(new Integer(1000), new JLabel("1000x"));
+        markLabels.put(new Integer(10), new JLabel("1x"));
+        markLabels.put(new Integer(500), new JLabel("50x"));
+        markLabels.put(new Integer(1000), new JLabel("100x"));
 
         magnification.setLabelTable(markLabels);
         magnification.setPaintLabels(true);
@@ -146,8 +128,8 @@ public class Binarize extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(0,border,0,0);
         controls.add(load, c);
-        controls.add(methodText, c);
-        controls.add(methodList, c);
+//        controls.add(methodText, c);
+//        controls.add(methodList, c);
 //---------------------
       
         JPanel customControl = new JPanel();
@@ -232,7 +214,7 @@ public class Binarize extends JPanel {
 
 	protected void binarizeImage() {
 
-		String methodName = (String) methodList.getSelectedItem();
+//		String methodName = (String) methodList.getSelectedItem();
 
 		// // image dimensions
 		int width  = dstView.getImgWidth();
@@ -243,19 +225,22 @@ public class Binarize extends JPanel {
 //		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
 		int[] dstPixels = dstView.getPixels();
 				
-		String message = "Binarisieren mit \"" + methodName + "\"";
+//		String message = "Binarisieren mit \"" + methodName + "\"";
 
+		String message = "Konturfindung.";
 		statusLine.setText(message);
 
 		long startTime = System.currentTimeMillis();
+		potrace.resetPaths();
 		
 		if(drawPaths.isSelected()){
 			
-			int [] pathPics = potrace.RegionLabeling(dstPixels, width, height);
+			potrace.RegionLabeling(dstPixels, width, height);
 //			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
 //	        dstView.setPixels(pathPics, width, height);
-	        dstView.setPath(potrace.outSidePaths, potrace.insidePaths);
 		}
+        dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
+
 			
 		long time = System.currentTimeMillis() - startTime;
 		// dstView.setPixels(dstPixels, width, height);

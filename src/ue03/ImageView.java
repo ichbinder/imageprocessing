@@ -19,6 +19,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
+import java.util.LinkedList;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
@@ -42,8 +43,8 @@ public class ImageView extends JScrollPane{
 	private double zoom = 1.0;
 	private double orginalImgW = 0.0;
 	private double orginalImgH = 0.0;
-	private Queue<Point> outsidePath = null;
-	private Queue<Point> insidePath = null;
+	private Queue<Point> outsidePath = new LinkedList<Point>();
+	private Queue<Point> insidePath = new LinkedList<Point>();
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -113,12 +114,21 @@ public class ImageView extends JScrollPane{
 		screen.repaint();
 	}
 	
+	public void setPath(Queue<Point> outside, Queue<Point> inside, boolean repaint) {
+		outsidePath = outside;
+		insidePath = inside;
+		
+		if(repaint){
+			screen.invalidate();
+			screen.repaint();
+		}
+	}
+	
 	public void setPath(Queue<Point> outside, Queue<Point> inside) {
 		outsidePath = outside;
 		insidePath = inside;
-		screen.invalidate();
-		screen.repaint();
 	}
+
 	
 	public void resetToSize(int width, int height) {
 		// resize image and erase all content
@@ -306,9 +316,10 @@ public class ImageView extends JScrollPane{
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
 					maxWidth = (int) ((int) maxWidth * zoom);
 					maxHeight = (int) ((int) maxHeight * zoom);
+/*					
 					System.out.println(maxWidth);
 					System.out.println(maxHeight);
-					
+*/					
 					if(r.width  > maxWidth) r.width = maxWidth;
 					if(r.height  > maxHeight) r.height = maxHeight;
 				}
@@ -342,61 +353,44 @@ public class ImageView extends JScrollPane{
 					g.fillRect(0, offsetY, offsetX, r.height);
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
-//				 Graphics2D g2d = (Graphics2D) g;
 				 Graphics2D g2d = (Graphics2D) g.create();
-
-			    // Backup original transform
-//			    AffineTransform originalTransform = g2d.getTransform();
-
-//			    g2d.translate(r.width/2, r.height/2);
-//			    g2d.scale(zoom, zoom);
-
-			    // paint the image here with no scaling
-//			    g2d.drawImage(img, 0, 0, null);
-
-			    // Restore original transform
-			    
-//				Graphics2D g2d = (Graphics2D) g.create();
-//				BufferedImage resizedImage = new BufferedImage((int)(r.width), (int)(r.height), BufferedImage.TYPE_INT_RGB);
-//			    Graphics2D g2dre = resizedImage.createGraphics();
-//			    g2dre.drawImage(image, 0, 0, (int)(r.width), (int)(r.height), null);
-//			    image = resizedImage;
-//			    System.out.println(zoom+"zoom");
-//			    g2dre.dispose();
-//			    g2d.setComposite(AlphaComposite.Src);
-//			    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-//			    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-//			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-//			    g2d.translate(panX, panY);
-//				g2d.scale(zoom, zoom);
 				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
-//				g2d.setTransform(originalTransform);
-				// Grit anfang
-//				if (zoom > 1) {
-//					for (int i = 0; i < image.getHeight(); i++) {
-//						for (int j = 0; j < image.getWidth(); j++) {
-////							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom+image.getWidth()), 0);
-//							g2d.setStroke(new BasicStroke(1));
-//							g2d.drawLine(0, (int)(i*zoom), (int)(image.getWidth()*zoom), (int)(i*zoom));
-//							g2d.drawLine((int)(j*zoom), 0, (int)(j*zoom), (int)(image.getHeight()*zoom));
-//
-////			                g2d.draw(new Line2D.Double(0, (i*zoom), (image.getWidth()*zoom), (i*zoom)));
-//						}
-//					}
-//				}
-				//grit ende
-				if ((outsidePath != null || insidePath != null) && (!outsidePath.isEmpty())) {
-					Point lastPoint = outsidePath.poll();
+	
+				
+				Queue<Point> collectOutside = new LinkedList<Point>();
+				Queue<Point> collectInside = new LinkedList<Point>();
+				
+				System.out.println(outsidePath);
+				
+///				if ((outsidePath != null || insidePath != null) && (!outsidePath.isEmpty() || !insidePath.isEmpty())) {
+				if(!outsidePath.isEmpty()) {
+
+					Point lastPointOut = outsidePath.poll();
+					collectOutside.add(lastPointOut);
 					g2d.setColor(Color.RED);
 					g2d.setStroke(new BasicStroke(5));
 					while (!outsidePath.isEmpty()) {
 						Point nextPoint = outsidePath.poll();
-						g2d.draw(new Line2D.Double(offsetX+lastPoint.x*zoom, offsetY+lastPoint.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
-						lastPoint = nextPoint;
+						collectOutside.add(nextPoint);
+						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
+						lastPointOut = nextPoint;			
 					}
+				}	
+					//Innere Konturen zeichnen
+				if(!insidePath.isEmpty()) {
+					Point lastPointIn = insidePath.poll();
 					
+					g2d.setColor(Color.ORANGE);
+					g2d.setStroke(new BasicStroke(5));
+					while (!insidePath.isEmpty()) {
+						Point nextPoint = insidePath.poll();
+						collectInside.add(nextPoint);
+						g2d.draw(new Line2D.Double(offsetX+lastPointIn.x*zoom, offsetY+lastPointIn.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
+						lastPointIn = nextPoint;					
+					}
 				}
+
+				setPath(collectOutside, collectInside, false);
 				
 				
 				g2d.dispose();
@@ -405,6 +399,7 @@ public class ImageView extends JScrollPane{
 //				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
 			}
 		}
+		
 		
 		public Dimension getPreferredSize() {
 			if(image != null) 
