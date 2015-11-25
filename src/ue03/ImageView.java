@@ -45,6 +45,8 @@ public class ImageView extends JScrollPane{
 	private double orginalImgH = 0.0;
 	private Queue<Point> outsidePath = new LinkedList<Point>();
 	private Queue<Point> insidePath = new LinkedList<Point>();
+	private Contoure [] contoures = new Contoure[0];
+	
 	private boolean grit;
 	
 	int pixels[] = null;		// pixel array in ARGB format
@@ -113,6 +115,18 @@ public class ImageView extends JScrollPane{
 		this.zoom = zoom;
 		screen.revalidate();
 		screen.repaint();
+	}
+	
+	public void setContoures(Contoure [] cons){
+		
+		this.contoures = cons;
+	}
+	
+	public void updateScreen(){
+		
+		screen.invalidate();
+		screen.repaint();
+
 	}
 	
 	public void setPath(Queue<Point> outside, Queue<Point> inside, boolean repaint) {
@@ -368,6 +382,35 @@ public class ImageView extends JScrollPane{
 				System.out.println(outsidePath);
 				
 ///				if ((outsidePath != null || insidePath != null) && (!outsidePath.isEmpty() || !insidePath.isEmpty())) {
+				
+				g2d.setStroke(new BasicStroke(5));
+				
+				//Kontouren zeichnen
+				for(int c = 0; c < contoures.length; c++){
+					
+					Contoure contoure = contoures[c];
+					if(contoure.isOutline()) g2d.setColor(Color.RED);
+					else g2d.setColor(Color.ORANGE);
+										
+					Point lastPointOut = contoure.getPoint(0);
+					
+					for(int j = 1; j < contoure.getPoints().length; j++){
+						
+						Point nextPoint = contoure.getPoint(j);
+						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
+						lastPointOut = nextPoint;									
+					}
+/*
+					while (!outsidePath.isEmpty()) {
+						collectOutside.add(nextPoint);
+						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
+						lastPointOut = nextPoint;			
+					}
+
+				*/	
+				}
+				
+				/*
 				if(!outsidePath.isEmpty()) {
 
 					Point lastPointOut = outsidePath.poll();
@@ -396,7 +439,7 @@ public class ImageView extends JScrollPane{
 				}
 
 				setPath(collectOutside, collectInside, false);
-				
+*/				
 				if (grit) {
 					if (zoom > 1) {
 						for (int i = 0; i < image.getHeight(); i++) {

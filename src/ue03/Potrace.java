@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 public class Potrace {
 	
 	private int[][] pixels;
+	private int WIDTH, HEIGHT;
 
 	public Queue<Point> outSidePaths;
 	public Queue<Point> insidePaths;
@@ -27,14 +28,17 @@ public class Potrace {
 	
 	private PathDirection direction;
 	
+	private ArrayList<Point[]> collectedPaths;
 	private Set<Point> allPoints;
-	
+	private Contoure[] contoures;
 	
 	public Potrace(){
 		direction = PathDirection.RIGHT;
-		allPoints = new HashSet<Point>();
+//		allPoints = new HashSet<Point>();
 		outSidePaths = new LinkedList<Point>();
 		insidePaths = new LinkedList<Point>();
+		
+		collectedPaths = new ArrayList<Point[]>();
 	}
 	
 	
@@ -80,25 +84,34 @@ public class Potrace {
 		return pixels;
 	}
 
-	public int [] RegionLabeling(int[] input, int width, int height) {
+	public void RegionLabeling(int[] input, int width, int height) {
 
+		WIDTH = width;
+		HEIGHT = height;
 		pixels = prepareBinaryImage(input, width, height);
+		
+		//Create a copy
+		
+		int [][] pixelCopy = copyPixels(pixels, height, width);
+		
 		int [] outputPixels = new int[input.length];
 		long timeStart = System.nanoTime();
 
+		//1. Finde einen schwarzen Pixel, bilde Außenkontur und invertiere Kontur
 		for (int h = 0; h < height; h++) {
 			for (int w = 0; w < width; w++) {
-				if (pixels[h][w] == 1) {
+				if (pixelCopy[h][w] == 1) {
 					
-					Point startPoint = new Point(w, h);
-					//Prüft ob der gefundene Punkt schon enthalten ist
-//					if(!allPoints.contains(startPoint)){ 
-						potrace(pixels, h, w, height, width);
-//					}
+					potrace(pixelCopy, h, w, height, width);
 				}
 			}
 		}
 		
+		//2.  Ordne zu ob Innen / Außenkante -> Baue Contoure-Object
+		createContoures();
+		
+		/*
+		//Füge Pixel wieder eindimensional zusammen.
 		int i = 0;
 		for(int h = 0; h < height; h++){
 			
@@ -108,8 +121,24 @@ public class Potrace {
 			}
 		}
 		return outputPixels;
+		*/
 	}
 
+	private void createContoures(){
+		
+		contoures = new Contoure[collectedPaths.size()];
+		
+		int index = 0;
+		for(Point [] points : collectedPaths){
+			
+			int [][] checkPattern = createPattern(pixels, points[0], WIDTH, HEIGHT);
+			Contoure contoure = createConture(checkPattern, points);
+
+			contoures[index] = contoure;
+			index++;
+		}
+		
+	}
 	
 	public int getIntFromColor(int Red, int Green, int Blue){
 	    Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
@@ -131,22 +160,59 @@ public class Potrace {
 		return copy;
 	}
 	
+	private Contoure createConture(int [][] pattern, Point [] points){
+		
+		boolean isOutline = true;		
+		Point v = points[0];
+		Point w = points[1];		
+		PathDirection lookingDir;
+		
+		int left;
+		//Richtung zeigt nach unten
+		if(v.y < w.y){
+//			int right = pattern[1][0]; //Unterer -> Linker Pixel
+			left = pattern[1][1]; //Unterer -> Rechter Pixel
+		}
+		//Richtung nach Rechts
+		else if(v.x < w.x){
+			
+			left = pattern[0][1]; //Oberer -> Rechter Pixel
+//			int right = pattern[1][1]; //Unterer -> Rechter Pixel			
+		}
+		//Richtung nach Links
+		else if(w.x < v.x){
+			
+//			int right = pattern[0][0]; // Oberer-> Linker Pixel
+			left = pattern[1][0]; //Unterer -> Linker Pixel	
+		}
+		//Richtung nach oben
+		else {
+			
+			left = pattern[0][0]; // Oberer-> Linker Pixel
+//			int right = pattern[0][1]; //Oberer -> Linker Pixel
+		}
+		if(left == 1) isOutline = true;
+		else isOutline = false;			
+
+		return new Contoure(isOutline, points);
+	}
 	
 	public void potrace(int[][] pixels, int y, int x, int h, int w) {
 
-		Queue<Point> outerPath = findPath(pixels, x, y);
+//		Queue<Point> outerPath = findPath(pixels, x, y);
+		Point [] points = findPath(pixels, x, y);		
+		collectedPaths.add(points);
 		
-		
+		removeOutline(points, pixels);
+/*
 		outSidePaths.addAll(outerPath);
 		allPoints.addAll(outerPath);
-		
-		
+*/				
 		//Copy Pixels		
-		int [][] insidePixels = copyPixels(pixels, h, w);
+	//	int [][] insidePixels = copyPixels(pixels, h, w);
 		
-		Queue<Point> outCopy = copyPath(outerPath);		
-		retrieveInsidePixels(outerPath, insidePixels);
-		
+//		Queue<Point> outCopy = copyPath(outerPath);		
+		/*
 		for(int i = 0; i < h; i++){
 			
 			for(int j = 0; j < w; j++){
@@ -161,7 +227,7 @@ public class Potrace {
 			}
 		}		
 		setLabelForFoundPixels(outCopy, pixels);
-
+*/
 	}
 	
 	private int [][] copyPixels(int [][] original, int h, int w){
@@ -175,12 +241,15 @@ public class Potrace {
 		return copy;
 	}
 		
-	private Queue<Point> findPath(int [][] pixels, int x, int y){
+//	private Queue<Point> findPath(int [][] pixels, int x, int y){
+	private Point [] findPath(int [][] pixels, int x, int y){	
+//		Queue<Point> path = new LinkedList<Point>();
+		ArrayList<Point> path = new ArrayList<Point>();
 		
-		Queue<Point> path = new LinkedList<Point>();
 		Point startPoint = new Point(x, y);
 		Point endPoint = new Point(x, y);		
 
+//		path.add(startPoint);
 		path.add(startPoint);
 //		printPixels(pixels);
 //		System.out.println("---------------");
@@ -191,6 +260,7 @@ public class Potrace {
 		
 		do {
 			endPoint = checkPattern(pixels,y,x, endPoint);
+//			path.add(endPoint);
 			path.add(endPoint);
 			
 			diffX = false;
@@ -201,19 +271,20 @@ public class Potrace {
 			
 		} while (together);
 
-		return path;
+//		return path;
+//		Point [] points = new Point [listOfPoints.size()];
+//		points = (Point [] )listOfPoints.toArray();
+		return path.toArray(new Point[0]);
 	}
 	
-	private void retrieveInsidePixels(Queue<Point> path, int [][] pixels){
+	private void removeOutline(Point[] path, int [][] pixels){
 
-		Queue<Point> collect = new LinkedList<Point>();
-		Point lastPoint = path.poll();
+		Point lastPoint = path[0];
 		int lastY = lastPoint.y;
 		
-		collect.add(lastPoint);
-		while(!path.isEmpty()){
+		for(int i = 1; i < path.length; i++){
 
-			Point p = path.poll();
+			Point p = path[i];
 			if(p.y > lastY){
 				invertLine(pixels, p.x, lastY);
 				
@@ -223,7 +294,6 @@ public class Potrace {
 				invertLine(pixels, p.x, p.y);
 			}
 			lastY = p.y;
-			collect.add(p);
 		}		
 	}
 	
@@ -275,16 +345,17 @@ public class Potrace {
 		else return possiblePoints[3];
 	}
 	
+	//RANDBEHANDLUNG eingefügt
 	private int [][] createPattern(int [][] pixels, Point currentPoint, int width, int height){
 		
 		int y = currentPoint.y, x = currentPoint.x;
 		
 		int pattern2D [][] = new int [2][2];
 		
-		if(y-1 >= 0 && x-1 >= 0) pattern2D[0][0] = pixels[y-1][x-1];
-		if(y-1 >= 0) pattern2D[0][1] = pixels[y-1][x];
-		if (x-1 >= 0) pattern2D[1][0] = pixels[y][x-1];
-		pattern2D[1][1] = pixels[y][x];
+		if(y-1 >= 0 && x-1 >= 0 && y-1 < height && x-1 < width) pattern2D[0][0] = pixels[y-1][x-1];
+		if(y-1 >= 0 && y-1 < height && x < width) pattern2D[0][1] = pixels[y-1][x];
+		if (x-1 >= 0 && x-1 < width && y < height) pattern2D[1][0] = pixels[y][x-1];
+		if (x < width && y < height) pattern2D[1][1] = pixels[y][x];
 
 		return pattern2D;
 	}
@@ -416,10 +487,20 @@ public class Potrace {
 		System.out.println("---------------");
 	}		
 	
-	public void resetPaths(){
+	
+	public Contoure[] getContoures(){
 		
+		return contoures;
+	}
+	
+	public void reset(){
+		
+		contoures = null;
+//		allPoints = new ArrayList<Point []>();
 		insidePaths.clear();
 		outSidePaths.clear();
-		allPoints.clear();
+				
+		direction = PathDirection.RIGHT;		
+		collectedPaths = new ArrayList<Point[]>();
 	}
 }

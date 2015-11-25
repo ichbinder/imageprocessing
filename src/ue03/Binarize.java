@@ -239,21 +239,27 @@ public class Binarize extends JPanel {
 		statusLine.setText(message);
 
 		long startTime = System.currentTimeMillis();
-		potrace.resetPaths();
-		
+//		potrace.resetPaths();
+
+		potrace.reset();
 		if(drawPaths.isSelected()){
 			
 			potrace.RegionLabeling(dstPixels, width, height);
 //			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
 //	        dstView.setPixels(pathPics, width, height);
+			dstView.setContoures(potrace.getContoures());
+		}
+		else{			
+			dstView.setContoures(new Contoure[0]);
 		}
 		if(grit.isSelected()){
 			dstView.setGrit(true);
 		} else {
 			dstView.setGrit(false);
 		}
-        dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
+		dstView.updateScreen();
 
+		//dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
 			
 		long time = System.currentTimeMillis() - startTime;
 		// dstView.setPixels(dstPixels, width, height);
