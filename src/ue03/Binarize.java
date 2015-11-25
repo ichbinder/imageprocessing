@@ -244,7 +244,7 @@ public class Binarize extends JPanel {
 		potrace.reset();
 		if(drawPaths.isSelected()){
 			
-			potrace.RegionLabeling(dstPixels, width, height);
+			potrace.FindContoures(dstPixels, width, height);
 //			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
 //	        dstView.setPixels(pathPics, width, height);
 			dstView.setContoures(potrace.getContoures());

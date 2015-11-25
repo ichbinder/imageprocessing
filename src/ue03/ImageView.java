@@ -126,7 +126,6 @@ public class ImageView extends JScrollPane{
 		
 		screen.invalidate();
 		screen.repaint();
-
 	}
 	
 	public void setPath(Queue<Point> outside, Queue<Point> inside, boolean repaint) {
