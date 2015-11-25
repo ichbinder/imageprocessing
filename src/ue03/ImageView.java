@@ -6,21 +6,15 @@ package ue03;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.SystemColor;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -41,10 +35,6 @@ public class ImageView extends JScrollPane{
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
 	private double zoom = 1.0;
-	private double orginalImgW = 0.0;
-	private double orginalImgH = 0.0;
-	private Queue<Point> outsidePath = new LinkedList<Point>();
-	private Queue<Point> insidePath = new LinkedList<Point>();
 	private Contoure [] contoures = new Contoure[0];
 	
 	private boolean grit;
@@ -127,22 +117,6 @@ public class ImageView extends JScrollPane{
 		screen.invalidate();
 		screen.repaint();
 	}
-	
-	public void setPath(Queue<Point> outside, Queue<Point> inside, boolean repaint) {
-		outsidePath = outside;
-		insidePath = inside;
-		
-		if(repaint){
-			screen.invalidate();
-			screen.repaint();
-		}
-	}
-	
-	public void setPath(Queue<Point> outside, Queue<Point> inside) {
-		outsidePath = outside;
-		insidePath = inside;
-	}
-
 	
 	public void resetToSize(int width, int height) {
 		// resize image and erase all content
@@ -267,9 +241,6 @@ public class ImageView extends JScrollPane{
    		 	bi = new BufferedImage(200, 150, BufferedImage.TYPE_INT_RGB);
 		}
 		
-		orginalImgH = bi.getHeight();
-		orginalImgW = bi.getWidth();
-		
 		init(bi, !success);
 		
 		if(!success) printText(5, getImgHeight()/2, "Bild konnte nicht geladen werden.");
@@ -327,17 +298,11 @@ public class ImageView extends JScrollPane{
 			if (image != null) {
 				Rectangle r = this.getBounds();
 								
-//				image.getScaledInstance(image.getHeight() * (int)zoom, image.getWidth() * (int)zoom, Image.SCALE_DEFAULT);
-				// limit image view magnification
 				if(maxViewMagnification > 0.0) {
 					int maxWidth = (int)(image.getWidth() * maxViewMagnification + 0.5);
 					int maxHeight = (int)(image.getHeight() * maxViewMagnification + 0.5);
 					maxWidth = (int) ((int) maxWidth * zoom);
 					maxHeight = (int) ((int) maxHeight * zoom);
-/*					
-					System.out.println(maxWidth);
-					System.out.println(maxHeight);
-*/					
 					if(r.width  > maxWidth) r.width = maxWidth;
 					if(r.height  > maxHeight) r.height = maxHeight;
 				}
@@ -372,16 +337,7 @@ public class ImageView extends JScrollPane{
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
 				 Graphics2D g2d = (Graphics2D) g.create();
-				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);
-	
-				
-				Queue<Point> collectOutside = new LinkedList<Point>();
-				Queue<Point> collectInside = new LinkedList<Point>();
-				
-				System.out.println(outsidePath);
-				
-///				if ((outsidePath != null || insidePath != null) && (!outsidePath.isEmpty() || !insidePath.isEmpty())) {
-				
+				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
 				g2d.setStroke(new BasicStroke(5));
 				
 				//Kontouren zeichnen
@@ -399,46 +355,8 @@ public class ImageView extends JScrollPane{
 						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
 						lastPointOut = nextPoint;									
 					}
-/*
-					while (!outsidePath.isEmpty()) {
-						collectOutside.add(nextPoint);
-						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
-						lastPointOut = nextPoint;			
-					}
-
-				*/	
 				}
-				
-				/*
-				if(!outsidePath.isEmpty()) {
-
-					Point lastPointOut = outsidePath.poll();
-					collectOutside.add(lastPointOut);
-					g2d.setColor(Color.RED);
-					g2d.setStroke(new BasicStroke(5));
-					while (!outsidePath.isEmpty()) {
-						Point nextPoint = outsidePath.poll();
-						collectOutside.add(nextPoint);
-						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
-						lastPointOut = nextPoint;			
-					}
-				}	
-					//Innere Konturen zeichnen
-				if(!insidePath.isEmpty()) {
-					Point lastPointIn = insidePath.poll();
 					
-					g2d.setColor(Color.ORANGE);
-					g2d.setStroke(new BasicStroke(5));
-					while (!insidePath.isEmpty()) {
-						Point nextPoint = insidePath.poll();
-						collectInside.add(nextPoint);
-						g2d.draw(new Line2D.Double(offsetX+lastPointIn.x*zoom, offsetY+lastPointIn.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
-						lastPointIn = nextPoint;					
-					}
-				}
-
-				setPath(collectOutside, collectInside, false);
-*/				
 				if (grit) {
 					if (zoom > 1) {
 						for (int i = 0; i < image.getHeight(); i++) {
@@ -452,13 +370,8 @@ public class ImageView extends JScrollPane{
 						}
 					}
 					
-				}
-				
-				
-				g2d.dispose();
-				
-				// draw image
-//				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+				}				
+				g2d.dispose();				
 			}
 		}
 		

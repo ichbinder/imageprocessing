@@ -1,10 +1,8 @@
 package ue03;
 // Copyright (C) 2014 by Klaus Jung
 
-import javax.imageio.ImageIO;
-
 // All rights reserved.
-// Date: 2014-10-02
+// Date: 2015-11-25
 // Authors: André Vallentin: 	527538
 // 			Jakob Warnow: 		531600
 
@@ -12,18 +10,11 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.Queue;
-
 import java.awt.Dimension;
-import java.awt.image.DataBufferInt;
 
 public class Binarize extends JPanel {
 
@@ -43,7 +34,6 @@ public class Binarize extends JPanel {
 	private ImageView srcView; // source image view
 	private ImageView dstView; // binarized image view
 
-	private JComboBox<String> methodList; // the selected binarization method
 	private JLabel statusLine; // to print some status text
 	
 	private JCheckBox drawPaths;

@@ -1,12 +1,7 @@
 package ue03;
 
 import java.awt.Point;
-import java.awt.image.BufferedImage;
-import java.awt.image.PixelGrabber;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 
 public class Potrace {
 	
@@ -24,24 +19,6 @@ public class Potrace {
 		collectedPaths = new ArrayList<Point[]>();
 	}
 	
-	
-/*	
-	public static void main(String[] args) throws InterruptedException, IOException {
-		// TODO Auto-generated method stub
-//		File imgFile = new File("/home/jakob/git/imageprocessing/klein.png");
-		File imgFile = new File("./test2.png");
-		System.out.println(imgFile.getAbsolutePath());
-		
-	    BufferedImage hugeImage = ImageIO.read(imgFile);
-		PixelGrabber pg = new PixelGrabber(hugeImage, 0, 0, hugeImage.getWidth(), hugeImage.getHeight(), false);
-
-		pg.grabPixels(); // Throws InterruptedException
-
-		int[] pixels = (int[])pg.getPixels();
-		Potrace main = new Potrace();
-		main.FindContoures(pixels, pg.getWidth(), pg.getHeight());
-	}
-*/
 	/**
 	 * Bildet ein 1-dimensionales in ein 2-dimensionales Pixel-Array und setzt Label für Vordergrund- (1) 
 	 * und Hintergrundpixel (0).
@@ -438,19 +415,7 @@ public class Potrace {
 		
 		return directions.get(index);
 	}
-	
-	/**Gibt die Pixel für die Konsole aus.
-	 * @param pix Die auszugebenen Pixel*/
-	private void printPixels(int [][] pix){
-		
-		for(int h = 0; h < pix.length; h++){
-			for(int w = 0; w < pix[h].length; w++){
-				System.out.print("" + pix[h][w] + " | ");			
-			}
-			System.out.println();
-		}
-		System.out.println("---------------");
-	}		
+
 	
 	/**Gibt die gefundenen Konturen zurück.
 	 * @return gefundene Konturen*/
