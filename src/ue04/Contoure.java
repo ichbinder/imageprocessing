@@ -1,21 +1,20 @@
 package ue04;
 
-import java.awt.Point;
 
 public class Contoure {
 
 	final private boolean isOutline;
-	final private Point [] points;
+	final private Vector2 [] vectors;
 	
-	public Contoure(boolean isOut, Point [] ps){
+	public Contoure(boolean isOut, Vector2 [] ps){
 		
 		this.isOutline = isOut;
-		this.points = ps;
+		this.vectors = ps;
 	}
 		
-	public Point [] getPoints(){
+	public Vector2 [] getVectors(){
 		
-		return this.points;
+		return this.vectors;
 	}
 	
 	public boolean isOutline(){
@@ -23,7 +22,7 @@ public class Contoure {
 		return this.isOutline;
 	}
 	
-	public Point getPoint(int index){
-		return this.points[index];
+	public Vector2 getVector(int index){
+		return this.vectors[index];
 	}
 }

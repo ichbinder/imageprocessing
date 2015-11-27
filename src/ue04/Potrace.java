@@ -1,6 +1,5 @@
 package ue04;
 
-import java.awt.Point;
 import java.util.ArrayList;
 
 public class Potrace {
@@ -11,12 +10,12 @@ public class Potrace {
 	public enum PathDirection {LEFT, RIGHT, UP, DOWN};	
 	private PathDirection direction;
 	
-	private ArrayList<Point[]> collectedPaths;
+	private ArrayList<Vector2[]> collectedPaths;
 	private Contoure[] contoures;
 	
 	public Potrace(){
 		direction = PathDirection.RIGHT;		
-		collectedPaths = new ArrayList<Point[]>();
+		collectedPaths = new ArrayList<Vector2[]>();
 	}
 	
 	/**
@@ -46,8 +45,8 @@ public class Potrace {
 	}
 
 	/**Sucht Konturen in einem Bild. Der erste schwarze Pixel sucht dann nach einer Kontur.
-	 * Alle Punkte werden in einem Array gespeichert (Point []). 
-	 * Danach werden alle gefundenen Pixel invertiert. Alle Punkt-Konturen werden in einer ArrayList gespeichert (ArrayList<Point[]>).
+	 * Alle Punkte werden in einem Array gespeichert (Vector2 []). 
+	 * Danach werden alle gefundenen Pixel invertiert. Alle Punkt-Konturen werden in einer ArrayList gespeichert (ArrayList<Vector2[]>).
 	 * Alle gefundenen Konturen werden als Contoure-Objekte gespeichert.
 	 * @param input Das gesamte Bild in Pixeln
 	 * @param width Breite des Bildes
@@ -84,10 +83,10 @@ public class Potrace {
 		contoures = new Contoure[collectedPaths.size()];
 		
 		int index = 0;
-		for(Point [] points : collectedPaths){
+		for(Vector2 [] Vector2s : collectedPaths){
 			
-			int [][] checkPattern = createPattern(pixels, points[0], WIDTH, HEIGHT);
-			Contoure contoure = createConture(checkPattern, points);
+			int [][] checkPattern = createPattern(pixels, Vector2s[0], WIDTH, HEIGHT);
+			Contoure contoure = createConture(checkPattern, Vector2s);
 
 			contoures[index] = contoure;
 			index++;
@@ -101,13 +100,13 @@ public class Potrace {
 	 * Ist die schwarze Seite links ist es eine äußere Kontur. Ist sie rechts liegt sie innen.
 	 * 
 	 * @param pattern Quadrat mit betrachteten Pixeln
-	 * @param points Alle Punkte für eine Kontur
+	 * @param Vector2s Alle Punkte für eine Kontur
 	 * @return eine Kontur */
-	private Contoure createConture(int [][] pattern, Point [] points){
+	private Contoure createConture(int [][] pattern, Vector2 [] vectors){
 		
 		boolean isOutline = true;		
-		Point v = points[0];
-		Point w = points[1];
+		Vector2 v = vectors[0];
+		Vector2 w = vectors[1];
 		
 		int left;
 		//Richtung zeigt nach unten
@@ -136,7 +135,7 @@ public class Potrace {
 		if(left == 1) isOutline = true;
 		else isOutline = false;			
 
-		return new Contoure(isOutline, points);
+		return new Contoure(isOutline, vectors);
 	}
 	
 	/**Einstiegspunkt für das Finden einer einzelnen Kontur.
@@ -147,9 +146,9 @@ public class Potrace {
 	 * */
 	public void potrace(int[][] pixels, int y, int x) {
 
-		Point [] points = findPath(pixels, x, y);		
-		collectedPaths.add(points);	
-		removeOutline(points, pixels);
+		Vector2 [] Vector2s = findPath(pixels, x, y);		
+		collectedPaths.add(Vector2s);	
+		removeOutline(Vector2s, pixels);
 	}
 	
 	/**Kopiert ein zwei-dimensionales Pixel-Array
@@ -175,30 +174,30 @@ public class Potrace {
 	 * @param x X-Koordinate des ersten schwarzen Pixels
 	 * @param y Y-Koordinate des ersten schwarzen Pixels
 	 * */
-	private Point [] findPath(int [][] pixels, int x, int y){	
-		ArrayList<Point> path = new ArrayList<Point>();
+	private Vector2 [] findPath(int [][] pixels, int x, int y){	
+		ArrayList<Vector2> path = new ArrayList<Vector2>();
 		
-		Point startPoint = new Point(x, y);
-		Point endPoint = new Point(x, y);		
-		path.add(startPoint);
+		Vector2 startVector2 = new Vector2(x, y);
+		Vector2 endVector2 = new Vector2(x, y);		
+		path.add(startVector2);
 		
 		boolean diffX = false;
 		boolean diffY = false;
 		boolean together = true;
 		
 		do {
-			endPoint = nextPointForPath(pixels, endPoint);
-			path.add(endPoint);
+			endVector2 = nextVector2ForPath(pixels, endVector2);
+			path.add(endVector2);
 			
 			diffX = false;
 			diffY = false;
-			if(startPoint.x != endPoint.x) diffX = true;
-			if(startPoint.y != endPoint.y) diffY = true;			
+			if(startVector2.x != endVector2.x) diffX = true;
+			if(startVector2.y != endVector2.y) diffY = true;			
 			if(diffX == false &&  diffY == false) together = false;
 			
 		} while (together);
 
-		return path.toArray(new Point[0]);
+		return path.toArray(new Vector2[0]);
 	}
 	
 	/**Invertiert die schwarzen Pixel der schon gefundenen Kontur und innere Konturen werden sichtbar (weiß zu schwarz) 
@@ -206,14 +205,14 @@ public class Potrace {
 	 * @param path Alle Punkte einer Kontur
 	 * @param pixels Alle Pixel (auch die bearbeiteten) des Bildes
 	 * */
-	private void removeOutline(Point[] path, int [][] pixels){
+	private void removeOutline(Vector2[] path, int [][] pixels){
 
-		Point lastPoint = path[0];
-		int lastY = lastPoint.y;
+		Vector2 lastVector2 = path[0];
+		int lastY = lastVector2.y;
 		
 		for(int i = 1; i < path.length; i++){
 
-			Point p = path[i];
+			Vector2 p = path[i];
 			if(p.y > lastY){
 				invertLine(pixels, p.x, lastY);				
 			}
@@ -241,29 +240,29 @@ public class Potrace {
 	
 	/**Gibt die nächste Richtungs zurück welche "Gegen-den-Uhrzeigersinn" läuft.
 	 * 
-	 * @param possiblePoints Alle 4 Richtungen (Links, Oben, Rechts, Unten)
+	 * @param possibleVector2s Alle 4 Richtungen (Links, Oben, Rechts, Unten)
 	 * @param dir aktuelle nächste Richtung (Links -> Unten)
 	 * */
-	private Point getNextPos(Point [] possiblePoints, PathDirection dir){
+	private Vector2 getNextPos(Vector2 [] possibleVector2s, PathDirection dir){
 		
-		if(dir == PathDirection.LEFT) return possiblePoints[0];
-		else if(dir == PathDirection.UP) return possiblePoints[1];
-		else if(dir == PathDirection.RIGHT) return possiblePoints[2];
-		else return possiblePoints[3];
+		if(dir == PathDirection.LEFT) return possibleVector2s[0];
+		else if(dir == PathDirection.UP) return possibleVector2s[1];
+		else if(dir == PathDirection.RIGHT) return possibleVector2s[2];
+		else return possibleVector2s[3];
 	}
 	
 	/**Erzeugt ein Pattern 2x2 Pixel-Quadrat.
 	 * Es wird ebenso Randbehandlung berücksichtigt.
 	 * 
 	 * @param pixels Alle Pixel des Bildes
-	 * @param currentPoint aktueller Betrachtungspunkt
+	 * @param currentVector2 aktueller Betrachtungspunkt
 	 * @param width Breite des Bildes für Randbehandlung
 	 * @param height Höhe des Bildes für Randbehandlung
 	 * @return 2x2 Pixel-Array mit betrachteten Pixeln
 	 * */
-	private int [][] createPattern(int [][] pixels, Point currentPoint, int width, int height){
+	private int [][] createPattern(int [][] pixels, Vector2 currentVector2, int width, int height){
 		
-		int y = currentPoint.y, x = currentPoint.x;
+		int y = currentVector2.y, x = currentVector2.x;
 		
 		int pattern2D [][] = new int [2][2];
 		
@@ -277,22 +276,22 @@ public class Potrace {
 
 	/**Gibt alle Punkte die betrachtet werden können von einem Bezugspunkt aus. Die Reihenfolge ist Links|Oben|Rechts|Unten.
 	 * 
-	 * @param currentPoint der aktuelle Bezugspunkt 
+	 * @param currentVector2 der aktuelle Bezugspunkt 
 	 * @return Alle vier Punkte die erreicht werden können.
 	 * */
-	private Point [] createLookupPoints(Point currentPoint){
+	private Vector2 [] createLookupVector2s(Vector2 currentVector2){
 		
-		Point [] points = new Point[4];
+		Vector2 [] Vector2s = new Vector2[4];
 		
-		int x = currentPoint.x;
-		int y = currentPoint.y;
+		int x = currentVector2.x;
+		int y = currentVector2.y;
 
-		points[0] = new Point(x-1, y); //Links
-		points[1] = new Point(x, y-1); //Oben
-		points[2] = new Point(x+1, y);// Rechts	
-		points[3] = new Point(x, y+1); //Unten
+		Vector2s[0] = new Vector2(x-1, y); //Links
+		Vector2s[1] = new Vector2(x, y-1); //Oben
+		Vector2s[2] = new Vector2(x+1, y);// Rechts	
+		Vector2s[3] = new Vector2(x, y+1); //Unten
 
-		return points;
+		return Vector2s;
 	}
 	
 	/**Prüft in welche Richtung als nächstes gegangen werden soll.
@@ -304,16 +303,16 @@ public class Potrace {
 	 * 6. Der nächste Punkt im Bezug zur Abbiege-Richtung aus Schritt 5 wird aus dem Array vom Schritt 2 zurückgegeben.
 	 * 
 	 * @param pixels Alle Pixel des Bildes
-	 * @param lastPoint der aktuelle Betrachtungspunkt
+	 * @param lastVector2 der aktuelle Betrachtungspunkt
 	 * @return Den nächsten Betrachtungspunkt (zum Bilden der Kontur)*/
-	private Point nextPointForPath(int[][] pixels, Point lastPoint) {
+	private Vector2 nextVector2ForPath(int[][] pixels, Vector2 lastVector2) {
 				
-		Point nextPoint = null;
+		Vector2 nextVector2 = null;
 		//Erzeuge Pattern aus Bildpixeln		
-		int [][] pattern = createPattern(pixels, lastPoint, pixels[0].length, pixels.length);		
+		int [][] pattern = createPattern(pixels, lastVector2, pixels[0].length, pixels.length);		
 //		printPixels(pattern);
 		
-		Point[] lookupPoints = createLookupPoints(lastPoint);
+		Vector2[] lookupVector2s = createLookupVector2s(lastVector2);
 		
 		//Rotiere Pattern damit Kantenstartpunkt immer unten liegt.		
 		int rotateAngle = 0;
@@ -353,9 +352,9 @@ public class Potrace {
 		direction = rotateDirection(360-rotateAngle, curveAngle);
 
 		//Nächster Vector-Punkt
-		nextPoint = getNextPos(lookupPoints, direction);
+		nextVector2 = getNextPos(lookupVector2s, direction);
 		
-		return nextPoint;
+		return nextVector2;
 	}
 
 	/**Gibt ein rotiertes 2-dimensionales Array zurück.
@@ -430,6 +429,6 @@ public class Potrace {
 	public void reset(){		
 		contoures = null;				
 		direction = PathDirection.RIGHT;		
-		collectedPaths = new ArrayList<Point[]>();
+		collectedPaths = new ArrayList<Vector2[]>();
 	}
 }

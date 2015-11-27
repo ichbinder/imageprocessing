@@ -13,7 +13,6 @@ import java.awt.Font;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.io.File;
 
 import javax.imageio.ImageIO;
@@ -347,13 +346,13 @@ public class ImageView extends JScrollPane{
 					if(contoure.isOutline()) g2d.setColor(Color.RED);
 					else g2d.setColor(Color.ORANGE);
 										
-					Point lastPointOut = contoure.getPoint(0);
+					Vector2 lastVecOut = contoure.getVector(0);
 					
-					for(int j = 1; j < contoure.getPoints().length; j++){
+					for(int j = 1; j < contoure.getVectors().length; j++){
 						
-						Point nextPoint = contoure.getPoint(j);
-						g2d.draw(new Line2D.Double(offsetX+lastPointOut.x*zoom, offsetY+lastPointOut.y*zoom, offsetX+nextPoint.x*zoom, offsetY+nextPoint.y*zoom));
-						lastPointOut = nextPoint;									
+						Vector2 nextVec = contoure.getVector(j);
+						g2d.draw(new Line2D.Double(offsetX+lastVecOut.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
+						lastVecOut = nextVec;									
 					}
 				}
 					
