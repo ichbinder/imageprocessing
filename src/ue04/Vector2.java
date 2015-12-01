@@ -2,7 +2,7 @@ package ue04;
 
 public class Vector2{
 
-public int x,y;
+	public int x,y;
 	
 	public Vector2(int x, int y){
 		this.x = x;
@@ -39,7 +39,7 @@ public int x,y;
 	}
 	
 	public int cross(Vector2 b){
-		return this.x * b.y - (b.x - this.y);
+		return this.x * b.y - this.y * b.x;
 	}
 
 	public float scalarProduct(Vector2 other){
