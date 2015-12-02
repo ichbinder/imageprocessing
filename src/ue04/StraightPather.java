@@ -1,5 +1,7 @@
 package ue04;
 
+import java.util.ArrayList;
+
 public class StraightPather {
 
 	public static void main(String[] args) {
@@ -35,14 +37,16 @@ public class StraightPather {
 						break;
 					}
 					constaintUpdate(vik);
-				}
+				}				
 			}
 		}
 	}
 	
 	private boolean constaintUpdate(Vector2 a) {
-		if (Math.sqrt(a.x * a.x) <= 1 && Math.sqrt(a.y * a.y) <= 1)
-			return false;
+		if (Math.sqrt(a.x * a.x) <= 1 && Math.sqrt(a.y * a.y) <= 1){
+//			(Math.abs(a.x) <= 1 && Math.abs(a.y) <= 1){
+			return false;			
+		}
 		else {
 			// Berechne constraint0 neu oder nicht
 			Vector2 d0 = new Vector2(); 
@@ -76,6 +80,38 @@ public class StraightPather {
 				
 			return true;
 		}
+	}
+	
+	private int[][] possibleSegments(int [] straightPaths){
+		
+		int [][] possibleSegments = new int [straightPaths.length][straightPaths.length];
+		
+		//i ist immer der neue Startpunkt
+		for(int i = 0; i < possibleSegments.length; i++){
+			
+			int length = 0;
+			int maxIndex = i;
+			int maxValue = 0;
+			
+			ArrayList arrList = new ArrayList<Integer>();
+			
+			//Ablaufen der nächsten Punkte
+			for(int j = 0; j < possibleSegments.length; j++){
+
+				maxValue = straightPaths[maxIndex];	
+//				possibleSegments[i][j] = maxValue;
+				arrList.add(maxValue);
+				maxIndex = maxValue;				
+				length ++;
+			}
+			//ArrayList to Integer->Array
+			possibleSegments[i] =  new int [arrList.size()];
+			
+			for(int j = 0; j < arrList.size(); j++){
+				possibleSegments[i][j] = (int) arrList.get(j);
+			}		
+		}		
+		return possibleSegments;
 	}
 
 	public int[][] getStraightPath() {
