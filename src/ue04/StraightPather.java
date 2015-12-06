@@ -1,9 +1,6 @@
 package ue04;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class StraightPather {
 
@@ -15,17 +12,18 @@ public class StraightPather {
 	private Vector2 constraint0;
 	private Vector2 constraint1;
 	private Contoure[] contoures;
-	private Map<Integer, Object> straightPath;
+	private ArrayList<Integer> straightPath;
+	private int[] bestStraightPath;
 	
 	public StraightPather(Contoure[] contoures) {
 		this.contoures = contoures;
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
-		this.straightPath = new HashMap<Integer, Object>();
-		createStraighttPath();
+		this.straightPath = new ArrayList<Integer>();
+		this.bestStraightPath = createStraighttPath();
 	}
 	
-	private void createStraighttPath() {
+	private int[] createStraighttPath() {
 		Vector2 vik = new Vector2();
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
@@ -37,13 +35,25 @@ public class StraightPather {
 					vik.subtractVector(contoure.getVector(i));
 					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
 						contoure.setStraightPath(i, k - 1);
+						this.straightPath.add(k - 1);
 						break;
 					}
 					constaintUpdate(vik);
 				}				
 			}
 		}
-		possibleSegments2();
+		int[][] paths = possibleSegments(getStraightPaths());
+		//Berechnung des besten Polygons 
+		int lengthOfBestPath = paths.length;
+		int indexOfBestPath = 0;
+		for (int i = 0; i < paths.length; i++) {
+			if (lengthOfBestPath > paths[i].length) {
+				System.out.println(paths[i].length);
+				lengthOfBestPath = paths[i].length;
+				indexOfBestPath = i;
+			}
+		}
+		return paths[indexOfBestPath];
 	}
 	
 	private boolean constaintUpdate(Vector2 a) {
@@ -86,44 +96,24 @@ public class StraightPather {
 		}
 	}
 	
-	private void possibleSegments2() {
-		for (int c = 0; c < contoures.length; c++) {
-			Contoure contoure = contoures[c];
-			for (Object key : contoure.getStraightPath().keySet()) {
-				rekusivPath((int)contoure.getStraightPath().get(key), contoure);
-			}
-		}
-	}
-	
-	private void rekusivPath(int key, Contoure contoure) {
-		if (contoure.getStraightPath().containsValue(key)) {
-			this.straightPath.put(key, contoure.getStraightPath().get(key));
-			rekusivPath((int)contoure.getStraightPath().get(key), contoure);
-		}
-	}
-	
-	
 	private int[][] possibleSegments(int [] straightPaths) {
 		
-		int [][] possibleSegments = new int [straightPaths.length][straightPaths.length];
+		int [][] possibleSegments = new int [straightPaths.length][];
 		
 		// ist immer der neue Startpunkt
 		for(int i = 0; i < possibleSegments.length; i++) {
 			
-			int length = 0;
 			int maxIndex = i;
 			int maxValue = 0;
 			
-			ArrayList arrList = new ArrayList<Integer>();
+			ArrayList<Integer> arrList = new ArrayList<Integer>();
 			
 			//Ablaufen der nächsten Punkte
 			for(int j = 0; j < possibleSegments.length; j++) {
 
 				maxValue = straightPaths[maxIndex];	
-//				possibleSegments[i][j] = maxValue;
 				arrList.add(maxValue);
 				maxIndex = maxValue;				
-				length ++;
 			}
 			//ArrayList to Integer->Array
 			possibleSegments[i] =  new int [arrList.size()];
@@ -135,7 +125,15 @@ public class StraightPather {
 		return possibleSegments;
 	}
 
-	public Map getStraightPath() {
-		return straightPath;
+	public int[] getStraightPaths() {
+		int[] tmp = new int[straightPath.size()];
+		for (int i = 0; i < straightPath.size(); i++) {
+			tmp[i] = straightPath.get(i);
+		}
+		return tmp;
+	}
+	
+	public int[] getStraightPath() {
+		return this.bestStraightPath;
 	}
 }

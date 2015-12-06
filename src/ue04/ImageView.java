@@ -359,6 +359,11 @@ public class ImageView extends JScrollPane{
 						lastVecOut = nextVec;									
 					}
 				}
+				
+//				int[] path = pather.getStraightPath();
+//				for (int i = 0; i < path.length; i++) {
+//					g2d.draw(new Line2D.Double(offsetX+i.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
+//				}
 					
 				if (grit) {
 					if (zoom > 1) {
