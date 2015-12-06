@@ -25,7 +25,9 @@ public class Binarize extends JPanel {
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andrezz, Jakob Warnow";
-	private static final String initalOpen = "test2.png";	
+	private static final String initalOpen = "";	
+//	private static final String initalOpen = "test2.png";	
+
 	private static final double initalZoom = 1;
 	private static double currentZoom = initalZoom;
 	

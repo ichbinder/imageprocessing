@@ -127,8 +127,7 @@ public class Potrace {
 			left = pattern[1][0]; //Unterer -> Linker Pixel	
 		}
 		//Richtung nach oben
-		else {
-			
+		else {			
 			left = pattern[0][0]; // Oberer-> Linker Pixel
 //			int right = pattern[0][1]; //Oberer -> Linker Pixel
 		}

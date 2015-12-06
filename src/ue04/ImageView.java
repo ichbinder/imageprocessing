@@ -340,8 +340,12 @@ public class ImageView extends JScrollPane{
 				g2d.setStroke(new BasicStroke(5));
 				
 				StraightPather pather = null;
-				if (contoures.length > 2)
-					pather  = new StraightPather(contoures);
+				if (contoures.length > 2){
+					pather  = new StraightPather(contoures); 
+					for(int i = 0; i < pather.getStraightPath().length;i++){
+						System.out.println(pather.getStraightPath()[i]);						
+					}
+				}
 				
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
@@ -359,11 +363,16 @@ public class ImageView extends JScrollPane{
 						lastVecOut = nextVec;									
 					}
 				}
-				
-//				int[] path = pather.getStraightPath();
-//				for (int i = 0; i < path.length; i++) {
-//					g2d.draw(new Line2D.Double(offsetX+i.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
-//				}
+				/*
+				if(pather != null){
+					int[] path = pather.getStraightPath();
+					for (int i = 0; i < path.length; i++) {
+						
+						Vector2 nextVec = .getVector(path[i]);
+						g2d.draw(new Line2D.Double(offsetX+i.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
+					}
+				}*/
+
 					
 				if (grit) {
 					if (zoom > 1) {
