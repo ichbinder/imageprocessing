@@ -339,6 +339,10 @@ public class ImageView extends JScrollPane{
 				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
 				g2d.setStroke(new BasicStroke(5));
 				
+				StraightPather pather = null;
+				if (contoures.length > 2)
+					pather  = new StraightPather(contoures);
+				
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
 					

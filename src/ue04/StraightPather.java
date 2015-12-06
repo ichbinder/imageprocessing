@@ -1,24 +1,26 @@
 package ue04;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StraightPather {
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//
+//	}
 	
 	private Vector2 constraint0;
 	private Vector2 constraint1;
 	private Contoure[] contoures;
-	private int[][] straightPath;
+	private Map<Integer, Object> straightPath;
 	
 	public StraightPather(Contoure[] contoures) {
 		this.contoures = contoures;
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
-		this.straightPath = new int[contoures.length][Integer.MAX_VALUE];
+		this.straightPath = new HashMap<Integer, Object>();
 		createStraighttPath();
 	}
 	
@@ -33,7 +35,7 @@ public class StraightPather {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
 					vik.subtractVector(contoure.getVector(i));
 					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
-						this.straightPath[c][i] = k - 1;
+						contoure.setStraightPath(i, k - 1);
 						break;
 					}
 					constaintUpdate(vik);
@@ -82,12 +84,17 @@ public class StraightPather {
 		}
 	}
 	
-	private int[][] possibleSegments(int [] straightPaths){
+	private void possibleSegments2() {
+		
+	}
+	
+	
+	private int[][] possibleSegments(int [] straightPaths) {
 		
 		int [][] possibleSegments = new int [straightPaths.length][straightPaths.length];
 		
-		//i ist immer der neue Startpunkt
-		for(int i = 0; i < possibleSegments.length; i++){
+		// ist immer der neue Startpunkt
+		for(int i = 0; i < possibleSegments.length; i++) {
 			
 			int length = 0;
 			int maxIndex = i;
@@ -96,7 +103,7 @@ public class StraightPather {
 			ArrayList arrList = new ArrayList<Integer>();
 			
 			//Ablaufen der nächsten Punkte
-			for(int j = 0; j < possibleSegments.length; j++){
+			for(int j = 0; j < possibleSegments.length; j++) {
 
 				maxValue = straightPaths[maxIndex];	
 //				possibleSegments[i][j] = maxValue;
@@ -114,7 +121,7 @@ public class StraightPather {
 		return possibleSegments;
 	}
 
-	public int[][] getStraightPath() {
+	public Map getStraightPath() {
 		return straightPath;
 	}
 }
