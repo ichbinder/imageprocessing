@@ -2,6 +2,7 @@ package ue04;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class StraightPather {
@@ -42,6 +43,7 @@ public class StraightPather {
 				}				
 			}
 		}
+		possibleSegments2();
 	}
 	
 	private boolean constaintUpdate(Vector2 a) {
@@ -85,7 +87,19 @@ public class StraightPather {
 	}
 	
 	private void possibleSegments2() {
-		
+		for (int c = 0; c < contoures.length; c++) {
+			Contoure contoure = contoures[c];
+			for (Object key : contoure.getStraightPath().keySet()) {
+				rekusivPath((int)contoure.getStraightPath().get(key), contoure);
+			}
+		}
+	}
+	
+	private void rekusivPath(int key, Contoure contoure) {
+		if (contoure.getStraightPath().containsValue(key)) {
+			this.straightPath.put(key, contoure.getStraightPath().get(key));
+			rekusivPath((int)contoure.getStraightPath().get(key), contoure);
+		}
 	}
 	
 	
