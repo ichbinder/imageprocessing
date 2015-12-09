@@ -1,6 +1,6 @@
 package ue04;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class StraightPather {
 
@@ -12,18 +12,18 @@ public class StraightPather {
 	private Vector2 constraint0;
 	private Vector2 constraint1;
 	private Contoure[] contoures;
-	private ArrayList<Integer> straightPath;
-	private int[] bestStraightPath;
 	
 	public StraightPather(Contoure[] contoures) {
 		this.contoures = contoures;
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
-		this.straightPath = new ArrayList<Integer>();
-		this.bestStraightPath = createStraighttPath();
+		createStraighttPath();
+		possibleSegments();
+		System.out.println("alles gut!");		
 	}
 	
-	private int[] createStraighttPath() {
+//	finde alle Vektoren die später einen oder mehrer StraighttPath bilden können
+	private void createStraighttPath() {
 		Vector2 vik = new Vector2();
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
@@ -34,28 +34,17 @@ public class StraightPather {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
 					vik.subtractVector(contoure.getVector(i));
 					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
-						contoure.setStraightPath(i, k - 1);
-						this.straightPath.add(k - 1);
+						contoure.setStraightPathVectors(i, k - 1);
 						break;
 					}
 					constaintUpdate(vik);
 				}				
 			}
 		}
-		int[][] paths = possibleSegments(getStraightPaths());
-		//Berechnung des besten Polygons 
-		int lengthOfBestPath = paths.length;
-		int indexOfBestPath = 0;
-		for (int i = 0; i < paths.length; i++) {
-			if (lengthOfBestPath > paths[i].length) {
-				System.out.println(paths[i].length);
-				lengthOfBestPath = paths[i].length;
-				indexOfBestPath = i;
-			}
-		}
-		return paths[indexOfBestPath];
 	}
 	
+	
+//	Berechenen den neuen Constaint0 und Constaint1
 	private boolean constaintUpdate(Vector2 a) {
 		if (Math.sqrt(a.x * a.x) <= 1 && Math.sqrt(a.y * a.y) <= 1){
 //			(Math.abs(a.x) <= 1 && Math.abs(a.y) <= 1){
@@ -96,44 +85,55 @@ public class StraightPather {
 		}
 	}
 	
-	private int[][] possibleSegments(int [] straightPaths) {
-		
-		int [][] possibleSegments = new int [straightPaths.length][];
-		
-		// ist immer der neue Startpunkt
-		for(int i = 0; i < possibleSegments.length; i++) {
-			
-			int maxIndex = i;
-			int maxValue = 0;
-			
-			ArrayList<Integer> arrList = new ArrayList<Integer>();
-			
-			//Ablaufen der nächsten Punkte
-			for(int j = 0; j < possibleSegments.length; j++) {
-
-				maxValue = straightPaths[maxIndex];	
-				arrList.add(maxValue);
-				maxIndex = maxValue;				
+//	Berechene aus den gefinden StraighttPath Vektoren alle möglichen StraighttPathsesess
+	private void possibleSegments() {
+		for (int c = 0; c < contoures.length; c++) {
+			Contoure contoure = contoures[c];
+			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
+				int maxIndex = i;
+				int maxValue = 0;
+				int start = i;
+				HashMap<Integer, Object> tempStraingthPath = new HashMap<Integer, Object>();
+				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
+					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
+						tempStraingthPath.put(maxIndex, start);
+						break;
+					}
+					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
+					tempStraingthPath.put(maxIndex, maxValue);						
+					maxIndex = maxValue;
+				}
+				contoure.setStraightPaths(tempStraingthPath);
 			}
-			//ArrayList to Integer->Array
-			possibleSegments[i] =  new int [arrList.size()];
-			
-			for(int j = 0; j < arrList.size(); j++){
-				possibleSegments[i][j] = (int) arrList.get(j);
-			}		
-		}		
-		return possibleSegments;
-	}
-
-	public int[] getStraightPaths() {
-		int[] tmp = new int[straightPath.size()];
-		for (int i = 0; i < straightPath.size(); i++) {
-			tmp[i] = straightPath.get(i);
 		}
-		return tmp;
 	}
 	
-	public int[] getStraightPath() {
-		return this.bestStraightPath;
-	}
+//	private int[][] possibleSegments(int [] straightPaths) {
+//		
+//		int [][] possibleSegments = new int [straightPaths.length][];
+//		
+//		// ist immer der neue Startpunkt
+//		for(int i = 0; i < possibleSegments.length; i++) {
+//			
+//			int maxIndex = i;
+//			int maxValue = 0;
+//			
+//			ArrayList<Integer> arrList = new ArrayList<Integer>();
+//			
+//			//Ablaufen der nächsten Punkte
+//			for(int j = 0; j < possibleSegments.length; j++) {
+//
+//				maxValue = straightPaths[maxIndex];	
+//				arrList.add(maxValue);
+//				maxIndex = maxValue;				
+//			}
+//			//ArrayList to Integer->Array
+//			possibleSegments[i] =  new int [arrList.size()];
+//			
+//			for(int j = 0; j < arrList.size(); j++){
+//				possibleSegments[i][j] = (int) arrList.get(j);
+//			}		
+//		}		
+//		return possibleSegments;
+//	}
 }

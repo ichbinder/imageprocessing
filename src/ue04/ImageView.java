@@ -14,6 +14,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -339,9 +342,22 @@ public class ImageView extends JScrollPane{
 				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
 				g2d.setStroke(new BasicStroke(5));
 				
+				
+				
+				
+				
+				
+//				-----------------------------------------------------------------------------
+//				----------- Achtung hier wird die StraigthPather Classe aufgerufen. ---------
+//				-----------------------------------------------------------------------------
 				StraightPather pather = null;
-				if (contoures.length > 2)
+				if (contoures.length > 0)
 					pather  = new StraightPather(contoures);
+//				Hier ist vileicht nicht der Richtige Ort um die StraigthPather Classe auf zu rufen ?
+				
+				
+				
+				
 				
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
@@ -358,12 +374,33 @@ public class ImageView extends JScrollPane{
 						g2d.draw(new Line2D.Double(offsetX+lastVecOut.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
 						lastVecOut = nextVec;									
 					}
+					
+					
+					
+					
+//					--------------------------------------------------------------------
+//					------------ Zeichne die StraigthPaths -----------------------------
+//					--------------------------------------------------------------------
+//					
+					if(contoure.isOutline()) g2d.setColor(Color.CYAN);
+					else g2d.setColor(Color.GREEN);
+					
+					g2d.setStroke(new BasicStroke(3));
+					
+					HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) contoure.getBestStraigthPath();
+		            Set<Integer> key = tmpData.keySet();
+		            Iterator it = key.iterator();
+		            while (it.hasNext()) {
+		                int hmKey = (int)it.next();
+		                int hmData = (int) tmpData.get(hmKey);
+						g2d.draw(new Line2D.Double(offsetX+contoure.getVector(hmKey).x*zoom, offsetY+contoure.getVector(hmKey).y*zoom, offsetX+contoure.getVector(hmData).x*zoom, offsetY+contoure.getVector(hmData).y*zoom));
+		                System.out.println("Key: "+hmKey +" & Data: "+hmData);
+		                it.remove(); // avoids a ConcurrentModificationException
+		            }
+//		            ------------- Zeichenen ende ----------------------------------------
+
 				}
 				
-//				int[] path = pather.getStraightPath();
-//				for (int i = 0; i < path.length; i++) {
-//					g2d.draw(new Line2D.Double(offsetX+i.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
-//				}
 					
 				if (grit) {
 					if (zoom > 1) {
