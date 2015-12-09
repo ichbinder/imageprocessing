@@ -347,18 +347,7 @@ public class ImageView extends JScrollPane{
 				
 				
 				
-//				-----------------------------------------------------------------------------
-//				----------- Achtung hier wird die StraigthPather Classe aufgerufen. ---------
-//				-----------------------------------------------------------------------------
-				StraightPather pather = null;
-				if (contoures.length > 0)
-					pather  = new StraightPather(contoures);
-//				Hier ist vileicht nicht der Richtige Ort um die StraigthPather Classe auf zu rufen ?
-				
-				
-				
-				
-				
+
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
 					
@@ -395,7 +384,7 @@ public class ImageView extends JScrollPane{
 		                int hmData = (int) tmpData.get(hmKey);
 						g2d.draw(new Line2D.Double(offsetX+contoure.getVector(hmKey).x*zoom, offsetY+contoure.getVector(hmKey).y*zoom, offsetX+contoure.getVector(hmData).x*zoom, offsetY+contoure.getVector(hmData).y*zoom));
 		                System.out.println("Key: "+hmKey +" & Data: "+hmData);
-		                it.remove(); // avoids a ConcurrentModificationException
+//		                it.remove(); // avoids a ConcurrentModificationException
 		            }
 //		            ------------- Zeichenen ende ----------------------------------------
 

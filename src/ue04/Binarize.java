@@ -29,6 +29,7 @@ public class Binarize extends JPanel {
 	private static final double initalZoom = 1;
 	private static double currentZoom = initalZoom;
 	
+	
 	private static JFrame frame;
 
 	private ImageView srcView; // source image view
@@ -37,9 +38,11 @@ public class Binarize extends JPanel {
 	private JLabel statusLine; // to print some status text
 	
 	private JCheckBox drawPaths;
+	private JCheckBox drawStraightPath;
 	private JCheckBox grit;
 	
 	private Potrace potrace;
+	private StraightPather pather;
 	
 	private JSlider magnification; // to set the binarize percentage value
 
@@ -145,6 +148,12 @@ public class Binarize extends JPanel {
             	binarizeImage();
             }
           });
+        drawStraightPath = new JCheckBox("Show StraightPath");
+        drawStraightPath.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	binarizeImage();
+            }
+          });
         grit = new JCheckBox("Show grit");
         grit.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -155,6 +164,7 @@ public class Binarize extends JPanel {
         
         southControls.setLayout(new BoxLayout(southControls, BoxLayout.PAGE_AXIS)); //Vertikal
         southControls.add(drawPaths);
+        southControls.add(drawStraightPath);
         southControls.add(grit);
         southControls.add(statusLine);
         
@@ -242,6 +252,19 @@ public class Binarize extends JPanel {
 		else{			
 			dstView.setContoures(new Contoure[0]);
 		}
+		
+	
+//		-----------------------------------------------------------------------------
+//		----------- Achtung hier wird die StraigthPather Classe aufgerufen. ---------
+//		-----------------------------------------------------------------------------
+		
+		if (drawStraightPath.isSelected())
+			pather  = new StraightPather(potrace.getContoures());
+//		Hier ist vileicht nicht der Richtige Ort um die StraigthPather Classe auf zu rufen ?
+		else 
+			potrace.clearStraightPath();
+			
+		
 		if(grit.isSelected()){
 			dstView.setGrit(true);
 		} else {

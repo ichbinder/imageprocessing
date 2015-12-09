@@ -39,6 +39,10 @@ public class Contoure {
 		return this.isOutline;
 	}
 	
+	/**Beschreibung
+	 * @param index Ist der Index im Vektorarray.
+	 * @return Den gesuchten Vektor
+	 * */
 	public Vector2 getVector(int index){
 		return this.vectors[index];
 	}
@@ -58,5 +62,11 @@ public class Contoure {
 	
 	public ArrayList<HashMap<Integer, Object>> getStraightPaths() {
 		return this.straightPaths;
+	}
+	
+	public void clearStraigthPaths() {
+		this.straightPathVectors.clear();
+		this.straightPathVectors.clear();
+		
 	}
 }

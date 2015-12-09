@@ -27,22 +27,62 @@ public class StraightPather {
 		Vector2 vik = new Vector2();
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
+			
 			for(int i = 0; i < contoure.getVectors().length; i++) {
 				this.constraint0.set(0, 0);
 				this.constraint1.set(0, 0);
+				short countChangedDirections = 0;
+				
+				Vector2 oldK = contoure.getVector(i);
+				boolean oldEqualX = false, oldEqualY = false;
+				
 				for(int k = i + 1; k < contoure.getVectors().length; k++) {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
 					vik.subtractVector(contoure.getVector(i));
+					
+					//-------------------- Prüfe Richtungswechsel
+					Vector2 newK = contoure.getVector(k);										
+					boolean equalX = false, equalY = false;
+					
+					if(oldK.x == newK.x) equalX = true;
+					if(oldK.y == newK.y) equalY = true;					
+					countChangedDirections += changedDirection(oldEqualX, oldEqualY, equalX, equalY);
+					
+					oldK = newK;
+					oldEqualX = equalX;
+					oldEqualY = equalY;
+					
+					if(countChangedDirections == 3){
+						contoure.setStraightPathVectors(i, k - 1);
+						break;
+					}
+					//-------------------- Ende Prüfung Richtungswechsel
+					
 					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
 						contoure.setStraightPathVectors(i, k - 1);
 						break;
 					}
-					constaintUpdate(vik);
-				}				
+					constaintUpdate(vik);					
+				}
+				if (!contoure.getStraightPathVectors().containsKey(i))
+					contoure.setStraightPathVectors(i, 0);
+					//contoure.setStraightPathVectors(i, contoure.getVectors().length - 1);
 			}
 		}
 	}
 	
+	private short changedDirection(boolean oldX, boolean oldY, boolean equalX, boolean equalY){
+		
+		boolean changed = true;
+
+//		if((oldX != equalX  && oldY == equalY) || (oldY != equalY && oldX == equalX)) changed = false;
+//		if((oldX != equalX && oldY == equalY) || (oldY != equalY && oldX == equalX)) changed = false;
+
+ 		if( (oldX == equalX) || (oldY == equalY)) changed = false;
+//		if((oldX != equalX && oldY == equalY) || (oldY != equalY && oldX == equalX)) changed = false;
+		if(changed) return 1;
+		else return 0;
+	}
 	
 //	Berechenen den neuen Constaint0 und Constaint1
 	private boolean constaintUpdate(Vector2 a) {

@@ -1,8 +1,11 @@
 package ue04;
 
+import ue04.Potrace.PathDirection;
+
 public class Vector2{
 
 	public int x,y;
+	public PathDirection lookingDirection;
 	
 	public Vector2(int x, int y){
 		this.x = x;
