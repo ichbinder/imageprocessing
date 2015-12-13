@@ -11,7 +11,7 @@ public class Contoure {
 	private Map<Integer, Object> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
 	private ArrayList<HashMap<Integer, Object>> straightPaths; // speichert alle möglichen StraigthPathsesees
 	
-	/**Erzeugt eine Kontur. 
+	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
 	 * @param ps Enthält ein Array aus Path-Points.*/
 	public Contoure(boolean isOut, Vector2 [] ps){
