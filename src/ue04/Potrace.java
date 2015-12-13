@@ -178,6 +178,9 @@ public class Potrace {
 		
 		Vector2 startVector2 = new Vector2(x, y);
 		Vector2 endVector2 = new Vector2(x, y);		
+		
+		startVector2.lookingDirection = direction;
+		endVector2.lookingDirection = direction;
 		path.add(startVector2);
 		
 		boolean diffX = false;
@@ -426,8 +429,15 @@ public class Potrace {
 	 * die letzte Laufrichtung 
 	 * und die gesammelten Pfade zurück.*/
 	public void reset(){		
-		contoures = null;				
+		contoures = new Contoure[0];				
 		direction = PathDirection.RIGHT;		
 		collectedPaths = new ArrayList<Vector2[]>();
+		clearStraightPath();
+	}
+	
+	/**Löscht alle gefundenen StraightPathes für alle Konturen zurück.*/
+	private void clearStraightPath() {
+		for (Contoure contoure : contoures) 
+			contoure.clearStraigthPaths();
 	}
 }

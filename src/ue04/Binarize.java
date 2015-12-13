@@ -24,13 +24,13 @@ public class Binarize extends JPanel {
 	private static final int maxHeight = 450;
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
-	private static final String author = "Vallentin, Andrezz, Jakob Warnow";
+	private static final String author = "Vallentin, Andre, Jakob Warnow";
 	private static final String initalOpen = "";	
 //	private static final String initalOpen = "test2.png";	
 
 	private static final double initalZoom = 1;
 	private static double currentZoom = initalZoom;
-	
+		
 	private static JFrame frame;
 
 	private ImageView srcView; // source image view
@@ -39,9 +39,11 @@ public class Binarize extends JPanel {
 	private JLabel statusLine; // to print some status text
 	
 	private JCheckBox drawPaths;
-	private JCheckBox grit;
+	private JCheckBox drawStraightPath;
+	private JCheckBox grid;
 	
 	private Potrace potrace;
+	private StraightPather pather;
 	
 	private JSlider magnification; // to set the binarize percentage value
 
@@ -75,6 +77,7 @@ public class Binarize extends JPanel {
 	        		dstView.loadImage(input);
 	        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
 	        		dstView.setMinSize(maxWidth, maxHeight);	        		
+	        		reset();
 	                binarizeImage();
         		}
         	}        	
@@ -101,18 +104,10 @@ public class Binarize extends JPanel {
 				currentZoom = magnification.getValue()/10;
         		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
         		dstView.setMinSize(maxWidth, maxHeight);
-
-//        		srcView.setZoom(currentZoom);
         		dstView.setZoom(currentZoom);
-//				srcView.setZoom(magnification.getValue()/10);
-//				dstView.setZoom(magnification.getValue()/10);
-//				System.out.println(magnification.getValue() + "jojo");
-//				methodList.setSelectedIndex(0);
-				binarizeImage();
 			}
 		});
-        
-        
+                
         // some status text
         statusLine = new JLabel(" ");
         
@@ -121,8 +116,6 @@ public class Binarize extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(0,border,0,0);
         controls.add(load, c);
-//        controls.add(methodText, c);
-//        controls.add(methodList, c);
 //---------------------
       
         JPanel customControl = new JPanel();
@@ -144,23 +137,33 @@ public class Binarize extends JPanel {
         drawPaths = new JCheckBox("Show paths");
         drawPaths.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-            	binarizeImage();
+            	
+            	dstView.setDrawPaths(drawPaths.isSelected());
+            	dstView.updateScreen();
             }
           });
-        grit = new JCheckBox("Show grit");
-        grit.addItemListener(new ItemListener() {
+        drawStraightPath = new JCheckBox("Show StraightPath");
+        drawStraightPath.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-            	binarizeImage();
+            	dstView.setDrawStraightPaths(drawStraightPath.isSelected());
+            	dstView.updateScreen();
+            }
+          });
+        grid = new JCheckBox("Show grid");
+        grid.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	
+            	dstView.setGrit(grid.isSelected());
+            	dstView.updateScreen();
             }
           });
         
         
         southControls.setLayout(new BoxLayout(southControls, BoxLayout.PAGE_AXIS)); //Vertikal
         southControls.add(drawPaths);
-        southControls.add(grit);
-        southControls.add(statusLine);
-        
-//        add(statusLine, BorderLayout.SOUTH);
+        southControls.add(drawStraightPath);
+        southControls.add(grid);
+        southControls.add(statusLine);        
         add(southControls, BorderLayout.SOUTH);
         
         setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
@@ -211,7 +214,7 @@ public class Binarize extends JPanel {
 			}
 		});
 	}
-
+	
 	protected void binarizeImage() {
 
 //		String methodName = (String) methodList.getSelectedItem();
@@ -233,22 +236,33 @@ public class Binarize extends JPanel {
 		long startTime = System.currentTimeMillis();
 //		potrace.resetPaths();
 
-		potrace.reset();
-		if(drawPaths.isSelected()){
-			
+//		if(drawPaths.isSelected()){			
 			potrace.FindContoures(dstPixels, width, height);
 //			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
 //	        dstView.setPixels(pathPics, width, height);
 			dstView.setContoures(potrace.getContoures());
-		}
-		else{			
-			dstView.setContoures(new Contoure[0]);
-		}
+//		}
+//		else{			
+//			dstView.setContoures(new Contoure[0]);
+//		}
+			
+//		-----------------------------------------------------------------------------
+//		----------- Achtung hier wird die StraigthPather Classe aufgerufen. ---------
+//		-----------------------------------------------------------------------------
+		
+//		if (drawStraightPath.isSelected())
+			pather  = new StraightPather(potrace.getContoures());
+//		else 
+//			potrace.clearStraightPath();			
+		
+			/*
 		if(grit.isSelected()){
 			dstView.setGrit(true);
 		} else {
 			dstView.setGrit(false);
 		}
+		*/
+		
 		dstView.updateScreen();
 
 		//dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
@@ -259,5 +273,11 @@ public class Binarize extends JPanel {
 		frame.pack();
 
 		statusLine.setText(message + " in " + time + " ms");
+	}
+	
+	private void reset(){
+		
+		dstView.setContoures(new Contoure[0]);
+		potrace.reset();
 	}
 }

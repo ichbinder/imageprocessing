@@ -1,65 +1,95 @@
 package ue04;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class StraightPather {
-
-//	public static void main(String[] args) {
-//		// TODO Auto-generated method stub
-//
-//	}
 	
 	private Vector2 constraint0;
 	private Vector2 constraint1;
 	private Contoure[] contoures;
-	private ArrayList<Integer> straightPath;
-	private int[] bestStraightPath;
 	
+	/**Konstruktor für StraightPather.
+	 * @param contoures Ein Array aus gefunden Konturen.*/
 	public StraightPather(Contoure[] contoures) {
 		this.contoures = contoures;
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
-		this.straightPath = new ArrayList<Integer>();
-		this.bestStraightPath = createStraighttPath();
+		createStraighttPaths();
+		possibleSegments();
+		System.out.println("alles gut!");		
 	}
 	
-	private int[] createStraighttPath() {
+	
+	/**Erzeugt Straight Paths für alle Konturen.
+	 * Jede Punkt wird durchgegangen und geprüft wie weit er gehen kann. 
+	 * Dies wird über Contraints und Richtungswechsel geprüft. 
+	 * Sollten genau 3 Richtungswechsel auftreten wird der vorherige Punkt genommen.
+	 * Genauso verhält es sich wenn der Contraint überschritten wird.<p>
+	 * Sollte am Ende kein Contraint gebrochen worden sein und keine 3 Richtungswechsel stattgefunden haben, wird der Startpunkt als weitester Punkt eingetragen.
+	 * */
+	private void createStraighttPaths() {
 		Vector2 vik = new Vector2();
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
+			
 			for(int i = 0; i < contoure.getVectors().length; i++) {
 				this.constraint0.set(0, 0);
 				this.constraint1.set(0, 0);
+				short countChangedDirections = 0;
+				
+				Vector2 oldK = contoure.getVector(i);
+				boolean oldEqualX = false, oldEqualY = false;
+				
 				for(int k = i + 1; k < contoure.getVectors().length; k++) {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
 					vik.subtractVector(contoure.getVector(i));
-					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
-						contoure.setStraightPath(i, k - 1);
-						this.straightPath.add(k - 1);
+					
+					//-------------------- Prüfe Richtungswechsel
+					Vector2 newK = contoure.getVector(k);										
+					boolean equalX = false, equalY = false;
+					
+					if(oldK.x == newK.x) equalX = true;
+					if(oldK.y == newK.y) equalY = true;					
+					countChangedDirections += changedDirection(oldEqualX, oldEqualY, equalX, equalY);
+					
+					oldK = newK;
+					oldEqualX = equalX;
+					oldEqualY = equalY;
+					
+					if(countChangedDirections == 3){
+						contoure.addStraightPathVectors(i, k - 1);
 						break;
 					}
-					constaintUpdate(vik);
-				}				
+					//-------------------- Ende Prüfung Richtungswechsel
+					
+					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
+						contoure.addStraightPathVectors(i, k - 1);
+						break;
+					}
+					constaintUpdate(vik);					
+				}
+				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
 			}
 		}
-		int[][] paths = possibleSegments(getStraightPaths());
-		//Berechnung des besten Polygons 
-		int lengthOfBestPath = paths.length;
-		int indexOfBestPath = 0;
-		for (int i = 0; i < paths.length; i++) {
-			if (lengthOfBestPath > paths[i].length) {
-				System.out.println(paths[i].length);
-				lengthOfBestPath = paths[i].length;
-				indexOfBestPath = i;
-			}
-		}
-		return paths[indexOfBestPath];
 	}
 	
-	private boolean constaintUpdate(Vector2 a) {
+	/**Prüft ob ein Richtungswechsel stattgefunden hat. Sollte einer stattgefunden haben wird eine 1 ausgegeben, ansonsten 0.<p> 
+	 * Beispiel: P1(0,1) & P2(0,2) = X-Koordinante bleibt konstant, während die Y-Koordinate wandert. 
+	 * Ist im 2. Durchlauf die X-Koordinate am wandern und Y-bleibt konstant kam ein Richtungswechsel zustande.*/
+	private short changedDirection(boolean oldX, boolean oldY, boolean equalX, boolean equalY){
+		
+		boolean changed = true;
+ 		if( (oldX == equalX) || (oldY == equalY)) changed = false;
+		if(changed) return 1;
+		else return 0;
+	}
+	
+	/**Prüft die Contraints und falls nötig werden diese neu berechnet.
+	 * @param a Der gegegebene 2-dimensionale Vektor*/
+	private void constaintUpdate(Vector2 a) {
 		if (Math.sqrt(a.x * a.x) <= 1 && Math.sqrt(a.y * a.y) <= 1){
-//			(Math.abs(a.x) <= 1 && Math.abs(a.y) <= 1){
-			return false;			
+//			return false;			
+			return;
 		}
 		else {
 			// Berechne constraint0 neu oder nicht
@@ -90,50 +120,33 @@ public class StraightPather {
 				d1.y = a.y - 1;
 			
 			if (this.constraint1.cross(d1) <= 0)
-				this.constraint1 = d1.clone();
-				
-			return true;
+				this.constraint1 = d1.clone();				
+//			return true;
 		}
 	}
 	
-	private int[][] possibleSegments(int [] straightPaths) {
-		
-		int [][] possibleSegments = new int [straightPaths.length][];
-		
-		// ist immer der neue Startpunkt
-		for(int i = 0; i < possibleSegments.length; i++) {
-			
-			int maxIndex = i;
-			int maxValue = 0;
-			
-			ArrayList<Integer> arrList = new ArrayList<Integer>();
-			
-			//Ablaufen der nächsten Punkte
-			for(int j = 0; j < possibleSegments.length; j++) {
-
-				maxValue = straightPaths[maxIndex];	
-				arrList.add(maxValue);
-				maxIndex = maxValue;				
+	
+	/**Jede Kontur wird auf seine einzelnen Straightpaths untersucht. 
+	 * Es werden Verbindungen gezogen mit den jeweils berechneten weitesten Pfaden von einem Punkt zum Nächsten und in einem Dictionary abgelegt.*/
+	private void possibleSegments() {
+		for (int c = 0; c < contoures.length; c++) {
+			Contoure contoure = contoures[c];
+			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
+				int maxIndex = i;
+				int maxValue = 0;
+				int start = i;
+				HashMap<Integer, Object> tempStraingthPath = new HashMap<Integer, Object>();
+				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
+					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
+						tempStraingthPath.put(maxIndex, start);
+						break;
+					}
+					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
+					tempStraingthPath.put(maxIndex, maxValue);						
+					maxIndex = maxValue;
+				}
+				contoure.addStraightPaths(tempStraingthPath);
 			}
-			//ArrayList to Integer->Array
-			possibleSegments[i] =  new int [arrList.size()];
-			
-			for(int j = 0; j < arrList.size(); j++){
-				possibleSegments[i][j] = (int) arrList.get(j);
-			}		
-		}		
-		return possibleSegments;
-	}
-
-	public int[] getStraightPaths() {
-		int[] tmp = new int[straightPath.size()];
-		for (int i = 0; i < straightPath.size(); i++) {
-			tmp[i] = straightPath.get(i);
 		}
-		return tmp;
-	}
-	
-	public int[] getStraightPath() {
-		return this.bestStraightPath;
 	}
 }

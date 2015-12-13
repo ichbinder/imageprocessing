@@ -1,3 +1,4 @@
+
 package ue04;
 // Copyright (C) 2010 by Klaus Jung
 // All rights reserved.
@@ -14,13 +15,14 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-
-
 
 public class ImageView extends JScrollPane{
 
@@ -35,8 +37,9 @@ public class ImageView extends JScrollPane{
 	private boolean centered = true;
 	private double zoom = 1.0;
 	private Contoure [] contoures = new Contoure[0];
+	private boolean drawStraightPaths, drawPaths, drawBeziersPaths;
 	
-	private boolean grit;
+	private boolean grid;
 	
 	int pixels[] = null;		// pixel array in ARGB format
 	
@@ -109,7 +112,19 @@ public class ImageView extends JScrollPane{
 	public void setContoures(Contoure [] cons){
 		
 		this.contoures = cons;
+	}	
+	
+	public void setDrawPaths(boolean drawPath){
+		this.drawPaths = drawPath;		
 	}
+	
+	public void setDrawStraightPaths(boolean drawStraightPath){
+		this.drawStraightPaths = drawStraightPath;		
+	}
+	public void setBezierPaths(boolean drawBezierPath){
+		this.drawBeziersPaths = drawBezierPath;		
+	}
+	
 	
 	public void updateScreen(){
 		
@@ -273,7 +288,7 @@ public class ImageView extends JScrollPane{
 	}
 	
 	public void setGrit(boolean gtit) {
-		this.grit = gtit;
+		this.grid = gtit;
 	}
 	
 	private void updatePixels() {
@@ -339,42 +354,49 @@ public class ImageView extends JScrollPane{
 				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
 				g2d.setStroke(new BasicStroke(5));
 				
-				StraightPather pather = null;
-				if (contoures.length > 2){
-					pather  = new StraightPather(contoures); 
-					for(int i = 0; i < pather.getStraightPath().length;i++){
-						System.out.println(pather.getStraightPath()[i]);						
-					}
-				}
-				
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
 					
 					Contoure contoure = contoures[c];
 					if(contoure.isOutline()) g2d.setColor(Color.RED);
 					else g2d.setColor(Color.ORANGE);
-										
-					Vector2 lastVecOut = contoure.getVector(0);
+
+					//Zeichne Pfade
+					if(drawPaths){
+
+						Vector2 lastVecOut = contoure.getVector(0);
 					
-					for(int j = 1; j < contoure.getVectors().length; j++){
+						for(int j = 1; j < contoure.getVectors().length; j++){
 						
-						Vector2 nextVec = contoure.getVector(j);
-						g2d.draw(new Line2D.Double(offsetX+lastVecOut.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
-						lastVecOut = nextVec;									
+							Vector2 nextVec = contoure.getVector(j);
+							g2d.draw(new Line2D.Double(offsetX+lastVecOut.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
+							lastVecOut = nextVec;									
+						}
+					}															
+//					--------------------------------------------------------------------
+//					------------ Zeichne die StraigthPaths -----------------------------
+//					--------------------------------------------------------------------
+//					
+					if(drawStraightPaths){
+					
+						if(contoure.isOutline()) g2d.setColor(Color.CYAN);
+						else g2d.setColor(Color.GREEN);					
+						g2d.setStroke(new BasicStroke(3));
+					
+						HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) contoure.getBestStraigthPath();
+		            	Set<Integer> key = tmpData.keySet();
+		            	Iterator it = key.iterator();
+		            	while (it.hasNext()) {
+		                	int hmKey = (int)it.next();
+		                	int hmData = (int) tmpData.get(hmKey);
+							g2d.draw(new Line2D.Double(offsetX+contoure.getVector(hmKey).x*zoom, offsetY+contoure.getVector(hmKey).y*zoom, offsetX+contoure.getVector(hmData).x*zoom, offsetY+contoure.getVector(hmData).y*zoom));
+		                	System.out.println("Key: "+hmKey +" & Data: "+hmData);
+		            	}
+//		            ------------- Zeichenen ende ----------------------------------------
 					}
 				}
-				/*
-				if(pather != null){
-					int[] path = pather.getStraightPath();
-					for (int i = 0; i < path.length; i++) {
-						
-						Vector2 nextVec = .getVector(path[i]);
-						g2d.draw(new Line2D.Double(offsetX+i.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
-					}
-				}*/
-
-					
-				if (grit) {
+									
+				if (grid) {
 					if (zoom > 1) {
 						for (int i = 0; i < image.getHeight(); i++) {
 							for (int j = 0; j < image.getWidth(); j++) {
@@ -391,7 +413,6 @@ public class ImageView extends JScrollPane{
 				g2d.dispose();				
 			}
 		}
-		
 		
 		public Dimension getPreferredSize() {
 			if(image != null) 
