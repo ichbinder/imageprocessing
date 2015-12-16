@@ -40,7 +40,7 @@ public class StraightPather {
 				Vector2 oldK = contoure.getVector(i);
 				boolean oldEqualX = false, oldEqualY = false;
 				
-				for(int k = i + 1; k < contoure.getVectors().length; k++) {
+				for(int k = i +1; k < contoure.getVectors().length; k++) {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
 					vik.subtractVector(contoure.getVector(i));
 					
@@ -66,7 +66,13 @@ public class StraightPather {
 						contoure.addStraightPathVectors(i, k - 1);
 						break;
 					}
-					constaintUpdate(vik);					
+					constaintUpdate(vik);	
+					
+					//Falls Constraint noch nicht gefunden wurde lasse ihn über den Anfang laufen
+					/*
+					if(k >= contoure.getVectors().length-1){
+						k = -1;											
+					}*/
 				}
 				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
 			}
