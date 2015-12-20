@@ -147,33 +147,4 @@ public class StraightPather {
 			}
 		}
 	}
-	
-//	private int[][] possibleSegments(int [] straightPaths) {
-//		
-//		int [][] possibleSegments = new int [straightPaths.length][];
-//		
-//		// ist immer der neue Startpunkt
-//		for(int i = 0; i < possibleSegments.length; i++) {
-//			
-//			int maxIndex = i;
-//			int maxValue = 0;
-//			
-//			ArrayList<Integer> arrList = new ArrayList<Integer>();
-//			
-//			//Ablaufen der nächsten Punkte
-//			for(int j = 0; j < possibleSegments.length; j++) {
-//
-//				maxValue = straightPaths[maxIndex];	
-//				arrList.add(maxValue);
-//				maxIndex = maxValue;				
-//			}
-//			//ArrayList to Integer->Array
-//			possibleSegments[i] =  new int [arrList.size()];
-//			
-//			for(int j = 0; j < arrList.size(); j++){
-//				possibleSegments[i][j] = (int) arrList.get(j);
-//			}		
-//		}		
-//		return possibleSegments;
-//	}
 }
