@@ -1,16 +1,20 @@
-package ue04;
+package ue05;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
+import ue05.Vector2;
 
 public class Contoure {
 
 	final private boolean isOutline;
 	final private Vector2 [] vectors;
 	private Map<Integer, Object> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
-	private ArrayList<HashMap<Integer, Object>> straightPaths; // speichert alle möglichen StraigthPaths
-	private ArrayList<Vector2> middlePath; //Speichert alle Mittelpunkte von den gefundenen StraightPaths
+	private ArrayList<HashMap<Integer, Object>> straightPaths; // speichert alle möglichen StraigthPathsesees	
+	private ArrayList<Vector2> middlePath;
 	
 	
 	/**Erzeugt eine Kontur . 
@@ -22,6 +26,7 @@ public class Contoure {
 		this.vectors = ps;
 		this.straightPathVectors = new HashMap<Integer, Object>(); 
 		this.straightPaths = new ArrayList<HashMap<Integer, Object>>(); 
+		this.middlePath = new ArrayList<Vector2>();
 	}
 	
 	/**Gibt den besten (im aktuellen Fall kürzesten) Pfad zurück.
@@ -101,4 +106,26 @@ public class Contoure {
 		
 		return this.middlePath;
 	}
+	
+	
+	public ArrayList<Vector2> getBestStraighPathAsPoints(){
+		
+		ArrayList<Vector2> listOfPoints = new ArrayList<Vector2>();
+		
+		HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) this.getBestStraigthPath();
+    	Set<Integer> key = tmpData.keySet();
+    	Iterator it = key.iterator();
+    	while (it.hasNext()) {
+        	int hmKey = (int)it.next();
+        	int hmData = (int) tmpData.get(hmKey);
+        	
+        	listOfPoints.add(this.getVector(hmKey));
+        	listOfPoints.add(this.getVector(hmData));
+    	}
+		
+		return listOfPoints;
+	}  
 }
+
+
+
