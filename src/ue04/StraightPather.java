@@ -1,6 +1,7 @@
 package ue04;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class StraightPather {
 
@@ -132,17 +133,23 @@ public class StraightPather {
 			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
 				int maxIndex = i;
 				int maxValue = 0;
-				int start = i;
+				Object start = contoure.getStraightPathVectors().get(i);
+				Object end = contoure.getStraightPathVectors().get(contoure.getStraightPathVectors().size()-1);
 				HashMap<Integer, Object> tempStraingthPath = new HashMap<Integer, Object>();
 				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
+					
 					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
 						tempStraingthPath.put(maxIndex, start);
 						break;
 					}
+					if (start == end) break;
+					
 					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
 					tempStraingthPath.put(maxIndex, maxValue);						
 					maxIndex = maxValue;
+					
 				}
+				System.out.println(tempStraingthPath.size());
 				contoure.setStraightPaths(tempStraingthPath);
 			}
 		}
