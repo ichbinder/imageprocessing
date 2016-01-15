@@ -1,7 +1,15 @@
 package ue04;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 public class StraightPather {
 
@@ -149,9 +157,41 @@ public class StraightPather {
 					maxIndex = maxValue;
 					
 				}
+				sortStraightPath(tempStraingthPath);
 				System.out.println(tempStraingthPath.size());
 				contoure.setStraightPaths(tempStraingthPath);
 			}
 		}
+	}
+	
+	private void sortStraightPath(HashMap<Integer, Object> straingthPath) {
+		SortedMap<Integer, Object> tempStraingthPath = new TreeMap<>();
+		
+		
+		//Fülle eine neu sortierte HashMap -> Richtige Reichenfolge
+			
+			//Gehe alle Einträge der unsortierten Hashmap durch
+			Set<Integer> key = straingthPath.keySet();
+            Iterator it = key.iterator();            
+            
+            int lastData = (int) it.next();
+            
+            //Solange Daten im unsortiertem enthalten sind
+            while (it.hasNext()) {
+            	            	
+                int hmKey = lastData;
+                int hmData = (int) straingthPath.get(hmKey);	
+                
+               	tempStraingthPath.put(hmKey, hmData);
+
+                lastData = hmData;   
+                it.next();
+                                              
+
+		}
+        System.out.println(tempStraingthPath);
+                
+        
+            
 	}
 }
