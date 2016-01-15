@@ -4,10 +4,10 @@ import ue05.Potrace.PathDirection;
 
 public class Vector2{
 
-	public int x,y;
+	public float x,y;
 	public PathDirection lookingDirection;
 	
-	public Vector2(int x, int y){
+	public Vector2(float x, float y){
 		this.x = x;
 		this.y = y;
 	}
@@ -16,12 +16,12 @@ public class Vector2{
 		x=y=0;
 	}
 
-	public void set(int x, int y){
+	public void set(float x, float y){
 		this.x = x;
 		this.y = y;
 	}
 	
-	public void get (int[] dest){
+	public void get (float[] dest){
 		dest[0] = x;
 		dest[1] = y;
 	}
@@ -41,7 +41,7 @@ public class Vector2{
 		x*=s;y*=s;
 	}
 	
-	public int cross(Vector2 b){
+	public float cross(Vector2 b){
 		return this.x * b.y - this.y * b.x;
 	}
 

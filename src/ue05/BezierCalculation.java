@@ -87,29 +87,38 @@ public class BezierCalculation {
 	/**Gibt alle Straightpath Punkte sowie die gefundenen Zwischenpunkte (Mittelpunkte) aus.
 	 * @param contoure Die betroffene Kontur*/
 	static public void getMiddlePointsOnStraightPaths(Contoure [] contoures){
-
+		
 		for(int c = 0; c < contoures.length; c++){
 			
 			Contoure contoure = contoures[c];
+			
+			
+			
+			
+
+			System.out.println("-- Alle StraightPathpunkte --");
+
+			
 			for(int i = 0; i < contoure.getBestStraighPathAsPoints().size(); i++){
-							
-				System.out.println(contoure.getBestStraighPathAsPoints().size());
-				//Vector2 first = (Vector2) contoure.getBestStraigthPath().get(i);
-				Vector2 first = contoure.getBestStraighPathAsPoints().get(i);
-				
-				int next = i+1;								
-				if(next >= contoure.getBestStraigthPath().size()) next = 0;
-				
-				Vector2 second = contoure.getBestStraighPathAsPoints().get(next);
 								
-				Vector2 middle = second.clone();
-				middle.subtractVector(first);
-								
-				middle.setLength(middle.length() * 0.5f);	
-				
-//				contoure.addMiddlePoint(first); //Füge erst OriginalPunkt hinzu
-				contoure.addMiddlePoint(middle); //Füge gefundenen Mittelpunkt hinzu
+				HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) contoure.getBestStraigthPath();
+            	Set<Integer> key = tmpData.keySet();
+            	Iterator it = key.iterator();
+            	while (it.hasNext()) {
+                	int hmKey = (int)it.next();
+                	int hmData = (int) tmpData.get(hmKey);
+					
+                	Vector2 pointA = contoure.getVector(hmKey);
+                	Vector2 pointB = contoure.getVector(hmData);		                	
+                	
+                	Vector2 middle = pointA.clone();
+                	middle.addVector(pointB);
+                	middle.setLength(middle.length() * 0.5f);                
+                	
+    				contoure.addMiddlePoint(middle); //Füge gefundenen Mittelpunkt hinzu
+            	}	
 	    	}
+			System.out.println("-- Ende StraightPathpunkte --");
 		}
 	}
 }

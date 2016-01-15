@@ -31,14 +31,15 @@ public class StraightPather {
 		Vector2 vik = new Vector2();
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
-			
+						
 			for(int i = 0; i < contoure.getVectors().length; i++) {
 				this.constraint0.set(0, 0);
 				this.constraint1.set(0, 0);
 				short countChangedDirections = 0;
 				
 				Vector2 oldK = contoure.getVector(i);
-				boolean oldEqualX = false, oldEqualY = false;
+				boolean oldEqualX = false, oldEqualY = false;				
+//				contoure.addStraighPathVector(i, contoure.getVector(i));				
 				
 				for(int k = i +1; k < contoure.getVectors().length; k++) {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
@@ -58,12 +59,14 @@ public class StraightPather {
 					
 					if(countChangedDirections == 3){
 						contoure.addStraightPathVectors(i, k - 1);
+//						contoure.addStraighPathVector(i, contoure.getVector(k-1));						
 						break;
 					}
 					//-------------------- Ende Prüfung Richtungswechsel
 					
 					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
-						contoure.addStraightPathVectors(i, k - 1);
+						contoure.addStraightPathVectors(i, k - 1);												
+//						contoure.addStraighPathVector(i, contoure.getVector(k-1));						
 						break;
 					}
 					constaintUpdate(vik);	
@@ -74,7 +77,7 @@ public class StraightPather {
 						k = -1;											
 					}*/
 				}
-				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
+				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);				
 			}
 		}
 	}
@@ -155,6 +158,4 @@ public class StraightPather {
 			}
 		}
 	}
-	
-
 }

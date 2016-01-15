@@ -396,8 +396,26 @@ public class ImageView extends JScrollPane{
 		            	while (it.hasNext()) {
 		                	int hmKey = (int)it.next();
 		                	int hmData = (int) tmpData.get(hmKey);
-							g2d.draw(new Line2D.Double(offsetX+contoure.getVector(hmKey).x*zoom, offsetY+contoure.getVector(hmKey).y*zoom, offsetX+contoure.getVector(hmData).x*zoom, offsetY+contoure.getVector(hmData).y*zoom));
+							
+		                	Vector2 pointA = contoure.getVector(hmKey);
+		                	Vector2 pointB = contoure.getVector(hmData);		                	
+		                	
+							if(contoure.isOutline()) g2d.setColor(Color.CYAN);
+							else g2d.setColor(Color.GREEN);
+
+//		                	g2d.draw(new Line2D.Double(offsetX+contoure.getVector(hmKey).x*zoom, offsetY+contoure.getVector(hmKey).y*zoom, offsetX+contoure.getVector(hmData).x*zoom, offsetY+contoure.getVector(hmData).y*zoom));
+		                	g2d.draw(new Line2D.Double(offsetX+pointA.x*zoom, offsetY+pointA.y*zoom, offsetX+pointB.x*zoom, offsetY+pointB.y*zoom));
 		                	System.out.println("Key: "+hmKey +" & Data: "+hmData);
+		                	
+		                	
+		            		g2d.setColor(Color.RED);							            		
+		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + pointA.x * zoom), (float) (offsetY + pointA.y * zoom), 3f, 3f);		            		
+							g2d.draw(circle);
+		            		g2d.setColor(Color.GREEN);							            		
+		            		circle = new Ellipse2D.Float((float)(offsetX + pointB.x * zoom), (float) (offsetY + pointB.y * zoom), 3f, 3f);
+
+							g2d.draw(circle);						
+		                	
 		            	}
 					}
 
@@ -405,21 +423,16 @@ public class ImageView extends JScrollPane{
 
 					if(drawBeziersPaths){
 						
-						if(contoure.isOutline()) g2d.setColor(Color.PINK);
-						else g2d.setColor(Color.darkGray);					
-						g2d.setStroke(new BasicStroke(3));
-						
-		            	for(int j = 0; j < contoure.getMiddlePaths().size(); j+=2){
+						for(int j = 0; j < contoure.getMiddlePaths().size(); j++){
 
-		            		int prev = j-1;
-		            		int next = j+1;
-		            		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
-		            		if(next > contoure.getMiddlePaths().size()) next = 0;
+//		            		int prev = j-1;
+//		            		int next = j+1;
+//		            		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
+//		            		if(next > contoure.getMiddlePaths().size() -1) next = 0;
 		            				            		
-		            		Vector2 b0 = contoure.getMiddlePaths().get(next);
-		            			
-		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + b0.x*zoom), (float) (offsetY + b0.y * zoom), 0.5f, 0.5f);
-		            		g2d.setColor(Color.PINK);					
+		            		Vector2 b0 = contoure.getMiddlePaths().get(j);		            			
+		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + b0.x*zoom), (float) (offsetY + b0.y * zoom), 4, 4);
+		            		g2d.setColor(Color.BLUE);
 							g2d.draw(circle);
 		            				            		
 /*		            		

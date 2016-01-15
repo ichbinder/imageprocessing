@@ -14,7 +14,9 @@ public class Contoure {
 	final private Vector2 [] vectors;
 	private Map<Integer, Object> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
 	private ArrayList<HashMap<Integer, Object>> straightPaths; // speichert alle möglichen StraigthPathsesees	
-	private ArrayList<Vector2> middlePath;
+	private ArrayList<Vector2> middlePath;	
+	private ArrayList<Vector2> [] straightPathVectorList; // Möglichkeiten von StraightsPaths als Vector2-ArrayList
+	
 	
 	
 	/**Erzeugt eine Kontur . 
@@ -27,6 +29,7 @@ public class Contoure {
 		this.straightPathVectors = new HashMap<Integer, Object>(); 
 		this.straightPaths = new ArrayList<HashMap<Integer, Object>>(); 
 		this.middlePath = new ArrayList<Vector2>();
+		
 	}
 	
 	/**Gibt den besten (im aktuellen Fall kürzesten) Pfad zurück.
@@ -64,6 +67,18 @@ public class Contoure {
 	 * @param value Der entfernteste erreichbare Punkt.*/
 	public void addStraightPathVectors(int key, int value) {
 		this.straightPathVectors.put(key, value);
+	}
+	
+	
+	public void initStraighPathList(int size){
+		
+		straightPathVectorList = new ArrayList[size]; // Index 0 = Arraylist welche mehere StraightPaths enthält		
+	}
+	
+	public void addStraighPathVector(int startIndex, Vector2 vec){
+		
+		straightPathVectorList[startIndex].add(vec);
+		
 	}
 	
 	/**Gibt das Dictionary zurück indem die weiteste Entfernung von einem Punkt (i) zum Nächsten (k) steht.
@@ -107,7 +122,7 @@ public class Contoure {
 		return this.middlePath;
 	}
 	
-	
+		
 	public ArrayList<Vector2> getBestStraighPathAsPoints(){
 		
 		ArrayList<Vector2> listOfPoints = new ArrayList<Vector2>();
@@ -115,13 +130,24 @@ public class Contoure {
 		HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) this.getBestStraigthPath();
     	Set<Integer> key = tmpData.keySet();
     	Iterator it = key.iterator();
+    	
+    	int counter = 0;
     	while (it.hasNext()) {
         	int hmKey = (int)it.next();
-        	int hmData = (int) tmpData.get(hmKey);
+        	int hmData = (int) tmpData.get(hmKey);  
         	
+        	Vector2 a = this.getVector(hmKey);
+        	Vector2 b = this.getVector(hmData);
+        	        	
         	listOfPoints.add(this.getVector(hmKey));
-        	listOfPoints.add(this.getVector(hmData));
+        	listOfPoints.add(this.getVector(hmData));      	
+        	
+        	System.out.println("k: "+a);
+        	System.out.println("d: "+b);        	
+        	
+//        	counter+=2;
     	}
+  //  	System.out.println("Counted: " + counter);
 		
 		return listOfPoints;
 	}  
