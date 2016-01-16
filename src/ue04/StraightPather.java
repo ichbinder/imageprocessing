@@ -1,6 +1,15 @@
 package ue04;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 public class StraightPather {
 	
@@ -140,19 +149,58 @@ public class StraightPather {
 			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
 				int maxIndex = i;
 				int maxValue = 0;
-				int start = i;
+				Object start = contoure.getStraightPathVectors().get(i);
+				Object end = contoure.getStraightPathVectors().get(contoure.getStraightPathVectors().size()-1);
 				HashMap<Integer, Object> tempStraingthPath = new HashMap<Integer, Object>();
 				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
+					
 					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
 						tempStraingthPath.put(maxIndex, start);
 						break;
 					}
+					if (start == end) break;
+					
 					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
 					tempStraingthPath.put(maxIndex, maxValue);						
 					maxIndex = maxValue;
+					
 				}
+
+				sortStraightPath(tempStraingthPath);
+				System.out.println(tempStraingthPath.size());
 				contoure.addStraightPaths(tempStraingthPath);
 			}
 		}
+	}
+	
+	private void sortStraightPath(HashMap<Integer, Object> straingthPath) {
+		SortedMap<Integer, Object> tempStraingthPath = new TreeMap<>();
+		
+		
+		//Fülle eine neu sortierte HashMap -> Richtige Reichenfolge
+			
+			//Gehe alle Einträge der unsortierten Hashmap durch
+			Set<Integer> key = straingthPath.keySet();
+            Iterator it = key.iterator();            
+            
+            int lastData = (int) it.next();
+            
+            //Solange Daten im unsortiertem enthalten sind
+            while (it.hasNext()) {
+            	            	
+                int hmKey = lastData;
+                int hmData = (int) straingthPath.get(hmKey);	
+                
+               	tempStraingthPath.put(hmKey, hmData);
+
+                lastData = hmData;   
+                it.next();
+                                              
+
+		}
+        System.out.println(tempStraingthPath);
+                
+        
+            
 	}
 }
