@@ -92,14 +92,7 @@ public class BezierCalculation {
 		for(int c = 0; c < contoures.length; c++){
 			
 			Contoure contoure = contoures[c];
-			
-			
-			
-			
-
 			System.out.println("-- Alle StraightPathpunkte --");
-
-			
 								
 			LinkedHashMap<Integer, Integer> tmpData = (LinkedHashMap<Integer, Integer>) contoure.getBestStraigthPath();
         	Set<Integer> key = tmpData.keySet();
