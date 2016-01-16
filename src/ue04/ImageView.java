@@ -17,6 +17,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -376,9 +378,9 @@ public class ImageView extends JScrollPane{
 					
 					g2d.setStroke(new BasicStroke(3));
 					
-					HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) contoure.getBestStraigthPath();
+					SortedMap<Integer, Integer> tmpData = (TreeMap<Integer, Integer>) contoure.getBestStraigthPath();
 		            Set<Integer> key = tmpData.keySet();
-		            Iterator it = key.iterator();
+		            Iterator<Integer> it = key.iterator();
 		            while (it.hasNext()) {
 		                int hmKey = (int)it.next();
 		                int hmData = (int) tmpData.get(hmKey);

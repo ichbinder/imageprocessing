@@ -3,30 +3,32 @@ package ue04;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Contoure {
 
 	final private boolean isOutline;
 	final private Vector2 [] vectors;
-	private Map<Integer, Object> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
-	private ArrayList<HashMap<Integer, Object>> straightPaths; // speichert alle möglichen StraigthPathsesees
+	private Map<Integer, Integer> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
+	private ArrayList<TreeMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
 	
 	public Contoure(boolean isOut, Vector2 [] ps){
 		
 		this.isOutline = isOut;
 		this.vectors = ps;
-		this.straightPathVectors = new HashMap<Integer, Object>(); 
-		this.straightPaths = new ArrayList<HashMap<Integer, Object>>(); 
+		this.straightPathVectors = new TreeMap<Integer, Integer>(); 
+		this.straightPaths = new ArrayList<TreeMap<Integer, Integer>>(); 
 	}
 	
 //	Liefert den besten StraigthPath zurück 
-	public Map<Integer, Object> getBestStraigthPath() {
-		HashMap<Integer, Object> bestSP = new HashMap<Integer, Object>();
+	public Map<Integer, Integer> getBestStraigthPath() {
+		TreeMap<Integer, Integer> bestSP = new TreeMap<Integer, Integer>();
 		if (!straightPaths.isEmpty()) {
-			bestSP = straightPaths.get(0);
-//			for (int i = 0; i < straightPaths.size(); i++) 
-//				if (straightPaths.get(i).size() < bestSP.size()) 
-//					bestSP = straightPaths.get(i);
+			for (TreeMap<Integer, Integer> path : straightPaths) {
+				if (path.size() < bestSP.size())
+					bestSP = path;
+			}
 		}
 		return bestSP;
 	}
@@ -51,16 +53,16 @@ public class Contoure {
 		this.straightPathVectors.put(key, value);
 	}
 	
-	public Map<Integer, Object> getStraightPathVectors() {
+	public Map<Integer, Integer> getStraightPathVectors() {
 		return this.straightPathVectors;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setStraightPaths(HashMap<Integer, Object> straightPath) {
-		this.straightPaths.add((HashMap<Integer, Object>) straightPath);
+	public void setStraightPaths(SortedMap<Integer, Integer> tempStraingthPath) {
+		this.straightPaths.add((TreeMap<Integer, Integer>) tempStraingthPath);
 	}
 	
-	public ArrayList<HashMap<Integer, Object>> getStraightPaths() {
+	public ArrayList<TreeMap<Integer, Integer>> getStraightPaths() {
 		return this.straightPaths;
 	}
 	

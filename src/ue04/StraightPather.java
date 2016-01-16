@@ -1,15 +1,10 @@
 package ue04;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 public class StraightPather {
 
@@ -139,40 +134,71 @@ public class StraightPather {
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
 			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
-				int maxIndex = i;
-				int maxValue = 0;
-				Object start = contoure.getStraightPathVectors().get(i);
-				Object end = contoure.getStraightPathVectors().get(contoure.getStraightPathVectors().size()-1);
-				HashMap<Integer, Object> tempStraingthPath = new HashMap<Integer, Object>();
-				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
-					
-					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
-						tempStraingthPath.put(maxIndex, start);
-						break;
-					}
-					if (start == end) break;
-					
-					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
-					tempStraingthPath.put(maxIndex, maxValue);						
-					maxIndex = maxValue;
-					
-				}
-				sortStraightPath(tempStraingthPath);
-				System.out.println(tempStraingthPath.size());
-				contoure.setStraightPaths(tempStraingthPath);
+				LinkedHashMap<Integer, Integer> tempStraingthPath = new LinkedHashMap<>();
+				
+				//Gehe alle Einträge der unsortierten Hashmap durch
+				Set<Integer> key = contoure.getStraightPathVectors().keySet();
+	            Iterator<Integer> it = key.iterator();            
+	            int lastData = (int) it.next() + i;
+	            int startPoint = lastData;
+	            
+	            //Solange Daten im unsortiertem enthalten sind
+	            while (it.hasNext()) {
+	            	         	
+	                int hmKey = lastData;
+	                int hmData = (int) contoure.getStraightPathVectors().get(hmKey);
+	                
+	                if (!tempStraingthPath.isEmpty()) {
+		                if (startPoint > hmKey && 
+		                	(int) contoure.getStraightPathVectors().get(startPoint) <= hmData)  {
+		                	tempStraingthPath.put(hmKey, startPoint);
+		                	break;
+		                }
+	                }
+	                
+	               	tempStraingthPath.put(hmKey, hmData);
+
+	                lastData = hmData;   
+	                it.next();
+	            }
+//	            contoure.setStraightPaths(tempStraingthPath);
+				System.out.println("test");
+				
+//				int maxIndex = i;
+//				int maxValue = 0;
+//				int startIndex = i;
+//				Object startPoint = contoure.getStraightPathVectors().get(i);
+//				Object endPoint = contoure.getStraightPathVectors().get(contoure.getStraightPathVectors().size()-1);
+//				SortedMap<Integer, Integer> tempStraingthPath = new TreeMap<Integer, Integer>();
+//				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
+//					
+//					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
+//						tempStraingthPath.put(maxIndex, startIndex);
+//						break;
+//					}
+//					if (startPoint == endPoint) break;
+//					
+//					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
+//					tempStraingthPath.put(maxIndex, maxValue);						
+//					maxIndex = maxValue;
+//					
+//				}
+//				sortStraightPath(tempStraingthPath);
+//				System.out.println(tempStraingthPath.size());
+//				contoure.setStraightPaths(tempStraingthPath);
 			}
 		}
 	}
 	
-	private void sortStraightPath(HashMap<Integer, Object> straingthPath) {
-		SortedMap<Integer, Object> tempStraingthPath = new TreeMap<>();
+	private void sortStraightPath(SortedMap<Integer, Integer> tempStraingthPath2) {
+		SortedMap<Integer, Integer> tempStraingthPath = new TreeMap<>();
 		
 		
 		//Fülle eine neu sortierte HashMap -> Richtige Reichenfolge
 			
 			//Gehe alle Einträge der unsortierten Hashmap durch
-			Set<Integer> key = straingthPath.keySet();
-            Iterator it = key.iterator();            
+			Set<Integer> key = tempStraingthPath2.keySet();
+            Iterator<Integer> it = key.iterator();            
             
             int lastData = (int) it.next();
             
@@ -180,7 +206,7 @@ public class StraightPather {
             while (it.hasNext()) {
             	            	
                 int hmKey = lastData;
-                int hmData = (int) straingthPath.get(hmKey);	
+                int hmData = (int) tempStraingthPath2.get(hmKey);	
                 
                	tempStraingthPath.put(hmKey, hmData);
 
