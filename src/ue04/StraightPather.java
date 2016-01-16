@@ -80,6 +80,7 @@ public class StraightPather {
 				}
 				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
 			}
+			contoure.calcBestStraigthPath();
 		}
 	}
 	

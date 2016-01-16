@@ -2,6 +2,7 @@ package ue05;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -11,8 +12,9 @@ public class Contoure {
 	final private boolean isOutline;
 	final private Vector2 [] vectors;
 	private Map<Integer, Integer> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
-	private ArrayList<TreeMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
+	private ArrayList<LinkedHashMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
 	private ArrayList<Vector2> middlePath; //Speichert alle Mittelpunkte von den gefundenen StraightPaths
+	private Map<Integer, Integer> bestStraightPath;
 	
 	
 	/**Erzeugt eine Kontur . 
@@ -22,20 +24,26 @@ public class Contoure {
 		
 		this.isOutline = isOut;
 		this.vectors = ps;
-		this.straightPathVectors = new TreeMap<Integer, Integer>(); 
-		this.straightPaths = new ArrayList<TreeMap<Integer, Integer>>(); 
+		this.straightPathVectors = new LinkedHashMap<Integer, Integer>(); 
+		this.straightPaths = new ArrayList<LinkedHashMap<Integer, Integer>>(); 
+		this.bestStraightPath = new LinkedHashMap<Integer, Integer>();
+		this.middlePath = new ArrayList<Vector2>();
 	}
 	
 //	Liefert den besten StraigthPath zurück 
-	public Map<Integer, Integer> getBestStraigthPath() {
-		TreeMap<Integer, Integer> bestSP = new TreeMap<Integer, Integer>();
+	public void calcBestStraigthPath() {
+		LinkedHashMap<Integer, Integer> bestSP = new LinkedHashMap<Integer, Integer>();
 		if (!straightPaths.isEmpty()) {
-			for (TreeMap<Integer, Integer> path : straightPaths) {
-				if (path.size() < bestSP.size())
+			bestSP = straightPaths.get(0);
+			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
+				if (path.size() > bestSP.size()) {
 					bestSP = path;
+					System.out.println("BSP:" + bestSP);
+				}
+				
 			}
 		}
-		return bestSP;
+		this.bestStraightPath = bestSP;
 	}
 		
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
@@ -75,13 +83,13 @@ public class Contoure {
 	/**Fügt ein ganzes Straight-Path-Dictionary zu einer Straight-Path - Sammlung hinzu.
 	 * @param straightPath ein ganzes StraightPath-Dictionary*/
 	@SuppressWarnings("unchecked")
-	public void setStraightPaths(SortedMap<Integer, Integer> tempStraingthPath) {
-		this.straightPaths.add((TreeMap<Integer, Integer>) tempStraingthPath);
+	public void setStraightPaths(LinkedHashMap<Integer, Integer> tempStraingthPath) {
+		this.straightPaths.add((LinkedHashMap<Integer, Integer>) tempStraingthPath);
 	}
 	
 	/**Gibt die Sammlung an StraightPath-Dictionaries zurück.
 	 * @return Die Straight-Path-Sammlung*/
-	public ArrayList<TreeMap<Integer, Integer>> getStraightPaths() {
+	public ArrayList<LinkedHashMap<Integer, Integer>> getStraightPaths() {
 		return this.straightPaths;
 	}
 	
@@ -106,5 +114,9 @@ public class Contoure {
 	public ArrayList<Vector2> getMiddlePaths(){
 		
 		return this.middlePath;
+	}
+	
+	public Map<Integer, Integer> getBestStraigthPath() {
+		return this.bestStraightPath;
 	}
 }
