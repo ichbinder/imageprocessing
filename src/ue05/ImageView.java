@@ -436,35 +436,32 @@ public class ImageView extends JScrollPane{
 					
 					if(drawBeziersPaths){
 						
-						for(int j = 1; j < contoure.getMiddlePaths().size(); j+=3){
+						for(int j = 0; j < contoure.getMiddlePaths().size(); j+=2){
 
-		            		int prev = j-1;
-		            		int next = j+1;
+							
+		            		int prev = j -1; //  erste Mittelpunkteintrag		            		
+		            		int next = j +1; // nächste Mittelpunkt		            		
+		            		
 		            		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
 		            		if(next > contoure.getMiddlePaths().size() -1) next = 0;
-		            		Vector2 b0 = contoure.getMiddlePaths().get(j);
-							
-							
+		            		
+		            		Vector2 b0 = contoure.getMiddlePaths().get(prev);							
 		            		Vector2 a  = contoure.getMiddlePaths().get(j);
 		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
 		            		
 		            		Vector2 [] oriPoints = {a, b0, b1};		            		
-		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
-							
-							
-							
-		            				            		
-/*		            		
-		            		Vector2 a  = contoure.getMiddlePaths().get(j);
-		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
+		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);		            				            		
 		            		
-		            		Vector2 [] oriPoints = {a, b0, b1};
-		            		
-		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
-		            		
+//		            		Vector2 a  = contoure.getMiddlePaths().get(j);
+//		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
+//		            		
+//		            		Vector2 [] oriPoints = {a, b0, b1};
+//		            		
+//		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
+		            		g2d.setColor(Color.BLUE);
 		            		CubicCurve2D.Double cubicCurve; // Cubic curve
 		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
-		            		g2d.draw(cubicCurve);*/
+		            		g2d.draw(cubicCurve);
 		            	}
 						
 					}

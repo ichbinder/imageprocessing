@@ -110,7 +110,7 @@ public class BezierCalculation {
             	
             	contoure.addMiddlePoint(pointA);
 				contoure.addMiddlePoint(middle); //Füge gefundenen Mittelpunkt hinzu
-				contoure.addMiddlePoint(pointB);
+//				contoure.addMiddlePoint(pointB);
         	}	
 	    	
 			System.out.println("-- Ende StraightPathpunkte --");

@@ -19,7 +19,7 @@ public class StraightPather {
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
 		createStraighttPaths();
-		possibleSegments();
+		possibleSegmentsOld();
 		System.out.println("alles gut!");		
 	}
 	
@@ -70,16 +70,16 @@ public class StraightPather {
 						contoure.addStraightPathVectors(i, k - 1);
 						break;
 					}
+					
 					constaintUpdate(vik);	
 					
 					//Falls Constraint noch nicht gefunden wurde lasse ihn über den Anfang laufen
-					/*
-					if(k >= contoure.getVectors().length-1){
+					if(k + 1 >= contoure.getVectors().length){
 						k = -1;											
-					}*/
+					}					
 				}
-				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
-			}
+//				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
+			}			
 		}
 	}
 	
@@ -138,7 +138,7 @@ public class StraightPather {
 	
 	/**Jede Kontur wird auf seine einzelnen Straightpaths untersucht. 
 	 * Es werden Verbindungen gezogen mit den jeweils berechneten weitesten Pfaden von einem Punkt zum Nächsten und in einem Dictionary abgelegt.*/
-	private void possibleSegments() {
+	private void possibleSegmentsOld() {
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
 			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
@@ -149,6 +149,7 @@ public class StraightPather {
 	            Iterator<Integer> it = key.iterator();            
 	            int lastData = (int) it.next() + i;
 	            int startPoint = lastData;
+	            int startData = contoure.getStraightPathVectors().get(startPoint);
 	            
 	            //Solange Daten im unsortiertem enthalten sind
 	            while (it.hasNext()) {
@@ -157,10 +158,20 @@ public class StraightPather {
 	                int hmData = (int) contoure.getStraightPathVectors().get(hmKey);
 	                
 	                if (!tempStraingthPath.isEmpty()) {
-		                if (startPoint > hmKey && 
-		                	(int) contoure.getStraightPathVectors().get(startPoint) <= hmData)  {
-		                	tempStraingthPath.put(hmKey, startPoint);
-		                	break;
+	                	
+			            if (startPoint > hmKey) {
+		                	if (hmData >= startPoint)  {
+		                		tempStraingthPath.put(hmKey, startPoint);
+		                		break;	
+			                } 
+		                	//START: 81  -> Data: 1
+		                	//Key: 80 -> Data: 1		                	
+		                	else if (startData >= hmData){
+								//key = new value = startPoint
+//		                		hmData = startPoint;
+		                		tempStraingthPath.put(hmKey, startPoint);
+		                		break;
+							}
 		                }
 	                }
 	                
@@ -169,32 +180,49 @@ public class StraightPather {
 	                lastData = hmData;   
 	                it.next();
 	            }
-//	            contoure.setStraightPaths(tempStraingthPath);
-				System.out.println("test");
-				
-//				int maxIndex = i;
-//				int maxValue = 0;
-//				int startIndex = i;
-//				Object startPoint = contoure.getStraightPathVectors().get(i);
-//				Object endPoint = contoure.getStraightPathVectors().get(contoure.getStraightPathVectors().size()-1);
-//				SortedMap<Integer, Integer> tempStraingthPath = new TreeMap<Integer, Integer>();
-//				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
-//					
-//					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
-//						tempStraingthPath.put(maxIndex, startIndex);
-//						break;
-//					}
-//					if (startPoint == endPoint) break;
-//					
-//					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
-//					tempStraingthPath.put(maxIndex, maxValue);						
-//					maxIndex = maxValue;
-//					
-//				}
-//				sortStraightPath(tempStraingthPath);
-//				System.out.println(tempStraingthPath.size());
-//				contoure.setStraightPaths(tempStraingthPath);
+	            contoure.setStraightPaths(tempStraingthPath);
 			}
+			contoure.calcBestStraigthPath();
+		}
+	}
+	
+	/**Jede Kontur wird auf seine einzelnen Straightpaths untersucht. 
+	 * Es werden Verbindungen gezogen mit den jeweils berechneten weitesten Pfaden von einem Punkt zum Nächsten und in einem Dictionary abgelegt.*/
+	private void possibleSegments() {
+		for (int c = 0; c < contoures.length; c++) {
+			Contoure contoure = contoures[c];
+			for (int v = 0; v < contoure.getStraightPathVectors().size(); v++) {
+				LinkedHashMap<Integer, Integer> contoureStraingthPath = new LinkedHashMap<>();
+				
+				//Gehe alle Einträge der unsortierten Hashmap durch
+				Set<Integer> key = contoure.getStraightPathVectors().keySet();
+	            Iterator<Integer> it = key.iterator();            
+	            
+            	int i = v, j = 0; 
+            	
+            		            
+	            while (it.hasNext()) {
+	            	
+	                j = (int) contoure.getStraightPathVectors().get(i);	                
+	                if(i <= j) 
+	                	contoureStraingthPath.put(i, j);
+
+	                if(j < i){
+	                	
+	                	int vn = (int) contoure.getStraightPathVectors().size()-1;
+	                	int v0 = 0; 
+	                	
+	                	contoureStraingthPath.put(i, vn);
+	                	if(j >= v) j = v;	                	
+	                	contoureStraingthPath.put(vn, j);
+	                	if(j >= v) break;	                	
+	                }
+		            i = j;
+	                it.next();
+	            }
+	            contoure.setStraightPaths(contoureStraingthPath);
+			}//v++
+			contoure.calcBestStraigthPath();
 		}
 	}
 	
