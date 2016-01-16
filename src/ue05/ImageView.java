@@ -43,7 +43,7 @@ public class ImageView extends JScrollPane{
 	private boolean centered = true;
 	private double zoom = 1.0;
 	private Contoure [] contoures = new Contoure[0];
-	private boolean drawStraightPaths, drawPaths, drawBeziersPaths;
+	private boolean drawStraightPaths, drawPaths, drawBeziersPaths, drawMiddlePoints;
 	
 	
 	private boolean grid;
@@ -420,20 +420,39 @@ public class ImageView extends JScrollPane{
 					}
 
 					drawBeziersPaths = true;
-
-					if(drawBeziersPaths){
+					drawMiddlePoints = true;
+					
+					if(drawMiddlePoints){
 						
-						for(int j = 0; j < contoure.getMiddlePaths().size(); j++){
+						for(int j = 1; j < contoure.getMiddlePaths().size(); j+=3){
 
-//		            		int prev = j-1;
-//		            		int next = j+1;
-//		            		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
-//		            		if(next > contoure.getMiddlePaths().size() -1) next = 0;
-		            				            		
-		            		Vector2 b0 = contoure.getMiddlePaths().get(j);		            			
+		            		Vector2 b0 = contoure.getMiddlePaths().get(j);
 		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + b0.x*zoom), (float) (offsetY + b0.y * zoom), 4, 4);
 		            		g2d.setColor(Color.BLUE);
 							g2d.draw(circle);
+		            	}
+					}
+					
+					
+					if(drawBeziersPaths){
+						
+						for(int j = 1; j < contoure.getMiddlePaths().size(); j+=3){
+
+		            		int prev = j-1;
+		            		int next = j+1;
+		            		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
+		            		if(next > contoure.getMiddlePaths().size() -1) next = 0;
+		            		Vector2 b0 = contoure.getMiddlePaths().get(j);
+							
+							
+		            		Vector2 a  = contoure.getMiddlePaths().get(j);
+		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
+		            		
+		            		Vector2 [] oriPoints = {a, b0, b1};		            		
+		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
+							
+							
+							
 		            				            		
 /*		            		
 		            		Vector2 a  = contoure.getMiddlePaths().get(j);
@@ -449,6 +468,13 @@ public class ImageView extends JScrollPane{
 		            	}
 						
 					}
+					
+					
+					
+					
+					
+					
+					
 //		            ------------- Zeichenen ende ----------------------------------------
 					
 					
