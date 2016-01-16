@@ -2,21 +2,17 @@ package ue05;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-
-import ue05.Vector2;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Contoure {
 
 	final private boolean isOutline;
 	final private Vector2 [] vectors;
-	private Map<Integer, Object> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
-	private ArrayList<HashMap<Integer, Object>> straightPaths; // speichert alle möglichen StraigthPathsesees	
-	private ArrayList<Vector2> middlePath;	
-	private ArrayList<Vector2> [] straightPathVectorList; // Möglichkeiten von StraightsPaths als Vector2-ArrayList
-	
+	private Map<Integer, Integer> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
+	private ArrayList<TreeMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
+	private ArrayList<Vector2> middlePath; //Speichert alle Mittelpunkte von den gefundenen StraightPaths
 	
 	
 	/**Erzeugt eine Kontur . 
@@ -26,18 +22,18 @@ public class Contoure {
 		
 		this.isOutline = isOut;
 		this.vectors = ps;
-		this.straightPathVectors = new HashMap<Integer, Object>(); 
-		this.straightPaths = new ArrayList<HashMap<Integer, Object>>(); 
-		this.middlePath = new ArrayList<Vector2>();
-		
+		this.straightPathVectors = new TreeMap<Integer, Integer>(); 
+		this.straightPaths = new ArrayList<TreeMap<Integer, Integer>>(); 
 	}
 	
-	/**Gibt den besten (im aktuellen Fall kürzesten) Pfad zurück.
-	 * @return Ein Dictionary worin der kürzeste Pfad enthalten ist.*/
-	public Map<Integer, Object> getBestStraigthPath() {
-		HashMap<Integer, Object> bestSP = new HashMap<Integer, Object>();
+//	Liefert den besten StraigthPath zurück 
+	public Map<Integer, Integer> getBestStraigthPath() {
+		TreeMap<Integer, Integer> bestSP = new TreeMap<Integer, Integer>();
 		if (!straightPaths.isEmpty()) {
-			bestSP = straightPaths.get(0);
+			for (TreeMap<Integer, Integer> path : straightPaths) {
+				if (path.size() < bestSP.size())
+					bestSP = path;
+			}
 		}
 		return bestSP;
 	}
@@ -69,33 +65,23 @@ public class Contoure {
 		this.straightPathVectors.put(key, value);
 	}
 	
-	
-	public void initStraighPathList(int size){
-		
-		straightPathVectorList = new ArrayList[size]; // Index 0 = Arraylist welche mehere StraightPaths enthält		
-	}
-	
-	public void addStraighPathVector(int startIndex, Vector2 vec){
-		
-		straightPathVectorList[startIndex].add(vec);
-		
-	}
-	
+
 	/**Gibt das Dictionary zurück indem die weiteste Entfernung von einem Punkt (i) zum Nächsten (k) steht.
 	 * @return Dictionary -> Key: i, Value: k*/
-	public Map<Integer, Object> getStraightPathVectors() {
+	public Map<Integer, Integer> getStraightPathVectors() {
 		return this.straightPathVectors;
 	}
 	
 	/**Fügt ein ganzes Straight-Path-Dictionary zu einer Straight-Path - Sammlung hinzu.
 	 * @param straightPath ein ganzes StraightPath-Dictionary*/
-	public void addStraightPaths(HashMap<Integer, Object> straightPath) {
-		this.straightPaths.add((HashMap<Integer, Object>) straightPath);
+	@SuppressWarnings("unchecked")
+	public void setStraightPaths(SortedMap<Integer, Integer> tempStraingthPath) {
+		this.straightPaths.add((TreeMap<Integer, Integer>) tempStraingthPath);
 	}
 	
 	/**Gibt die Sammlung an StraightPath-Dictionaries zurück.
 	 * @return Die Straight-Path-Sammlung*/
-	public ArrayList<HashMap<Integer, Object>> getStraightPaths() {
+	public ArrayList<TreeMap<Integer, Integer>> getStraightPaths() {
 		return this.straightPaths;
 	}
 	
@@ -121,37 +107,4 @@ public class Contoure {
 		
 		return this.middlePath;
 	}
-	
-		
-	public ArrayList<Vector2> getBestStraighPathAsPoints(){
-		
-		ArrayList<Vector2> listOfPoints = new ArrayList<Vector2>();
-		
-		HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) this.getBestStraigthPath();
-    	Set<Integer> key = tmpData.keySet();
-    	Iterator it = key.iterator();
-    	
-    	int counter = 0;
-    	while (it.hasNext()) {
-        	int hmKey = (int)it.next();
-        	int hmData = (int) tmpData.get(hmKey);  
-        	
-        	Vector2 a = this.getVector(hmKey);
-        	Vector2 b = this.getVector(hmData);
-        	        	
-        	listOfPoints.add(this.getVector(hmKey));
-        	listOfPoints.add(this.getVector(hmData));      	
-        	
-        	System.out.println("k: "+a);
-        	System.out.println("d: "+b);        	
-        	
-//        	counter+=2;
-    	}
-  //  	System.out.println("Counted: " + counter);
-		
-		return listOfPoints;
-	}  
 }
-
-
-

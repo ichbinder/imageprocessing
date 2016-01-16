@@ -1,6 +1,10 @@
 package ue05;
 
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class StraightPather {
 	
@@ -31,15 +35,14 @@ public class StraightPather {
 		Vector2 vik = new Vector2();
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
-						
+			
 			for(int i = 0; i < contoure.getVectors().length; i++) {
 				this.constraint0.set(0, 0);
 				this.constraint1.set(0, 0);
 				short countChangedDirections = 0;
 				
 				Vector2 oldK = contoure.getVector(i);
-				boolean oldEqualX = false, oldEqualY = false;				
-//				contoure.addStraighPathVector(i, contoure.getVector(i));				
+				boolean oldEqualX = false, oldEqualY = false;
 				
 				for(int k = i +1; k < contoure.getVectors().length; k++) {
 					vik.set(contoure.getVector(k).x, contoure.getVector(k).y);
@@ -59,14 +62,12 @@ public class StraightPather {
 					
 					if(countChangedDirections == 3){
 						contoure.addStraightPathVectors(i, k - 1);
-//						contoure.addStraighPathVector(i, contoure.getVector(k-1));						
 						break;
 					}
 					//-------------------- Ende Prüfung Richtungswechsel
 					
 					if (constraint0.cross(vik) < 0 || constraint1.cross(vik) > 0) {
-						contoure.addStraightPathVectors(i, k - 1);												
-//						contoure.addStraighPathVector(i, contoure.getVector(k-1));						
+						contoure.addStraightPathVectors(i, k - 1);
 						break;
 					}
 					constaintUpdate(vik);	
@@ -77,7 +78,7 @@ public class StraightPather {
 						k = -1;											
 					}*/
 				}
-				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);				
+				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
 			}
 		}
 	}
@@ -141,21 +142,90 @@ public class StraightPather {
 		for (int c = 0; c < contoures.length; c++) {
 			Contoure contoure = contoures[c];
 			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
-				int maxIndex = i;
-				int maxValue = 0;
-				int start = i;
-				HashMap<Integer, Object> tempStraingthPath = new HashMap<Integer, Object>();
-				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
-					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
-						tempStraingthPath.put(maxIndex, start);
-						break;
-					}
-					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
-					tempStraingthPath.put(maxIndex, maxValue);						
-					maxIndex = maxValue;
-				}
-				contoure.addStraightPaths(tempStraingthPath);
+				LinkedHashMap<Integer, Integer> tempStraingthPath = new LinkedHashMap<>();
+				
+				//Gehe alle Einträge der unsortierten Hashmap durch
+				Set<Integer> key = contoure.getStraightPathVectors().keySet();
+	            Iterator<Integer> it = key.iterator();            
+	            int lastData = (int) it.next() + i;
+	            int startPoint = lastData;
+	            
+	            //Solange Daten im unsortiertem enthalten sind
+	            while (it.hasNext()) {
+	            	         	
+	                int hmKey = lastData;
+	                int hmData = (int) contoure.getStraightPathVectors().get(hmKey);
+	                
+	                if (!tempStraingthPath.isEmpty()) {
+		                if (startPoint > hmKey && 
+		                	(int) contoure.getStraightPathVectors().get(startPoint) <= hmData)  {
+		                	tempStraingthPath.put(hmKey, startPoint);
+		                	break;
+		                }
+	                }
+	                
+	               	tempStraingthPath.put(hmKey, hmData);
+
+	                lastData = hmData;   
+	                it.next();
+	            }
+//	            contoure.setStraightPaths(tempStraingthPath);
+				System.out.println("test");
+				
+//				int maxIndex = i;
+//				int maxValue = 0;
+//				int startIndex = i;
+//				Object startPoint = contoure.getStraightPathVectors().get(i);
+//				Object endPoint = contoure.getStraightPathVectors().get(contoure.getStraightPathVectors().size()-1);
+//				SortedMap<Integer, Integer> tempStraingthPath = new TreeMap<Integer, Integer>();
+//				for (int j = 0; j < contoure.getStraightPathVectors().size(); j++) {
+//					
+//					if (!contoure.getStraightPathVectors().containsKey(maxIndex)) {
+//						tempStraingthPath.put(maxIndex, startIndex);
+//						break;
+//					}
+//					if (startPoint == endPoint) break;
+//					
+//					maxValue = (int) contoure.getStraightPathVectors().get(maxIndex);
+//					tempStraingthPath.put(maxIndex, maxValue);						
+//					maxIndex = maxValue;
+//					
+//				}
+//				sortStraightPath(tempStraingthPath);
+//				System.out.println(tempStraingthPath.size());
+//				contoure.setStraightPaths(tempStraingthPath);
 			}
 		}
+	}
+	
+	private void sortStraightPath(SortedMap<Integer, Integer> tempStraingthPath2) {
+		SortedMap<Integer, Integer> tempStraingthPath = new TreeMap<>();
+		
+		
+		//Fülle eine neu sortierte HashMap -> Richtige Reichenfolge
+			
+			//Gehe alle Einträge der unsortierten Hashmap durch
+			Set<Integer> key = tempStraingthPath2.keySet();
+            Iterator<Integer> it = key.iterator();            
+            
+            int lastData = (int) it.next();
+            
+            //Solange Daten im unsortiertem enthalten sind
+            while (it.hasNext()) {
+            	            	
+                int hmKey = lastData;
+                int hmData = (int) tempStraingthPath2.get(hmKey);	
+                
+               	tempStraingthPath.put(hmKey, hmData);
+
+                lastData = hmData;   
+                it.next();
+                                              
+
+		}
+        System.out.println(tempStraingthPath);
+                
+        
+            
 	}
 }

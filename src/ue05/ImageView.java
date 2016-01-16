@@ -21,6 +21,7 @@ import java.awt.Graphics2D;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -28,7 +29,6 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
-import javafx.scene.shape.Circle;
 
 public class ImageView extends JScrollPane{
 
@@ -390,7 +390,7 @@ public class ImageView extends JScrollPane{
 						else g2d.setColor(Color.GREEN);					
 						g2d.setStroke(new BasicStroke(3));
 					
-						HashMap<Integer, Object> tmpData = (HashMap<Integer, Object>) contoure.getBestStraigthPath();
+						LinkedHashMap<Integer, Integer> tmpData = (LinkedHashMap<Integer, Integer>) contoure.getBestStraigthPath();
 		            	Set<Integer> key = tmpData.keySet();
 		            	Iterator it = key.iterator();
 		            	while (it.hasNext()) {
