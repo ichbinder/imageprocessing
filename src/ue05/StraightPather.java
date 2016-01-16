@@ -158,20 +158,9 @@ public class StraightPather {
 	                int hmData = (int) contoure.getStraightPathVectors().get(hmKey);
 	                
 	                if (!tempStraingthPath.isEmpty()) {
-	                	
-			            if (startPoint > hmKey) {
-		                	if (hmData >= startPoint)  {
-		                		tempStraingthPath.put(hmKey, startPoint);
-		                		break;	
-			                } 
-		                	//START: 81  -> Data: 1
-		                	//Key: 80 -> Data: 1		                	
-		                	else if (startData >= hmData){
-								//key = new value = startPoint
-//		                		hmData = startPoint;
-		                		tempStraingthPath.put(hmKey, startPoint);
-		                		break;
-							}
+		                if (startPoint > hmKey)  {
+		                	tempStraingthPath.put(hmKey, startPoint);
+		                	break;
 		                }
 	                }
 	                

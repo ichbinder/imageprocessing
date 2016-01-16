@@ -35,13 +35,13 @@ public class Contoure {
 		LinkedHashMap<Integer, Integer> bestSP = new LinkedHashMap<Integer, Integer>();
 		if (!straightPaths.isEmpty()) {
 			bestSP = straightPaths.get(0);
-			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
-				if (path.size() > bestSP.size()) {
-					bestSP = path;
-					System.out.println("BSP:" + bestSP);
-				}
-				
-			}
+//			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
+//				if (path.size() > bestSP.size()) {
+//					bestSP = path;
+//					System.out.println("BSP:" + bestSP);
+//				}
+//				
+//			}
 		}
 		this.bestStraightPath = bestSP;
 	}
