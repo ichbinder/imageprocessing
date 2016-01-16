@@ -1,4 +1,4 @@
-package ue04;
+package ue05;
 // Copyright (C) 2014 by Klaus Jung
 
 // All rights reserved.
@@ -207,7 +207,8 @@ public class Binarize extends JPanel {
 
 	public static void main(String[] args) {
 		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
+		// creating and showing this application's GUI.		
+		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createAndShowGUI();
@@ -263,6 +264,10 @@ public class Binarize extends JPanel {
 		}
 		*/
 		
+		//Finde Mittelpunkte des BestStraightPathes für Bezierkurven
+		BezierCalculation.getMiddlePointsOnStraightPaths(potrace.getContoures());	
+		
+			
 		dstView.updateScreen();
 
 		//dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);

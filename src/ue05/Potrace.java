@@ -1,4 +1,4 @@
-package ue04;
+package ue05;
 
 import java.util.ArrayList;
 
@@ -179,8 +179,11 @@ public class Potrace {
 		Vector2 startVector2 = new Vector2(x, y);
 		Vector2 endVector2 = new Vector2(x, y);		
 		
+//		startVector2.lookingDirection = direction;
+//		endVector2.lookingDirection = direction;
+	
 		startVector2.lookingDirection = direction;
-		endVector2.lookingDirection = direction;
+		
 		path.add(startVector2);
 		
 		boolean diffX = false;
@@ -210,16 +213,16 @@ public class Potrace {
 	private void removeOutline(Vector2[] path, int [][] pixels){
 
 		Vector2 lastVector2 = path[0];
-		int lastY = lastVector2.y;
+		float lastY = lastVector2.y;
 		
 		for(int i = 1; i < path.length; i++){
 
 			Vector2 p = path[i];
 			if(p.y > lastY){
-				invertLine(pixels, p.x, lastY);				
+				invertLine(pixels, (int) p.x, (int) lastY);				
 			}
 			else if(p.y < lastY){
-				invertLine(pixels, p.x, p.y);
+				invertLine(pixels, (int) p.x, (int) p.y);
 			}
 			lastY = p.y;
 		}		
@@ -264,7 +267,7 @@ public class Potrace {
 	 * */
 	private int [][] createPattern(int [][] pixels, Vector2 currentVector2, int width, int height){
 		
-		int y = currentVector2.y, x = currentVector2.x;
+		int y = (int) currentVector2.y, x = (int) currentVector2.x;
 		
 		int pattern2D [][] = new int [2][2];
 		
@@ -285,8 +288,8 @@ public class Potrace {
 		
 		Vector2 [] Vector2s = new Vector2[4];
 		
-		int x = currentVector2.x;
-		int y = currentVector2.y;
+		int x = (int) currentVector2.x;
+		int y = (int) currentVector2.y;
 
 		Vector2s[0] = new Vector2(x-1, y); //Links
 		Vector2s[1] = new Vector2(x, y-1); //Oben
