@@ -43,7 +43,7 @@ public class ImageView extends JScrollPane{
 	private boolean centered = true;
 	private double zoom = 1.0;
 	private Contoure [] contoures = new Contoure[0];
-	private boolean drawStraightPaths, drawPaths, drawBeziersPaths, drawMiddlePoints;
+	private boolean drawStraightPaths, drawPaths, drawBeziersPaths, drawMiddlePoints, drawControlPoints;
 	
 	
 	private boolean grid;
@@ -125,13 +125,20 @@ public class ImageView extends JScrollPane{
 		this.drawPaths = drawPath;		
 	}
 	
+	public void setDrawBezierPaths(boolean drawPath){
+		this.drawBeziersPaths = drawPath;		
+	}
+	
 	public void setDrawStraightPaths(boolean drawStraightPath){
 		this.drawStraightPaths = drawStraightPath;		
 	}
-	public void setDrawBezierPaths(boolean drawBezierPath){
-		this.drawBeziersPaths = drawBezierPath;		
+	public void drawMiddlePoints(boolean drawMiddlePoints){
+		this.drawMiddlePoints = drawMiddlePoints;		
 	}
 	
+	public void setDrawControlPoints(boolean drawControlPoints){
+		this.drawControlPoints = drawControlPoints;		
+	}	
 	
 	public void updateScreen(){
 		
@@ -417,9 +424,9 @@ public class ImageView extends JScrollPane{
 		            	}
 					}
 
-					drawBeziersPaths = true;
-					drawMiddlePoints = true;
-					
+//					drawBeziersPaths = true;
+//					drawMiddlePoints = true;
+										
 					if(drawMiddlePoints){
 						
 						for(int j = 1; j < contoure.getMiddlePaths().size(); j+=3){
@@ -448,14 +455,7 @@ public class ImageView extends JScrollPane{
 		            		
 		            		Vector2 [] oriPoints = {b0, b1, a};//ABC		            				            		
 		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);		            				            		
-		            		
-		            		g2d.setColor(Color.RED);
-		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[1].x*zoom), (float) (offsetY + bezierPoints[1].y * zoom), 4, 4);		            		
-							g2d.draw(circle);
-		            		circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[2].x*zoom), (float) (offsetY + bezierPoints[2].y * zoom), 4, 4);		            		
-							g2d.draw(circle);
-
-		            		
+		            				            		
 		            		g2d.setColor(Color.BLUE);
 
 		                	//g2d.draw(new Line2D.Double(offsetX+b0.x*zoom, offsetY+b0.y*zoom, offsetX+a.x*zoom, offsetY+a.y*zoom));
@@ -474,7 +474,8 @@ public class ImageView extends JScrollPane{
 		                	
 		            	}
 						
-					}					
+					}				
+
 //		            ------------- Zeichenen ende ----------------------------------------
 				}
 									

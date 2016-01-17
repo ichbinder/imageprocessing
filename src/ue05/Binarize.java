@@ -41,6 +41,8 @@ public class Binarize extends JPanel {
 	private JCheckBox drawPaths;
 	private JCheckBox drawStraightPath;
 	private JCheckBox drawBezierCurve;
+	private JCheckBox drawMiddlePoints;
+	private JCheckBox drawControlPoints;
 	private JCheckBox grid;	
 	
 	private Potrace potrace;
@@ -159,6 +161,26 @@ public class Binarize extends JPanel {
         		dstView.updateScreen();
         	}
         });
+        
+        drawMiddlePoints = new JCheckBox("Show Middle Points");
+        drawMiddlePoints.addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent e){
+        		
+        		dstView.setDrawBezierPaths(drawMiddlePoints.isSelected());
+        		dstView.updateScreen();
+        	}
+        });
+        
+        drawControlPoints = new JCheckBox("Show Control Points");
+        drawControlPoints.addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent e){
+        		
+        		dstView.setDrawBezierPaths(drawControlPoints.isSelected());
+        		dstView.updateScreen();
+        	}
+        });
+        
+        
         
         grid = new JCheckBox("Show grid");
         grid.addItemListener(new ItemListener() {
