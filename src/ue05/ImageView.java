@@ -128,7 +128,7 @@ public class ImageView extends JScrollPane{
 	public void setDrawStraightPaths(boolean drawStraightPath){
 		this.drawStraightPaths = drawStraightPath;		
 	}
-	public void setBezierPaths(boolean drawBezierPath){
+	public void setDrawBezierPaths(boolean drawBezierPath){
 		this.drawBeziersPaths = drawBezierPath;		
 	}
 	
@@ -408,12 +408,10 @@ public class ImageView extends JScrollPane{
 		                	System.out.println("Key: "+hmKey +" & Data: "+hmData);
 		                	
 		                	
-		            		g2d.setColor(Color.RED);							            		
+		            		g2d.setColor(Color.MAGENTA);							            		
 		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + pointA.x * zoom), (float) (offsetY + pointA.y * zoom), 3f, 3f);		            		
 							g2d.draw(circle);
-		            		g2d.setColor(Color.GREEN);							            		
 		            		circle = new Ellipse2D.Float((float)(offsetX + pointB.x * zoom), (float) (offsetY + pointB.y * zoom), 3f, 3f);
-
 							g2d.draw(circle);						
 		                	
 		            	}
@@ -437,7 +435,6 @@ public class ImageView extends JScrollPane{
 					if(drawBeziersPaths){
 						
 						for(int j = 0; j < contoure.getMiddlePaths().size(); j+=2){
-
 							
 		            		int prev = j -1; //  erste Mittelpunkteintrag		            		
 		            		int next = j +1; // nächste Mittelpunkt		            		
@@ -449,32 +446,36 @@ public class ImageView extends JScrollPane{
 		            		Vector2 a  = contoure.getMiddlePaths().get(j);
 		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
 		            		
-		            		Vector2 [] oriPoints = {a, b0, b1};		            		
+		            		Vector2 [] oriPoints = {b0, b1, a};//ABC		            				            		
 		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);		            				            		
 		            		
-//		            		Vector2 a  = contoure.getMiddlePaths().get(j);
-//		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
-//		            		
-//		            		Vector2 [] oriPoints = {a, b0, b1};
-//		            		
-//		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
+		            		g2d.setColor(Color.RED);
+		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[1].x*zoom), (float) (offsetY + bezierPoints[1].y * zoom), 4, 4);		            		
+							g2d.draw(circle);
+		            		circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[2].x*zoom), (float) (offsetY + bezierPoints[2].y * zoom), 4, 4);		            		
+							g2d.draw(circle);
+
+		            		
+		            		g2d.setColor(Color.BLUE);
+
+		                	//g2d.draw(new Line2D.Double(offsetX+b0.x*zoom, offsetY+b0.y*zoom, offsetX+a.x*zoom, offsetY+a.y*zoom));
+
+		            		g2d.setColor(Color.CYAN);
+		                	g2d.draw(new Line2D.Double(offsetX+a.x*zoom, offsetY+a.y*zoom, offsetX+b1.x*zoom, offsetY+b1.y*zoom));
+		                	
+		            		g2d.setColor(Color.GREEN);
+		                	g2d.draw(new Line2D.Double(offsetX+bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom, offsetY+bezierPoints[1].y*zoom));
+		                	g2d.draw(new Line2D.Double(offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+bezierPoints[3].x*zoom, offsetY+bezierPoints[3].y*zoom));
+		                			            		
 		            		g2d.setColor(Color.BLUE);
 		            		CubicCurve2D.Double cubicCurve; // Cubic curve
 		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
 		            		g2d.draw(cubicCurve);
+		                	
 		            	}
 						
-					}
-					
-					
-					
-					
-					
-					
-					
+					}					
 //		            ------------- Zeichenen ende ----------------------------------------
-					
-					
 				}
 									
 				if (grid) {

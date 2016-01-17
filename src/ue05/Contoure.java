@@ -36,7 +36,7 @@ public class Contoure {
 		if (!straightPaths.isEmpty()) {
 			bestSP = straightPaths.get(0);
 			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
-				if (path.size() > bestSP.size()) {
+				if (path.size() < bestSP.size()) {
 					bestSP = path;
 					System.out.println("BSP:" + bestSP);
 				}
@@ -83,7 +83,7 @@ public class Contoure {
 	/**Fügt ein ganzes Straight-Path-Dictionary zu einer Straight-Path - Sammlung hinzu.
 	 * @param straightPath ein ganzes StraightPath-Dictionary*/
 	@SuppressWarnings("unchecked")
-	public void setStraightPaths(LinkedHashMap<Integer, Integer> tempStraingthPath) {
+	public void addStraightPaths(LinkedHashMap<Integer, Integer> tempStraingthPath) {
 		this.straightPaths.add((LinkedHashMap<Integer, Integer>) tempStraingthPath);
 	}
 	
@@ -117,6 +117,8 @@ public class Contoure {
 	}
 	
 	public Map<Integer, Integer> getBestStraigthPath() {
+		
+//		return this.straightPaths.get(0);
 		return this.bestStraightPath;
 	}
 }

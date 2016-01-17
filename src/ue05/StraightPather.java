@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import ue05.Contoure;
+
 public class StraightPather {
 	
 	private Vector2 constraint0;
@@ -19,7 +21,7 @@ public class StraightPather {
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
 		createStraighttPaths();
-		possibleSegmentsOld();
+		possibleSegmentsFromJosh();
 		System.out.println("alles gut!");		
 	}
 	
@@ -166,12 +168,13 @@ public class StraightPather {
 			                } 
 		                	//START: 81  -> Data: 1
 		                	//Key: 80 -> Data: 1		                	
-		                	else if (startData >= hmData){
+/*		                	else if (startData >= hmData){
 								//key = new value = startPoint
 //		                		hmData = startPoint;
 		                		tempStraingthPath.put(hmKey, startPoint);
 		                		break;
 							}
+							*/
 		                }
 	                }
 	                
@@ -180,7 +183,7 @@ public class StraightPather {
 	                lastData = hmData;   
 	                it.next();
 	            }
-	            contoure.setStraightPaths(tempStraingthPath);
+	            contoure.addStraightPaths(tempStraingthPath);
 			}
 			contoure.calcBestStraigthPath();
 		}
@@ -220,15 +223,97 @@ public class StraightPather {
 		            i = j;
 	                it.next();
 	            }
-	            contoure.setStraightPaths(contoureStraingthPath);
+				if (!contoure.getStraightPathVectors().containsKey(i)) contoure.addStraightPathVectors(i, 0);
+
+	            contoure.addStraightPaths(contoureStraingthPath);
 			}//v++
 			contoure.calcBestStraigthPath();
 		}
 	}
 	
+	
+	/**Jede Kontur wird auf seine einzelnen Straightpaths untersucht. 
+	 * Es werden Verbindungen gezogen mit den jeweils berechneten weitesten Pfaden von einem Punkt zum Nächsten und in einem Dictionary abgelegt.*/
+	private void possibleSegmentsFromOldClass() {
+		for (int c = 0; c < contoures.length; c++) {
+			Contoure contoure = contoures[c];
+			for (int i = 0; i < contoure.getStraightPathVectors().size(); i++) {
+				LinkedHashMap<Integer, Integer> tempStraingthPath = new LinkedHashMap<>();
+				
+				//Gehe alle Einträge der unsortierten Hashmap durch
+				Set<Integer> key = contoure.getStraightPathVectors().keySet();
+	            Iterator<Integer> it = key.iterator();            
+	            int lastData = (int) it.next() + i;
+	            int startPoint = lastData;
+	            
+	            //Solange Daten im unsortiertem enthalten sind
+	            while (it.hasNext()) {
+	            	         	
+	                int hmKey = lastData;
+	                int hmData = (int) contoure.getStraightPathVectors().get(hmKey);
+	                
+	                if (!tempStraingthPath.isEmpty()) {
+		                if (startPoint > hmKey && 
+		                	(int) contoure.getStraightPathVectors().get(startPoint) <= hmData)  {
+		                	tempStraingthPath.put(hmKey, startPoint);
+		                	break;
+		                }
+	                }
+	                
+	               	tempStraingthPath.put(hmKey, hmData);
+
+	                lastData = hmData;   
+	                it.next();
+	            }
+	            contoure.addStraightPaths(tempStraingthPath);
+				System.out.println("test");
+
+				contoure.calcBestStraigthPath();
+
+			}
+		}
+	}
+	private void possibleSegmentsFromJosh() {
+		for (int c = 0; c < contoures.length; c++) {
+			Contoure contoure = contoures[c];			
+			for (int startPos = 0; startPos < contoure.getStraightPathVectors().size(); startPos++) {
+				
+				LinkedHashMap<Integer, Integer> tempStraingthPath = new LinkedHashMap<>();							
+				int currPos = startPos;
+			
+				while(true) {
+					// find target position
+										
+					int hmKey = currPos;
+	                int maxPath = (int) contoure.getStraightPathVectors().get(hmKey);
+	                
+					int targetPos = maxPath < 0 ? contoure.getVectors().length-1 : maxPath;
+				
+					// check if we pass the starting position (is this check correct? O_o)
+					if((startPos > currPos && startPos < targetPos)
+						|| (currPos > targetPos && (startPos < targetPos || startPos > currPos))
+						|| targetPos == startPos) {
+						
+						// add last (or first) position and break out of the loop
+						tempStraingthPath.put(currPos, startPos);
+						break;
+					}
+				
+					// add target position to the polygon
+//					currPos = targetPos;
+					tempStraingthPath.put(currPos, targetPos);
+					currPos = targetPos;
+				}//while
+	            contoure.addStraightPaths(tempStraingthPath);				            
+			}			
+			contoure.calcBestStraigthPath();
+		}
+	}
+	
+	
+	
 	private void sortStraightPath(SortedMap<Integer, Integer> tempStraingthPath2) {
 		SortedMap<Integer, Integer> tempStraingthPath = new TreeMap<>();
-		
 		
 		//Fülle eine neu sortierte HashMap -> Richtige Reichenfolge
 			
