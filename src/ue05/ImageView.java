@@ -410,17 +410,14 @@ public class ImageView extends JScrollPane{
 							if(contoure.isOutline()) g2d.setColor(Color.CYAN);
 							else g2d.setColor(Color.GREEN);
 
-//		                	g2d.draw(new Line2D.Double(offsetX+contoure.getVector(hmKey).x*zoom, offsetY+contoure.getVector(hmKey).y*zoom, offsetX+contoure.getVector(hmData).x*zoom, offsetY+contoure.getVector(hmData).y*zoom));
 		                	g2d.draw(new Line2D.Double(offsetX+pointA.x*zoom, offsetY+pointA.y*zoom, offsetX+pointB.x*zoom, offsetY+pointB.y*zoom));
-		                	System.out.println("Key: "+hmKey +" & Data: "+hmData);
-		                	
+		                	System.out.println("Key: "+hmKey +" & Data: "+hmData);		                	
 		                	
 		            		g2d.setColor(Color.MAGENTA);							            		
 		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + pointA.x * zoom), (float) (offsetY + pointA.y * zoom), 3f, 3f);		            		
 							g2d.draw(circle);
 		            		circle = new Ellipse2D.Float((float)(offsetX + pointB.x * zoom), (float) (offsetY + pointB.y * zoom), 3f, 3f);
-							g2d.draw(circle);						
-		                	
+							g2d.draw(circle);		                	
 		            	}
 					}
 

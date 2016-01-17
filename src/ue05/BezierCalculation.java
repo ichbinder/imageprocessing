@@ -13,7 +13,7 @@ import ue05.Vector2;
 
 public class BezierCalculation {
 		
-	static public void calculateBezierPoints(Contoure contoures[]){
+	static public void calculateBezierPoints(Contoure contoures[], float alpha, float minimum, float maximum){
 		
 		for(int c = 0; c < contoures.length; c++){
 			
@@ -31,7 +31,7 @@ public class BezierCalculation {
 	    		Vector2 b1 = contoure.getMiddlePaths().get(next);
 	    		
 	    		Vector2 [] oriPoints = {b0, b1, a};//ABC		            				            		
-	    		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
+	    		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, alpha, minimum, maximum, 0.5f);
 	    		contoure.addBezierPoints(bezierPoints);
 	    	}
 		}
@@ -40,8 +40,12 @@ public class BezierCalculation {
 	
 	/**Gibt Punkte (Vector2) zum Zeichnen einer Bezierkurve zurück.
 	 * @param points Vector2-Array. 1. erster Mittelpunkt, 2. zweiter Mittelpunkt  3.Originalpunkt  (A-B-C)
+	 * @param alphaFactor Rundungsfaktor
+	 * @param minimum Minimum um Alpha einzugrenzen
+	 * @param maximum Maximum um Alpha einzugrenzen
+	 * @param radius Radius die im Durschnitt 0.5 beträgt
 	 * @return Vector2-Array. Indicies: Anfangspunkt, 2. erster Kontrollpunkt, 3. zweiter Kontrollpunkt, 4. Endpunkt.*/
-	static public Vector2[] calcBezierCurve(Vector2[] points, float alphaFactor, float radius){
+	static public Vector2[] calcBezierCurve(Vector2[] points, float alphaFactor,float minimum, float maximum, float radius){
 	/*
 		float dOld = calcDistance(points);
 		
@@ -57,7 +61,10 @@ public class BezierCalculation {
 		*/
 		float d = calcDistance(points);
 		float alpha = calcAlphaAngle(alphaFactor, d, radius);
-
+		
+		if(alpha < minimum) alpha = minimum;
+		if(alpha > maximum) alpha = maximum;
+		
 		Vector2 [] bezierPoints = new Vector2[4];				
 		bezierPoints[0] = points[0].clone(); //z0
 						
