@@ -15,7 +15,7 @@ public class Contoure {
 	private ArrayList<LinkedHashMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
 	private ArrayList<Vector2> middlePath; //Speichert alle Mittelpunkte von den gefundenen StraightPaths
 	private Map<Integer, Integer> bestStraightPath;
-	
+	private ArrayList<Vector2[]> bezierPath;
 	
 	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
@@ -28,6 +28,7 @@ public class Contoure {
 		this.straightPaths = new ArrayList<LinkedHashMap<Integer, Integer>>(); 
 		this.bestStraightPath = new LinkedHashMap<Integer, Integer>();
 		this.middlePath = new ArrayList<Vector2>();
+		this.bezierPath = new ArrayList<Vector2[]>();
 	}
 	
 //	Liefert den besten StraigthPath zurück 
@@ -110,6 +111,16 @@ public class Contoure {
 		this.middlePath.add(vec);
 	}
 	
+	public void addBezierPoints(Vector2[] bezierPoints){
+		
+		this.bezierPath.add(bezierPoints);
+	}
+	
+	public ArrayList<Vector2[]> getBezierPath(){
+		
+		return this.bezierPath;
+	} 
+	
 	/**Gibt die Sammlung von gefundenen Mittelpunkten zwischen den Straightpaths zurück.*/
 	public ArrayList<Vector2> getMiddlePaths(){
 		
@@ -118,7 +129,6 @@ public class Contoure {
 	
 	public Map<Integer, Integer> getBestStraigthPath() {
 		
-//		return this.straightPaths.get(0);
 		return this.bestStraightPath;
 	}
 }

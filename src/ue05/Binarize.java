@@ -301,6 +301,8 @@ public class Binarize extends JPanel {
 		//Finde Mittelpunkte des BestStraightPathes für Bezierkurven
 		BezierCalculation.getMiddlePointsOnStraightPaths(potrace.getContoures());	
 		
+		//Kalkuliere BeizerPunkte
+		BezierCalculation.calculateBezierPoints(potrace.getContoures());
 			
 		dstView.updateScreen();
 

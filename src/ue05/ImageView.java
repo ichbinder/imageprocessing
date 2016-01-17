@@ -440,42 +440,16 @@ public class ImageView extends JScrollPane{
 					
 					
 					if(drawBeziersPaths){
-						
-						for(int j = 0; j < contoure.getMiddlePaths().size(); j+=2){
+												
+						for(int b = 0; b < contoure.getBezierPath().size(); b++){
 							
-		            		int prev = j -1; //  erste Mittelpunkteintrag		            		
-		            		int next = j +1; // nächste Mittelpunkt		            		
-		            		
-		            		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
-		            		if(next > contoure.getMiddlePaths().size() -1) next = 0;
-		            		
-		            		Vector2 b0 = contoure.getMiddlePaths().get(prev);							
-		            		Vector2 a  = contoure.getMiddlePaths().get(j);
-		            		Vector2 b1 = contoure.getMiddlePaths().get(next);
-		            		
-		            		Vector2 [] oriPoints = {b0, b1, a};//ABC		            				            		
-		            		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);		            				            		
-		            				            		
-		            		g2d.setColor(Color.BLUE);
-
-		                	//g2d.draw(new Line2D.Double(offsetX+b0.x*zoom, offsetY+b0.y*zoom, offsetX+a.x*zoom, offsetY+a.y*zoom));
-
-		            		g2d.setColor(Color.CYAN);
-		                	g2d.draw(new Line2D.Double(offsetX+a.x*zoom, offsetY+a.y*zoom, offsetX+b1.x*zoom, offsetY+b1.y*zoom));
-		                	
-		            		g2d.setColor(Color.GREEN);
-		                	g2d.draw(new Line2D.Double(offsetX+bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom, offsetY+bezierPoints[1].y*zoom));
-		                	g2d.draw(new Line2D.Double(offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+bezierPoints[3].x*zoom, offsetY+bezierPoints[3].y*zoom));
-		                			            		
+							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);							
 		            		g2d.setColor(Color.BLUE);
 		            		CubicCurve2D.Double cubicCurve; // Cubic curve
 		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
-		            		g2d.draw(cubicCurve);
-		                	
-		            	}
-						
-					}				
-
+		            		g2d.draw(cubicCurve);							
+						}
+					}					
 //		            ------------- Zeichenen ende ----------------------------------------
 				}
 									

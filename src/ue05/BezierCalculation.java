@@ -1,5 +1,7 @@
 package ue05;
 
+import java.awt.Color;
+import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Line2D;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,14 +12,37 @@ import ue05.Vector2;
 
 
 public class BezierCalculation {
-
+		
+	static public void calculateBezierPoints(Contoure contoures[]){
+		
+		for(int c = 0; c < contoures.length; c++){
+			
+			Contoure contoure = contoures[c];
+			for(int j = 0; j < contoure.getMiddlePaths().size(); j+=2){
+				
+	    		int prev = j -1; //  erste Mittelpunkteintrag		            		
+	    		int next = j +1; // nächste Mittelpunkt		            		
+	    		
+	    		if(prev < 0)  prev = contoure.getMiddlePaths().size()-1;		            		
+	    		if(next > contoure.getMiddlePaths().size() -1) next = 0;
+	    		
+	    		Vector2 b0 = contoure.getMiddlePaths().get(prev);							
+	    		Vector2 a  = contoure.getMiddlePaths().get(j);
+	    		Vector2 b1 = contoure.getMiddlePaths().get(next);
+	    		
+	    		Vector2 [] oriPoints = {b0, b1, a};//ABC		            				            		
+	    		Vector2 [] bezierPoints = BezierCalculation.calcBezierCurve(oriPoints, 4/3, 0.5f);
+	    		contoure.addBezierPoints(bezierPoints);
+	    	}
+		}
+	}
 	
 	
 	/**Gibt Punkte (Vector2) zum Zeichnen einer Bezierkurve zurück.
 	 * @param points Vector2-Array. 1. erster Mittelpunkt, 2. zweiter Mittelpunkt  3.Originalpunkt  (A-B-C)
 	 * @return Vector2-Array. Indicies: Anfangspunkt, 2. erster Kontrollpunkt, 3. zweiter Kontrollpunkt, 4. Endpunkt.*/
 	static public Vector2[] calcBezierCurve(Vector2[] points, float alphaFactor, float radius){
-	
+	/*
 		float dOld = calcDistance(points);
 		
 		Vector2 b = points[0];
@@ -29,6 +54,8 @@ public class BezierCalculation {
 		va.subtractVector(v);
 			
 		float d = Math.abs( normal.scalarProduct(va));
+		*/
+		float d = calcDistance(points);
 		float alpha = calcAlphaAngle(alphaFactor, d, radius);
 
 		Vector2 [] bezierPoints = new Vector2[4];				
@@ -58,7 +85,7 @@ public class BezierCalculation {
 	/**1. Punkt ist Vorgänger (bi-1) A
 	 * 2. Punkt ist der betrachtete (ai) C
 	 * 3. Punkt ist Nachfolger (bi+1) B */
-	static float calcDistance(Vector2[] points){
+	static float calcDistanceTriangle(Vector2[] points){
 		
 		//A = bi-1
 		//B = bi+1
@@ -90,6 +117,19 @@ public class BezierCalculation {
 		return hc;
 	}
 
+	static float calcDistance(Vector2 points[]){
+				
+		Vector2 b = points[0];
+		Vector2 a = points[1];
+		Vector2 v = points[2];
+		
+		Vector2 normal = Vector2.normal(a, b);
+		Vector2 va = a.clone();
+		va.subtractVector(v);
+			
+		float distance = Math.abs( normal.scalarProduct(va));
+		return distance;
+	}
 	
 	static private float calcAlphaAngle(float alphaFactor, float distance, float radius){
 		
