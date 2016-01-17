@@ -116,6 +116,11 @@ public class Contoure {
 		this.bezierPath.add(bezierPoints);
 	}
 	
+	public void clearBezierPoints(){
+		
+		this.bezierPath.clear();
+	}
+	
 	public ArrayList<Vector2[]> getBezierPath(){
 		
 		return this.bezierPath;

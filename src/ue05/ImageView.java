@@ -12,6 +12,7 @@ import java.awt.SystemColor;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
@@ -43,8 +44,9 @@ public class ImageView extends JScrollPane{
 	private boolean centered = true;
 	private double zoom = 1.0;
 	private Contoure [] contoures = new Contoure[0];
-	private boolean drawStraightPaths, drawPaths, drawBeziersPaths, drawMiddlePoints, drawControlPoints;
+	private boolean drawPicture, drawStraightPaths, drawStraightPathPoints, drawPaths, drawBeziersPaths, drawBezierForms, drawMiddlePoints, drawControlPoints;
 	
+	public boolean viewIsSrcView = true;
 	
 	private boolean grid;
 	
@@ -121,6 +123,10 @@ public class ImageView extends JScrollPane{
 		this.contoures = cons;
 	}	
 	
+	public void setDrawPicture(boolean drawPath){
+		this.drawPicture = drawPath;		
+	}
+	
 	public void setDrawPaths(boolean drawPath){
 		this.drawPaths = drawPath;		
 	}
@@ -129,9 +135,19 @@ public class ImageView extends JScrollPane{
 		this.drawBeziersPaths = drawPath;		
 	}
 	
+	public void setDrawBezierForms(boolean drawPath){
+		this.drawBezierForms = drawPath;		
+	}
+	
 	public void setDrawStraightPaths(boolean drawStraightPath){
 		this.drawStraightPaths = drawStraightPath;		
 	}
+	
+	public void setDrawStraightPathPoints(boolean drawStraightPathPoints){
+		this.drawStraightPathPoints = drawStraightPathPoints;		
+	}
+	
+	
 	public void setDrawMiddlePoints(boolean drawMiddlePoints){
 		this.drawMiddlePoints = drawMiddlePoints;		
 	}
@@ -364,10 +380,19 @@ public class ImageView extends JScrollPane{
 					g.fillRect(0, offsetY, offsetX, r.height);
 					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
 				}
-				 Graphics2D g2d = (Graphics2D) g.create();
-				g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
-				g2d.setStroke(new BasicStroke(5));
+				Graphics2D g2d = (Graphics2D) g.create();
 				
+				//Zeichne Originalbild
+				if(!viewIsSrcView){
+					if(drawPicture){
+						g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
+					}
+				}
+				//SRC-View soll immer gezeichnet werden
+				else{
+					g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);									
+				}
+				g2d.setStroke(new BasicStroke(5));
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
 					
@@ -408,12 +433,27 @@ public class ImageView extends JScrollPane{
 		                	Vector2 pointB = contoure.getVector(hmData);		                	
 		                	
 							if(contoure.isOutline()) g2d.setColor(Color.CYAN);
-							else g2d.setColor(Color.GREEN);
+							else g2d.setColor(new Color(60, 200,60));
 
-		                	g2d.draw(new Line2D.Double(offsetX+pointA.x*zoom, offsetY+pointA.y*zoom, offsetX+pointB.x*zoom, offsetY+pointB.y*zoom));
-		                	System.out.println("Key: "+hmKey +" & Data: "+hmData);		                	
+		                	g2d.draw(new Line2D.Double(offsetX+pointA.x*zoom, offsetY+pointA.y*zoom, offsetX+pointB.x*zoom, offsetY+pointB.y*zoom));		                	
+		            	}
+					}
+					
+					if(drawStraightPathPoints){
+						
+						g2d.setColor(Color.MAGENTA);
+						g2d.setStroke(new BasicStroke(3));
+					
+						LinkedHashMap<Integer, Integer> tmpData = (LinkedHashMap<Integer, Integer>) contoure.getBestStraigthPath();
+		            	Set<Integer> key = tmpData.keySet();
+		            	Iterator it = key.iterator();
+		            	while (it.hasNext()) {
+		                	int hmKey = (int)it.next();
+		                	int hmData = (int) tmpData.get(hmKey);
+							
+		                	Vector2 pointA = contoure.getVector(hmKey);
+		                	Vector2 pointB = contoure.getVector(hmData);		                	
 		                	
-		            		g2d.setColor(Color.MAGENTA);							            		
 		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + pointA.x * zoom), (float) (offsetY + pointA.y * zoom), 3f, 3f);		            		
 							g2d.draw(circle);
 		            		circle = new Ellipse2D.Float((float)(offsetX + pointB.x * zoom), (float) (offsetY + pointB.y * zoom), 3f, 3f);
@@ -437,12 +477,34 @@ public class ImageView extends JScrollPane{
 						for(int b = 0; b < contoure.getBezierPath().size(); b++){
 							
 							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);							
-		            		g2d.setColor(Color.BLUE);
+		            		g2d.setColor(Color.ORANGE);
 		            		CubicCurve2D.Double cubicCurve; // Cubic curve
 		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
 		            		g2d.draw(cubicCurve);							
 						}
 					}		
+					
+					
+					if(!contoure.isOutline()) g2d.setColor(Color.WHITE);
+					else g2d.setColor(Color.BLUE);
+					
+					if(drawBezierForms){						
+						Path2D polygon = new Path2D.Float();
+
+						for(int b = 0; b < contoure.getBezierPath().size(); b++){
+							
+							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);									            		
+		            		CubicCurve2D.Double cubicCurve; // Cubic curve
+		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
+		            		polygon.append(cubicCurve, true);		            		
+						}
+						polygon.closePath();
+//						g2d.draw(polygon);
+						g2d.fill(polygon);
+
+					}		
+					
+					
 					
 					if(drawControlPoints){
 						for(int b = 0; b < contoure.getBezierPath().size(); b++){

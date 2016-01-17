@@ -18,6 +18,7 @@ public class BezierCalculation {
 		for(int c = 0; c < contoures.length; c++){
 			
 			Contoure contoure = contoures[c];
+			contoure.clearBezierPoints();
 			for(int j = 0; j < contoure.getMiddlePaths().size(); j+=2){
 				
 	    		int prev = j -1; //  erste Mittelpunkteintrag		            		
