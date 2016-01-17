@@ -38,7 +38,12 @@ public class Vector2{
 	}
 
 	public void mult(float s){
-		x*=s;y*=s;
+		this.x = this.x *s; this.y = this.y * s;
+	}
+	
+	public void divide(float s){
+		
+		this.x = this.x / s; this.y = this.y / s;
 	}
 	
 	public float cross(Vector2 b){
@@ -50,6 +55,17 @@ public class Vector2{
 		return this.x * other.x + this.y * other.y;
 	}
 
+	static public Vector2 normal(Vector2 a, Vector2 b){
+		
+		Vector2 normal = null;
+		Vector2 sh = new Vector2(b.y - a.y, -(b.x - a.x)); // s^		
+		normal = sh.clone();
+		normal.mult(1/sh.length());
+		
+		return normal;
+	}
+
+	
 	public void setLength(float f) {
 		double factor = f / this.length();
 		x *= factor;
@@ -59,7 +75,7 @@ public class Vector2{
 	public Vector2 clone() {
 		return new Vector2(x,y);
 	}
-	
+		
 	public String toString() {
 		return "( " + x + ", " + y + ")";
 	}	

@@ -14,7 +14,6 @@ import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
 import java.util.Hashtable;
-import java.awt.Dimension;
 
 public class Binarize extends JPanel {
 
@@ -37,16 +36,37 @@ public class Binarize extends JPanel {
 	private ImageView dstView; // binarized image view
 
 	private JLabel statusLine; // to print some status text
-	
+
+	private JCheckBox drawPicture;
 	private JCheckBox drawPaths;
+	
 	private JCheckBox drawStraightPath;
-	private JCheckBox grid;
+	private JCheckBox drawStraightPathPoints;
+
+	private JCheckBox drawBezierCurve;
+	private JCheckBox drawBezierForm;
+
+	private JCheckBox drawMiddlePoints;
+	private JCheckBox drawControlPoints;
+	private JCheckBox grid;	
+	private JSlider   alphaSlider;
+	private JSlider   minimumSlider;
+	private JSlider	  maximumSlider;
+	private JLabel    alphaLabel;
+	private JLabel    minimumLabel;
+	private JLabel    maximumLabel;
+	
+	private JLabel    alphaLabelValue;
+	private JLabel    minimumLabelValue;
+	private JLabel    maximumLabelValue;
+	
 	
 	private Potrace potrace;
 	private StraightPather pather;
 	
 	private JSlider magnification; // to set the binarize percentage value
 
+	
 	public Binarize() {
         super(new BorderLayout(border, border));
         
@@ -57,11 +77,13 @@ public class Binarize extends JPanel {
         	input = openFile(); // file not found, choose another image
         
         srcView = new ImageView(input, initalZoom);
+        srcView.viewIsSrcView = true;
         srcView.setMaxSize(new Dimension(maxWidth, maxHeight));
         srcView.setMinSize(maxWidth, maxHeight);
        
 		// create an empty destination image
         dstView = new ImageView(input, currentZoom);
+        dstView.viewIsSrcView = false;
 		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
 		
 		dstView.setMinSize(maxWidth, maxHeight);
@@ -72,7 +94,7 @@ public class Binarize extends JPanel {
         	public void actionPerformed(ActionEvent e) {
         		File input = openFile();
         		if(input != null) {
-	        		srcView.loadImage(input);	        		
+	        		srcView.loadImage(input);        		
 	        		srcView.setMinSize(maxWidth, maxHeight);
 	        		dstView.loadImage(input);
 	        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
@@ -111,7 +133,7 @@ public class Binarize extends JPanel {
         // some status text
         statusLine = new JLabel(" ");
         
-        // arrange all controls
+        // arrange all controls        
         JPanel controls = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(0,border,0,0);
@@ -133,7 +155,18 @@ public class Binarize extends JPanel {
         add(images, BorderLayout.CENTER);
         
         potrace = new Potrace();
-        JPanel southControls = new JPanel();
+        
+        
+        drawPicture = new JCheckBox("Show picture");
+        drawPicture.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	
+            	dstView.setDrawPicture(drawPicture.isSelected());
+            	dstView.updateScreen();
+            }
+          });
+        drawPicture.setSelected(true);
+        
         drawPaths = new JCheckBox("Show paths");
         drawPaths.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -142,13 +175,63 @@ public class Binarize extends JPanel {
             	dstView.updateScreen();
             }
           });
+        
         drawStraightPath = new JCheckBox("Show StraightPath");
         drawStraightPath.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
             	dstView.setDrawStraightPaths(drawStraightPath.isSelected());
             	dstView.updateScreen();
             }
-          });
+        });
+        
+        drawStraightPathPoints = new JCheckBox("Show StraightPath Points");
+        drawStraightPathPoints.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+            	dstView.setDrawStraightPathPoints(drawStraightPathPoints.isSelected());
+            	dstView.updateScreen();
+            }
+        });
+        
+        
+        JPanel bezierControl = new JPanel();
+        bezierControl.setLayout(new BoxLayout(bezierControl, BoxLayout.PAGE_AXIS)); //Vertikal
+        
+        drawBezierCurve = new JCheckBox("Show Bezier Curves");
+        drawBezierCurve.addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent e){
+        		
+        		dstView.setDrawBezierPaths(drawBezierCurve.isSelected());
+        		dstView.updateScreen();
+        	}
+        });
+        
+        drawBezierForm = new JCheckBox("Show Bezier Forms");
+        drawBezierForm.addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent e){
+        		
+        		dstView.setDrawBezierForms(drawBezierForm.isSelected());
+        		dstView.updateScreen();
+        	}
+        });
+        
+        drawMiddlePoints = new JCheckBox("Show Middle Points");
+        drawMiddlePoints.addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent e){
+        		
+        		dstView.setDrawMiddlePoints(drawMiddlePoints.isSelected());
+        		dstView.updateScreen();
+        	}
+        });
+        
+        drawControlPoints = new JCheckBox("Show Control Points");
+        drawControlPoints.addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent e){
+        		
+        		dstView.setDrawControlPoints(drawControlPoints.isSelected());
+        		dstView.updateScreen();
+        	}
+        });        
+        
         grid = new JCheckBox("Show grid");
         grid.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -156,16 +239,94 @@ public class Binarize extends JPanel {
             	dstView.setGrit(grid.isSelected());
             	dstView.updateScreen();
             }
-          });
+        });
         
+        alphaSlider = new JSlider();
+        alphaSlider.setMaximum(200);
+        alphaSlider.setValue(75);
+        alphaSlider.setMinimum(0);
+        alphaSlider.addChangeListener(new ChangeListener() {			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				float value = alphaSlider.getValue() / 100.0f;
+				alphaLabelValue.setText("" +value);
+				
+				calculateBezierCurves();
+//				binarizeImage();
+			}
+		});
         
-        southControls.setLayout(new BoxLayout(southControls, BoxLayout.PAGE_AXIS)); //Vertikal
-        southControls.add(drawPaths);
-        southControls.add(drawStraightPath);
-        southControls.add(grid);
-        southControls.add(statusLine);        
-        add(southControls, BorderLayout.SOUTH);
+        alphaLabel = new JLabel("alpha:");
+        minimumLabel = new JLabel("minimum:");
+        maximumLabel = new JLabel("maximum:");
+
+        alphaLabelValue = new JLabel("0.75");
+        minimumLabelValue = new JLabel("0.55");
+        maximumLabelValue = new JLabel("1.0");
         
+        minimumSlider = new JSlider();
+        minimumSlider.setMaximum(200);
+        minimumSlider.setMinimum(55);
+        minimumSlider.setMinimum(0);
+        minimumSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {		
+				float value = minimumSlider.getValue() / 100.0f;
+				minimumLabelValue.setText("" +value);
+				calculateBezierCurves();
+
+//				binarizeImage();
+			}        	
+        });
+        
+        maximumSlider = new JSlider();
+        maximumSlider.setMaximum(200);
+        maximumSlider.setValue(100);
+        maximumSlider.setMinimum(0);
+        maximumSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {		
+				float value = maximumSlider.getValue() / 100.0f;
+				maximumLabelValue.setText("" +value);
+				calculateBezierCurves();
+
+//				binarizeImage();
+			}        	
+        });
+        
+        JPanel leftSide = new JPanel();
+        leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal
+
+        leftSide.add(drawPicture);
+        leftSide.add(drawPaths);
+        leftSide.add(drawStraightPath);
+        leftSide.add(drawStraightPathPoints);
+        leftSide.add(grid);
+        
+        bezierControl.add(leftSide);
+        bezierControl.add(drawBezierCurve);
+        bezierControl.add(drawBezierForm);
+        bezierControl.add(drawMiddlePoints);
+        bezierControl.add(drawControlPoints);
+
+        //Slider                        
+        JPanel lbSliderControl = new JPanel();
+        lbSliderControl.setLayout(new BoxLayout(lbSliderControl, BoxLayout.PAGE_AXIS)); //Vertikal        
+        JPanel panelAlpha = createBorderPanel(alphaLabel, alphaSlider, alphaLabelValue);
+        JPanel panelMinimum = createBorderPanel(minimumLabel, minimumSlider, minimumLabelValue);
+        JPanel panelMaximum = createBorderPanel(maximumLabel, maximumSlider, maximumLabelValue);
+        
+        lbSliderControl.add(panelAlpha);
+        lbSliderControl.add(panelMinimum);
+        lbSliderControl.add(panelMaximum);               
+        bezierControl.add(lbSliderControl);
+        
+        JPanel southLayoutControls = new JPanel();
+        southLayoutControls.setLayout(new BorderLayout());
+        add(bezierControl, BorderLayout.EAST);      
+        add(statusLine, BorderLayout.SOUTH);
         setBorder(BorderFactory.createEmptyBorder(border,border,border,border));        
         // perform the initial binarization        
         binarizeImage();
@@ -218,66 +379,63 @@ public class Binarize extends JPanel {
 	
 	protected void binarizeImage() {
 
-//		String methodName = (String) methodList.getSelectedItem();
-
 		// // image dimensions
 		int width  = dstView.getImgWidth();
 		int height = dstView.getImgHeight();
 
 		// // get pixels arrays
-//		int[] srcPixels = dstView.getPixels();
-//		int dstPixels[] = java.util.Arrays.copyOf(srcPixels,srcPixels.length);
 		int[] dstPixels = dstView.getPixels();
-				
-//		String message = "Binarisieren mit \"" + methodName + "\"";
-
 		String message = "Konturfindung.";
 		statusLine.setText(message);
 
 		long startTime = System.currentTimeMillis();
-//		potrace.resetPaths();
-
-//		if(drawPaths.isSelected()){			
-			potrace.FindContoures(dstPixels, width, height);
-//			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
-//	        dstView.setPixels(pathPics, width, height);
-			dstView.setContoures(potrace.getContoures());
-//		}
-//		else{			
-//			dstView.setContoures(new Contoure[0]);
-//		}
+		potrace.FindContoures(dstPixels, width, height);
+		dstView.setContoures(potrace.getContoures());
+			
+		System.out.println("Konturen gefunden");
 			
 //		-----------------------------------------------------------------------------
 //		----------- Achtung hier wird die StraigthPather Classe aufgerufen. ---------
-//		-----------------------------------------------------------------------------
-		
-//		if (drawStraightPath.isSelected())
-			pather  = new StraightPather(potrace.getContoures());
-//		else 
-//			potrace.clearStraightPath();			
-		
-			/*
-		if(grit.isSelected()){
-			dstView.setGrit(true);
-		} else {
-			dstView.setGrit(false);
-		}
-		*/
-		
+//		----------------------------------------------------------------------------		
+		pather  = new StraightPather(potrace.getContoures());
+		System.out.println("StraightPaths gefunden");
+
 		//Finde Mittelpunkte des BestStraightPathes für Bezierkurven
 		BezierCalculation.getMiddlePointsOnStraightPaths(potrace.getContoures());	
+		System.out.println("Mittelpunkte gefunden");
 		
-			
-		dstView.updateScreen();
+		calculateBezierCurves();
+	}
+	
+	private void calculateBezierCurves(){
+		
+		long startTime = System.currentTimeMillis();
 
-		//dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
-			
+		//Kalkuliere BeizerPunkte
+		BezierCalculation.calculateBezierPoints(potrace.getContoures(), alphaSlider.getValue()/100.0f, minimumSlider.getValue()/100.0f, maximumSlider.getValue() / 100.0f);
+		System.out.println("Bezierpunkte gefunden");
+
+//		dstView.updateScreen();
+
+		String message = "Bezier-Kalkulation.";
+		statusLine.setText(message);
+
 		long time = System.currentTimeMillis() - startTime;
-		// dstView.setPixels(dstPixels, width, height);
 
 		frame.pack();
-
 		statusLine.setText(message + " in " + time + " ms");
+		dstView.updateScreen();
+	}
+	
+	public JPanel createBorderPanel(JLabel lbDesc, JSlider slider, JLabel lbValue){
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+        panel.add(lbDesc, BorderLayout.WEST);
+        panel.add(slider, BorderLayout.CENTER);
+        panel.add(lbValue, BorderLayout.EAST);
+
+		return panel;
 	}
 	
 	private void reset(){

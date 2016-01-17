@@ -15,7 +15,7 @@ public class Contoure {
 	private ArrayList<LinkedHashMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
 	private ArrayList<Vector2> middlePath; //Speichert alle Mittelpunkte von den gefundenen StraightPaths
 	private Map<Integer, Integer> bestStraightPath;
-	
+	private ArrayList<Vector2[]> bezierPath;
 	
 	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
@@ -28,6 +28,7 @@ public class Contoure {
 		this.straightPaths = new ArrayList<LinkedHashMap<Integer, Integer>>(); 
 		this.bestStraightPath = new LinkedHashMap<Integer, Integer>();
 		this.middlePath = new ArrayList<Vector2>();
+		this.bezierPath = new ArrayList<Vector2[]>();
 	}
 	
 //	Liefert den besten StraigthPath zurück 
@@ -35,13 +36,14 @@ public class Contoure {
 		LinkedHashMap<Integer, Integer> bestSP = new LinkedHashMap<Integer, Integer>();
 		if (!straightPaths.isEmpty()) {
 			bestSP = straightPaths.get(0);
-//			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
-//				if (path.size() > bestSP.size()) {
-//					bestSP = path;
-//					System.out.println("BSP:" + bestSP);
-//				}
-//				
-//			}
+
+			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
+				if (path.size() < bestSP.size()) {
+					bestSP = path;
+					System.out.println("BSP:" + bestSP);
+				}
+				
+			}
 		}
 		this.bestStraightPath = bestSP;
 	}
@@ -83,7 +85,7 @@ public class Contoure {
 	/**Fügt ein ganzes Straight-Path-Dictionary zu einer Straight-Path - Sammlung hinzu.
 	 * @param straightPath ein ganzes StraightPath-Dictionary*/
 	@SuppressWarnings("unchecked")
-	public void setStraightPaths(LinkedHashMap<Integer, Integer> tempStraingthPath) {
+	public void addStraightPaths(LinkedHashMap<Integer, Integer> tempStraingthPath) {
 		this.straightPaths.add((LinkedHashMap<Integer, Integer>) tempStraingthPath);
 	}
 	
@@ -110,6 +112,21 @@ public class Contoure {
 		this.middlePath.add(vec);
 	}
 	
+	public void addBezierPoints(Vector2[] bezierPoints){
+		
+		this.bezierPath.add(bezierPoints);
+	}
+	
+	public void clearBezierPoints(){
+		
+		this.bezierPath.clear();
+	}
+	
+	public ArrayList<Vector2[]> getBezierPath(){
+		
+		return this.bezierPath;
+	} 
+	
 	/**Gibt die Sammlung von gefundenen Mittelpunkten zwischen den Straightpaths zurück.*/
 	public ArrayList<Vector2> getMiddlePaths(){
 		
@@ -117,6 +134,7 @@ public class Contoure {
 	}
 	
 	public Map<Integer, Integer> getBestStraigthPath() {
+		
 		return this.bestStraightPath;
 	}
 }
