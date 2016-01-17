@@ -132,7 +132,7 @@ public class ImageView extends JScrollPane{
 	public void setDrawStraightPaths(boolean drawStraightPath){
 		this.drawStraightPaths = drawStraightPath;		
 	}
-	public void drawMiddlePoints(boolean drawMiddlePoints){
+	public void setDrawMiddlePoints(boolean drawMiddlePoints){
 		this.drawMiddlePoints = drawMiddlePoints;		
 	}
 	
@@ -424,20 +424,16 @@ public class ImageView extends JScrollPane{
 		            	}
 					}
 
-//					drawBeziersPaths = true;
-//					drawMiddlePoints = true;
-										
 					if(drawMiddlePoints){
 						
 						for(int j = 1; j < contoure.getMiddlePaths().size(); j+=3){
 
 		            		Vector2 b0 = contoure.getMiddlePaths().get(j);
 		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + b0.x*zoom), (float) (offsetY + b0.y * zoom), 4, 4);
-		            		g2d.setColor(Color.BLUE);
+		            		g2d.setColor(Color.GREEN);
 							g2d.draw(circle);
 		            	}
-					}
-					
+					}					
 					
 					if(drawBeziersPaths){
 												
@@ -449,7 +445,20 @@ public class ImageView extends JScrollPane{
 		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
 		            		g2d.draw(cubicCurve);							
 						}
-					}					
+					}		
+					
+					if(drawControlPoints){
+						for(int b = 0; b < contoure.getBezierPath().size(); b++){
+
+							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);							
+		            		g2d.setColor(Color.RED);
+		            		
+		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[1].x*zoom), (float) (offsetY + bezierPoints[1].y * zoom), (float) (4), (float) (4));
+							g2d.draw(circle);
+		            		circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[2].x*zoom), (float) (offsetY + bezierPoints[2].y * zoom), (float) (4), (float) (4));
+							g2d.draw(circle);
+						}
+					}
 //		            ------------- Zeichenen ende ----------------------------------------
 				}
 									

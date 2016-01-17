@@ -166,7 +166,7 @@ public class Binarize extends JPanel {
         drawMiddlePoints.addItemListener(new ItemListener(){
         	public void itemStateChanged(ItemEvent e){
         		
-        		dstView.setDrawBezierPaths(drawMiddlePoints.isSelected());
+        		dstView.setDrawMiddlePoints(drawMiddlePoints.isSelected());
         		dstView.updateScreen();
         	}
         });
@@ -175,7 +175,7 @@ public class Binarize extends JPanel {
         drawControlPoints.addItemListener(new ItemListener(){
         	public void itemStateChanged(ItemEvent e){
         		
-        		dstView.setDrawBezierPaths(drawControlPoints.isSelected());
+        		dstView.setDrawControlPoints(drawControlPoints.isSelected());
         		dstView.updateScreen();
         	}
         });
@@ -196,6 +196,9 @@ public class Binarize extends JPanel {
         southControls.add(drawPaths);
         southControls.add(drawStraightPath);
         southControls.add(drawBezierCurve);
+        southControls.add(drawMiddlePoints);
+        southControls.add(drawControlPoints);
+        
         southControls.add(grid);
         southControls.add(statusLine);        
         add(southControls, BorderLayout.SOUTH);
@@ -276,6 +279,9 @@ public class Binarize extends JPanel {
 //			System.arraycopy(pathPics, 0, dstPixels, 0, pathPics.length);
 //	        dstView.setPixels(pathPics, width, height);
 			dstView.setContoures(potrace.getContoures());
+			
+			System.out.println("Konturen gefunden");
+
 //		}
 //		else{			
 //			dstView.setContoures(new Contoure[0]);
@@ -287,6 +293,9 @@ public class Binarize extends JPanel {
 		
 //		if (drawStraightPath.isSelected())
 			pather  = new StraightPather(potrace.getContoures());
+			
+			System.out.println("StraightPaths gefunden");
+
 //		else 
 //			potrace.clearStraightPath();			
 		
@@ -297,13 +306,16 @@ public class Binarize extends JPanel {
 			dstView.setGrit(false);
 		}
 		*/
-		
+			
 		//Finde Mittelpunkte des BestStraightPathes für Bezierkurven
 		BezierCalculation.getMiddlePointsOnStraightPaths(potrace.getContoures());	
+		System.out.println("Mittelpunkte gefunden");
+
 		
 		//Kalkuliere BeizerPunkte
 		BezierCalculation.calculateBezierPoints(potrace.getContoures());
-			
+		System.out.println("Bezierpunkte gefunden");
+
 		dstView.updateScreen();
 
 		//dstView.setPath(potrace.outSidePaths, potrace.insidePaths, true);
