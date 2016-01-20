@@ -499,12 +499,8 @@ public class ImageView extends JScrollPane{
 		            		polygon.append(cubicCurve, true);		            		
 						}
 						polygon.closePath();
-//						g2d.draw(polygon);
 						g2d.fill(polygon);
-
-					}		
-					
-					
+					}							
 					
 					if(drawControlPoints){
 						for(int b = 0; b < contoure.getBezierPath().size(); b++){
@@ -519,8 +515,7 @@ public class ImageView extends JScrollPane{
 						}
 					}
 //		            ------------- Zeichenen ende ----------------------------------------
-				}
-									
+				}									
 				if (grid) {
 					if (zoom > 1) {
 						for (int i = 0; i < image.getHeight(); i++) {
@@ -528,14 +523,12 @@ public class ImageView extends JScrollPane{
 								g2d.setStroke(new BasicStroke(1));
 								g2d.setColor(Color.gray);
 								g2d.drawLine(offsetX+0, (int)(offsetY+i*zoom), (int)(offsetX+image.getWidth()*zoom), (int)(offsetY+i*zoom));
-								g2d.drawLine((int)(offsetX+j*zoom), offsetY+0, (int)(offsetX+j*zoom), (int)(offsetY+image.getHeight()*zoom));
-		
+								g2d.drawLine((int)(offsetX+j*zoom), offsetY+0, (int)(offsetX+j*zoom), (int)(offsetY+image.getHeight()*zoom));		
 							}
 						}
 					}
-					
-				}				
-				g2d.dispose();				
+				}
+				g2d.dispose();
 			}
 		}
 		
