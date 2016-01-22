@@ -62,7 +62,6 @@ public class Binarize extends JPanel {
 	
 	
 	private Potrace potrace;
-	private StraightPather pather;
 	
 	private JSlider magnification; // to set the binarize percentage value
 
@@ -250,9 +249,6 @@ public class Binarize extends JPanel {
 			public void stateChanged(ChangeEvent e) {
 				float value = alphaSlider.getValue() / 100.0f;
 				alphaLabelValue.setText("" +value);
-				
-				calculateBezierCurves();
-//				binarizeImage();
 			}
 		});
         
@@ -274,9 +270,7 @@ public class Binarize extends JPanel {
 			public void stateChanged(ChangeEvent e) {		
 				float value = minimumSlider.getValue() / 100.0f;
 				minimumLabelValue.setText("" +value);
-				calculateBezierCurves();
 
-//				binarizeImage();
 			}        	
         });
         
@@ -290,9 +284,6 @@ public class Binarize extends JPanel {
 			public void stateChanged(ChangeEvent e) {		
 				float value = maximumSlider.getValue() / 100.0f;
 				maximumLabelValue.setText("" +value);
-				calculateBezierCurves();
-
-//				binarizeImage();
 			}        	
         });
         
@@ -394,38 +385,8 @@ public class Binarize extends JPanel {
 			
 		System.out.println("Konturen gefunden");
 			
-//		-----------------------------------------------------------------------------
-//		----------- Achtung hier wird die StraigthPather Classe aufgerufen. ---------
-//		----------------------------------------------------------------------------		
-		pather  = new StraightPather(potrace.getContoures());
-		System.out.println("StraightPaths gefunden");
-
-		//Finde Mittelpunkte des BestStraightPathes für Bezierkurven
-		BezierCalculation.getMiddlePointsOnStraightPaths(potrace.getContoures());	
-		System.out.println("Mittelpunkte gefunden");
-		
-		calculateBezierCurves();
 	}
 	
-	private void calculateBezierCurves(){
-		
-		long startTime = System.currentTimeMillis();
-
-		//Kalkuliere BeizerPunkte
-		BezierCalculation.calculateBezierPoints(potrace.getContoures(), alphaSlider.getValue()/100.0f, minimumSlider.getValue()/100.0f, maximumSlider.getValue() / 100.0f);
-		System.out.println("Bezierpunkte gefunden");
-
-//		dstView.updateScreen();
-
-		String message = "Bezier-Kalkulation.";
-		statusLine.setText(message);
-
-		long time = System.currentTimeMillis() - startTime;
-
-		frame.pack();
-		statusLine.setText(message + " in " + time + " ms");
-		dstView.updateScreen();
-	}
 	
 	public JPanel createBorderPanel(JLabel lbDesc, JSlider slider, JLabel lbValue){
 		

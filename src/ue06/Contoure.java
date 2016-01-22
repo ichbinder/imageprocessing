@@ -1,21 +1,10 @@
 package ue06;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 public class Contoure {
 
 	final private boolean isOutline;
 	final private Vector2 [] vectors;
-	private Map<Integer, Integer> straightPathVectors;// speichert alle möglichen StraigthPath Vektoren 
-	private ArrayList<LinkedHashMap<Integer, Integer>> straightPaths; // speichert alle möglichen StraigthPathsesees
-	private ArrayList<Vector2> middlePath; //Speichert alle Mittelpunkte von den gefundenen StraightPaths
-	private Map<Integer, Integer> bestStraightPath;
-	private ArrayList<Vector2[]> bezierPath;
+	final private Vector2 [] boundingBox;
 	
 	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
@@ -24,27 +13,26 @@ public class Contoure {
 		
 		this.isOutline = isOut;
 		this.vectors = ps;
-		this.straightPathVectors = new LinkedHashMap<Integer, Integer>(); 
-		this.straightPaths = new ArrayList<LinkedHashMap<Integer, Integer>>(); 
-		this.bestStraightPath = new LinkedHashMap<Integer, Integer>();
-		this.middlePath = new ArrayList<Vector2>();
-		this.bezierPath = new ArrayList<Vector2[]>();
+		this.boundingBox = new Vector2[2];
+		calcBoundingBox();
+		
 	}
 	
-//	Liefert den besten StraigthPath zurück 
-	public void calcBestStraigthPath() {
-		LinkedHashMap<Integer, Integer> bestSP = new LinkedHashMap<Integer, Integer>();
-		if (!straightPaths.isEmpty()) {
-			bestSP = straightPaths.get(0);
-			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
-				if (path.size() < bestSP.size()) {
-					bestSP = path;
-					System.out.println("BSP:" + bestSP);
-				}
-				
-			}
+	private void calcBoundingBox() {
+		Vector2 bbMax = new Vector2();
+		Vector2 bbMin = new Vector2(Float.MAX_VALUE, Float.MAX_VALUE);
+		for (int i = 0; i < this.vectors.length; i++) {
+			if (this.vectors[i].x > bbMax.x)
+				bbMax.setX(this.vectors[i].x);
+			if (this.vectors[i].y > bbMax.y)
+				bbMax.setY(this.vectors[i].y);
+			if (this.vectors[i].x < bbMin.x)
+				bbMin.setX(this.vectors[i].x);
+			if (this.vectors[i].y < bbMin.y)
+				bbMin.setY(this.vectors[i].y);
 		}
-		this.bestStraightPath = bestSP;
+		this.boundingBox[0] = bbMin;
+		this.boundingBox[1] = bbMax;
 	}
 		
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
@@ -67,73 +55,7 @@ public class Contoure {
 		return this.vectors[index];
 	}
 	
-	/**Fügt einen StraightPath zum Straight-Path Dictionary hinzu.
-	 * @param key Der aktuelle betrachtete Punkt (i).
-	 * @param value Der entfernteste erreichbare Punkt.*/
-	public void addStraightPathVectors(int key, int value) {
-		this.straightPathVectors.put(key, value);
-	}
-	
-
-	/**Gibt das Dictionary zurück indem die weiteste Entfernung von einem Punkt (i) zum Nächsten (k) steht.
-	 * @return Dictionary -> Key: i, Value: k*/
-	public Map<Integer, Integer> getStraightPathVectors() {
-		return this.straightPathVectors;
-	}
-	
-	/**Fügt ein ganzes Straight-Path-Dictionary zu einer Straight-Path - Sammlung hinzu.
-	 * @param straightPath ein ganzes StraightPath-Dictionary*/
-	@SuppressWarnings("unchecked")
-	public void addStraightPaths(LinkedHashMap<Integer, Integer> tempStraingthPath) {
-		this.straightPaths.add((LinkedHashMap<Integer, Integer>) tempStraingthPath);
-	}
-	
-	/**Gibt die Sammlung an StraightPath-Dictionaries zurück.
-	 * @return Die Straight-Path-Sammlung*/
-	public ArrayList<LinkedHashMap<Integer, Integer>> getStraightPaths() {
-		return this.straightPaths;
-	}
-	
-	/**Löscht die gefundenen StraightPathVektoren und gefundenen Straight-Path Verbindungen.*/
-	public void clearStraigthPaths() {
-		this.straightPathVectors.clear();
-		this.straightPaths.clear();
-	}
-
-	/**Setzt die gefundenenen Mittelpunkte zwischen den gefundenen Straight-Path Verbindungen.*/
-	public void setMiddlePath(ArrayList<Vector2> middlePath){
-		
-		this.middlePath = middlePath;
-	}
-	
-	public void addMiddlePoint(Vector2 vec){
-		
-		this.middlePath.add(vec);
-	}
-	
-	public void addBezierPoints(Vector2[] bezierPoints){
-		
-		this.bezierPath.add(bezierPoints);
-	}
-	
-	public void clearBezierPoints(){
-		
-		this.bezierPath.clear();
-	}
-	
-	public ArrayList<Vector2[]> getBezierPath(){
-		
-		return this.bezierPath;
-	} 
-	
-	/**Gibt die Sammlung von gefundenen Mittelpunkten zwischen den Straightpaths zurück.*/
-	public ArrayList<Vector2> getMiddlePaths(){
-		
-		return this.middlePath;
-	}
-	
-	public Map<Integer, Integer> getBestStraigthPath() {
-		
-		return this.bestStraightPath;
+	public Vector2[] getBoundingBox() {
+		return this.boundingBox;
 	}
 }

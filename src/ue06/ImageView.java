@@ -399,6 +399,11 @@ public class ImageView extends JScrollPane{
 					Contoure contoure = contoures[c];
 					if(contoure.isOutline()) g2d.setColor(Color.RED);
 					else g2d.setColor(Color.ORANGE);
+					Vector2 bb[] = contoure.getBoundingBox();
+					g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom));
+					g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom));
+					g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom));
+					g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom));
 
 					//Zeichne Pfade
 					if(drawPaths){
@@ -412,110 +417,12 @@ public class ImageView extends JScrollPane{
 							lastVecOut = nextVec;									
 						}
 					}															
-//					--------------------------------------------------------------------
-//					------------ Zeichne die StraigthPaths -----------------------------
-//					--------------------------------------------------------------------
-//					
-					if(drawStraightPaths){
-					
-						if(contoure.isOutline()) g2d.setColor(Color.CYAN);
-						else g2d.setColor(Color.GREEN);					
-						g2d.setStroke(new BasicStroke(3));
-					
-						LinkedHashMap<Integer, Integer> tmpData = (LinkedHashMap<Integer, Integer>) contoure.getBestStraigthPath();
-		            	Set<Integer> key = tmpData.keySet();
-		            	Iterator it = key.iterator();
-		            	while (it.hasNext()) {
-		                	int hmKey = (int)it.next();
-		                	int hmData = (int) tmpData.get(hmKey);
-							
-		                	Vector2 pointA = contoure.getVector(hmKey);
-		                	Vector2 pointB = contoure.getVector(hmData);		                	
-		                	
-							if(contoure.isOutline()) g2d.setColor(Color.CYAN);
-							else g2d.setColor(new Color(60, 200,60));
 
-		                	g2d.draw(new Line2D.Double(offsetX+pointA.x*zoom, offsetY+pointA.y*zoom, offsetX+pointB.x*zoom, offsetY+pointB.y*zoom));		                	
-		            	}
-					}
-					
-					if(drawStraightPathPoints){
-						
-						g2d.setColor(Color.MAGENTA);
-						g2d.setStroke(new BasicStroke(3));
-					
-						LinkedHashMap<Integer, Integer> tmpData = (LinkedHashMap<Integer, Integer>) contoure.getBestStraigthPath();
-		            	Set<Integer> key = tmpData.keySet();
-		            	Iterator it = key.iterator();
-		            	while (it.hasNext()) {
-		                	int hmKey = (int)it.next();
-		                	int hmData = (int) tmpData.get(hmKey);
-							
-		                	Vector2 pointA = contoure.getVector(hmKey);
-		                	Vector2 pointB = contoure.getVector(hmData);		                	
-		                	
-		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + pointA.x * zoom), (float) (offsetY + pointA.y * zoom), 3f, 3f);		            		
-							g2d.draw(circle);
-		            		circle = new Ellipse2D.Float((float)(offsetX + pointB.x * zoom), (float) (offsetY + pointB.y * zoom), 3f, 3f);
-							g2d.draw(circle);		                	
-		            	}
-					}
+				}
+				
+//				g2d.drawRect((int)(offsetX+1*zoom),(int)(offsetY+1*zoom),(int)(offsetX+27*zoom),(int)(offsetY+25*zoom));
 
-					if(drawMiddlePoints){
-						
-						for(int j = 1; j < contoure.getMiddlePaths().size(); j+=3){
-
-		            		Vector2 b0 = contoure.getMiddlePaths().get(j);
-		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + b0.x*zoom), (float) (offsetY + b0.y * zoom), 4, 4);
-		            		g2d.setColor(Color.GREEN);
-							g2d.draw(circle);
-		            	}
-					}					
-					
-					if(drawBeziersPaths){
-												
-						for(int b = 0; b < contoure.getBezierPath().size(); b++){
-							
-							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);							
-		            		g2d.setColor(Color.ORANGE);
-		            		CubicCurve2D.Double cubicCurve; // Cubic curve
-		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
-		            		g2d.draw(cubicCurve);							
-						}
-					}		
-					
-					
-					if(!contoure.isOutline()) g2d.setColor(Color.WHITE);
-					else g2d.setColor(Color.BLUE);
-					
-					if(drawBezierForms){						
-						Path2D polygon = new Path2D.Float();
-
-						for(int b = 0; b < contoure.getBezierPath().size(); b++){
-							
-							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);									            		
-		            		CubicCurve2D.Double cubicCurve; // Cubic curve
-		            		cubicCurve = new CubicCurve2D.Double(offsetX+ bezierPoints[0].x*zoom, offsetY+bezierPoints[0].y*zoom, offsetX+bezierPoints[1].x*zoom,offsetY+ bezierPoints[1].y*zoom, offsetX+bezierPoints[2].x*zoom, offsetY+bezierPoints[2].y*zoom, offsetX+ bezierPoints[3].x*zoom,offsetY+ bezierPoints[3].y*zoom);
-		            		polygon.append(cubicCurve, true);		            		
-						}
-						polygon.closePath();
-						g2d.fill(polygon);
-					}							
-					
-					if(drawControlPoints){
-						for(int b = 0; b < contoure.getBezierPath().size(); b++){
-
-							Vector2[] bezierPoints =  contoure.getBezierPath().get(b);							
-		            		g2d.setColor(Color.RED);
-		            		
-		            		Ellipse2D circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[1].x*zoom), (float) (offsetY + bezierPoints[1].y * zoom), (float) (4), (float) (4));
-							g2d.draw(circle);
-		            		circle = new Ellipse2D.Float((float)(offsetX + bezierPoints[2].x*zoom), (float) (offsetY + bezierPoints[2].y * zoom), (float) (4), (float) (4));
-							g2d.draw(circle);
-						}
-					}
-//		            ------------- Zeichenen ende ----------------------------------------
-				}									
+									
 				if (grid) {
 					if (zoom > 1) {
 						for (int i = 0; i < image.getHeight(); i++) {

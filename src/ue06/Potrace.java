@@ -435,12 +435,5 @@ public class Potrace {
 		contoures = new Contoure[0];				
 		direction = PathDirection.RIGHT;		
 		collectedPaths = new ArrayList<Vector2[]>();
-		clearStraightPath();
-	}
-	
-	/**Löscht alle gefundenen StraightPathes für alle Konturen zurück.*/
-	private void clearStraightPath() {
-		for (Contoure contoure : contoures) 
-			contoure.clearStraigthPaths();
 	}
 }
