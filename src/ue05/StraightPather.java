@@ -21,8 +21,11 @@ public class StraightPather {
 		this.constraint0 = new Vector2(0, 0);
 		this.constraint1 = new Vector2(0, 0);
 		createStraighttPaths();
+		System.out.println("StraightPaths gefunden");
+		
 		possibleSegmentsFromJosh();
-		System.out.println("alles gut!");		
+				
+		System.out.println("Polygone gefunden");		
 	}
 	
 	
@@ -283,12 +286,11 @@ public class StraightPather {
 				int currPos = startPos;
 			
 				while(true) {
-					// find target position
-										
+					// find target position		
 					int hmKey = currPos;
 	                int maxPath = (int) contoure.getStraightPathVectors().get(hmKey);
 	                
-					int targetPos = maxPath < 0 ? contoure.getVectors().length-1 : maxPath;
+					int targetPos = maxPath -1 < 0 ? contoure.getVectors().length-1 : maxPath-1;
 				
 					// check if we pass the starting position (is this check correct? O_o)
 					if((startPos > currPos && startPos < targetPos)
@@ -299,14 +301,13 @@ public class StraightPather {
 						tempStraingthPath.put(currPos, startPos);
 						break;
 					}
-				
 					// add target position to the polygon
 //					currPos = targetPos;
 					tempStraingthPath.put(currPos, targetPos);
 					currPos = targetPos;
 				}//while
-	            contoure.addStraightPaths(tempStraingthPath);				            
-			}			
+	            contoure.addStraightPaths(tempStraingthPath);
+			}
 			contoure.calcBestStraigthPath();
 		}
 	}
