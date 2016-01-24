@@ -19,20 +19,18 @@ public class Binarize extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private static final int border = 10;
-	private static final int maxWidth = 450;
-	private static final int maxHeight = 450;
+	private static final int maxWidth = 800;
+	private static final int maxHeight = 600;
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
 	private static final String initalOpen = "";	
-//	private static final String initalOpen = "test2.png";	
 
 	private static final double initalZoom = 1;
 	private static double currentZoom = initalZoom;
 		
 	private static JFrame frame;
 
-	private ImageView srcView; // source image view
 	private ImageView dstView; // binarized image view
 
 	private JLabel statusLine; // to print some status text
@@ -40,25 +38,9 @@ public class Binarize extends JPanel {
 	private JCheckBox drawPicture;
 	private JCheckBox drawPaths;
 	
-	private JCheckBox drawStraightPath;
-	private JCheckBox drawStraightPathPoints;
 
-	private JCheckBox drawBezierCurve;
-	private JCheckBox drawBezierForm;
-
-	private JCheckBox drawMiddlePoints;
-	private JCheckBox drawControlPoints;
 	private JCheckBox grid;	
-	private JSlider   alphaSlider;
-	private JSlider   minimumSlider;
-	private JSlider	  maximumSlider;
-	private JLabel    alphaLabel;
-	private JLabel    minimumLabel;
-	private JLabel    maximumLabel;
-	
-	private JLabel    alphaLabelValue;
-	private JLabel    minimumLabelValue;
-	private JLabel    maximumLabelValue;
+
 	
 	
 	private Potrace potrace;
@@ -75,10 +57,7 @@ public class Binarize extends JPanel {
         if(!input.canRead()) 
         	input = openFile(); // file not found, choose another image
         
-        srcView = new ImageView(input, initalZoom);
-        srcView.viewIsSrcView = true;
-        srcView.setMaxSize(new Dimension(maxWidth, maxHeight));
-        srcView.setMinSize(maxWidth, maxHeight);
+        
        
 		// create an empty destination image
         dstView = new ImageView(input, currentZoom);
@@ -93,8 +72,6 @@ public class Binarize extends JPanel {
         	public void actionPerformed(ActionEvent e) {
         		File input = openFile();
         		if(input != null) {
-	        		srcView.loadImage(input);        		
-	        		srcView.setMinSize(maxWidth, maxHeight);
 	        		dstView.loadImage(input);
 	        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
 	        		dstView.setMinSize(maxWidth, maxHeight);	        		
@@ -147,7 +124,6 @@ public class Binarize extends JPanel {
         controls.add(customControl);
         
         JPanel images = new JPanel(new FlowLayout());
-        images.add(srcView);
         images.add(dstView);
         
         add(controls, BorderLayout.NORTH);
@@ -174,62 +150,9 @@ public class Binarize extends JPanel {
             	dstView.updateScreen();
             }
           });
-        
-        drawStraightPath = new JCheckBox("Show StraightPath");
-        drawStraightPath.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	dstView.setDrawStraightPaths(drawStraightPath.isSelected());
-            	dstView.updateScreen();
-            }
-        });
-        
-        drawStraightPathPoints = new JCheckBox("Show StraightPath Points");
-        drawStraightPathPoints.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	dstView.setDrawStraightPathPoints(drawStraightPathPoints.isSelected());
-            	dstView.updateScreen();
-            }
-        });
-        
-        
+       
         JPanel bezierControl = new JPanel();
-        bezierControl.setLayout(new BoxLayout(bezierControl, BoxLayout.PAGE_AXIS)); //Vertikal
-        
-        drawBezierCurve = new JCheckBox("Show Bezier Curves");
-        drawBezierCurve.addItemListener(new ItemListener(){
-        	public void itemStateChanged(ItemEvent e){
-        		
-        		dstView.setDrawBezierPaths(drawBezierCurve.isSelected());
-        		dstView.updateScreen();
-        	}
-        });
-        
-        drawBezierForm = new JCheckBox("Show Bezier Forms");
-        drawBezierForm.addItemListener(new ItemListener(){
-        	public void itemStateChanged(ItemEvent e){
-        		
-        		dstView.setDrawBezierForms(drawBezierForm.isSelected());
-        		dstView.updateScreen();
-        	}
-        });
-        
-        drawMiddlePoints = new JCheckBox("Show Middle Points");
-        drawMiddlePoints.addItemListener(new ItemListener(){
-        	public void itemStateChanged(ItemEvent e){
-        		
-        		dstView.setDrawMiddlePoints(drawMiddlePoints.isSelected());
-        		dstView.updateScreen();
-        	}
-        });
-        
-        drawControlPoints = new JCheckBox("Show Control Points");
-        drawControlPoints.addItemListener(new ItemListener(){
-        	public void itemStateChanged(ItemEvent e){
-        		
-        		dstView.setDrawControlPoints(drawControlPoints.isSelected());
-        		dstView.updateScreen();
-        	}
-        });        
+        bezierControl.setLayout(new BoxLayout(bezierControl, BoxLayout.PAGE_AXIS)); //Vertikal       
         
         grid = new JCheckBox("Show grid");
         grid.addItemListener(new ItemListener() {
@@ -239,79 +162,21 @@ public class Binarize extends JPanel {
             	dstView.updateScreen();
             }
         });
-        
-        alphaSlider = new JSlider();
-        alphaSlider.setMaximum(200);
-        alphaSlider.setValue(75);
-        alphaSlider.setMinimum(0);
-        alphaSlider.addChangeListener(new ChangeListener() {			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				float value = alphaSlider.getValue() / 100.0f;
-				alphaLabelValue.setText("" +value);
-			}
-		});
-        
-        alphaLabel = new JLabel("alpha:");
-        minimumLabel = new JLabel("minimum:");
-        maximumLabel = new JLabel("maximum:");
 
-        alphaLabelValue = new JLabel("0.75");
-        minimumLabelValue = new JLabel("0.55");
-        maximumLabelValue = new JLabel("1.0");
-        
-        minimumSlider = new JSlider();
-        minimumSlider.setMaximum(200);
-        minimumSlider.setMinimum(55);
-        minimumSlider.setMinimum(0);
-        minimumSlider.addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {		
-				float value = minimumSlider.getValue() / 100.0f;
-				minimumLabelValue.setText("" +value);
-
-			}        	
-        });
-        
-        maximumSlider = new JSlider();
-        maximumSlider.setMaximum(200);
-        maximumSlider.setValue(100);
-        maximumSlider.setMinimum(0);
-        maximumSlider.addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {		
-				float value = maximumSlider.getValue() / 100.0f;
-				maximumLabelValue.setText("" +value);
-			}        	
-        });
-        
         JPanel leftSide = new JPanel();
         leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal
 
         leftSide.add(drawPicture);
         leftSide.add(drawPaths);
-        leftSide.add(drawStraightPath);
-        leftSide.add(drawStraightPathPoints);
+
         leftSide.add(grid);
         
         bezierControl.add(leftSide);
-        bezierControl.add(drawBezierCurve);
-        bezierControl.add(drawBezierForm);
-        bezierControl.add(drawMiddlePoints);
-        bezierControl.add(drawControlPoints);
 
         //Slider                        
         JPanel lbSliderControl = new JPanel();
         lbSliderControl.setLayout(new BoxLayout(lbSliderControl, BoxLayout.PAGE_AXIS)); //Vertikal        
-        JPanel panelAlpha = createBorderPanel(alphaLabel, alphaSlider, alphaLabelValue);
-        JPanel panelMinimum = createBorderPanel(minimumLabel, minimumSlider, minimumLabelValue);
-        JPanel panelMaximum = createBorderPanel(maximumLabel, maximumSlider, maximumLabelValue);
-        
-        lbSliderControl.add(panelAlpha);
-        lbSliderControl.add(panelMinimum);
-        lbSliderControl.add(panelMaximum);               
+              
         bezierControl.add(lbSliderControl);
         
         JPanel southLayoutControls = new JPanel();
