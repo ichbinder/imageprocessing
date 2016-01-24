@@ -134,7 +134,7 @@ public class Potrace {
 		if(left == 1) isOutline = true;
 		else isOutline = false;			
 
-		return new Contoure(isOutline, vectors);
+		return new Contoure(isOutline, vectors, pixels);
 	}
 	
 	/**Einstiegspunkt für das Finden einer einzelnen Kontur.

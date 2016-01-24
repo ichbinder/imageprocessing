@@ -392,18 +392,25 @@ public class ImageView extends JScrollPane{
 				else{
 					g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);									
 				}
-				g2d.setStroke(new BasicStroke(5));
+				g2d.setStroke(new BasicStroke(2));
 				//Kontouren zeichnen
 				for(int c = 0; c < contoures.length; c++){
 					
 					Contoure contoure = contoures[c];
-					if(contoure.isOutline()) g2d.setColor(Color.RED);
+					if(contoure.isOutline()) {
+						g2d.setColor(Color.GRAY);
+					
+						Vector2 bb[] = contoure.getBoundingBox();
+						g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom));
+						g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom));
+						g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom));
+						g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom));
+						
+						g2d.setColor(Color.RED);
+						Ellipse2D circle = new Ellipse2D.Float((float)(offsetX+contoure.getMainEmphasi().x*zoom), (float) (offsetY+contoure.getMainEmphasi().y*zoom), (float) (4*zoom), (float) (4*zoom));
+						g2d.draw(circle);
+					}					
 					else g2d.setColor(Color.ORANGE);
-					Vector2 bb[] = contoure.getBoundingBox();
-					g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom));
-					g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom));
-					g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom));
-					g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom));
 
 					//Zeichne Pfade
 					if(drawPaths){

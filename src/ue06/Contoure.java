@@ -2,20 +2,31 @@ package ue06;
 
 public class Contoure {
 
+	final private int [][] mutherImage;
 	final private boolean isOutline;
 	final private Vector2 [] vectors;
 	final private Vector2 [] boundingBox;
+	private int blackPixelCount;
+	final private Vector2 mainEmphasi;
+	private float countX;
+	private float countY;
 	
 	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
 	 * @param ps Enthält ein Array aus Path-Points.*/
-	public Contoure(boolean isOut, Vector2 [] ps){
+	public Contoure(boolean isOut, Vector2 [] ps, int [][] mutherImage){
 		
 		this.isOutline = isOut;
 		this.vectors = ps;
+		this.mutherImage = mutherImage;
 		this.boundingBox = new Vector2[2];
+		this.blackPixelCount = 0;
+		this.mainEmphasi = new Vector2();
+		this.countX = 0;
+		this.countY = 0;
 		calcBoundingBox();
-		
+		calcHowManyBlackPixels();	
+		calcMainEmphasi();
 	}
 	
 	private void calcBoundingBox() {
@@ -33,6 +44,26 @@ public class Contoure {
 		}
 		this.boundingBox[0] = bbMin;
 		this.boundingBox[1] = bbMax;
+	}
+	
+	private void calcHowManyBlackPixels() {
+		for (int y = 0; y < this.mutherImage[0].length; y++) {
+			for (int x = 0; x < this.mutherImage[1].length; x++) {
+				if (x >= this.boundingBox[0].x && y >= this.boundingBox[0].y
+						&& x < this.boundingBox[1].x && y < this.boundingBox[1].y) {
+					if (this.mutherImage[y][x] == 1) {
+						this.blackPixelCount += 1;
+						this.countX = this.countX + x;
+						this.countY = this.countY + y;
+					}
+				}
+			}			
+		}
+	}
+	
+	private void calcMainEmphasi() {
+		this.mainEmphasi.x = this.countX / blackPixelCount;
+		this.mainEmphasi.y = this.countY / blackPixelCount;
 	}
 		
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
@@ -57,5 +88,9 @@ public class Contoure {
 	
 	public Vector2[] getBoundingBox() {
 		return this.boundingBox;
+	}
+	
+	public Vector2 getMainEmphasi() {
+		return this.mainEmphasi;
 	}
 }

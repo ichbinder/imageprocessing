@@ -163,6 +163,7 @@ public class StraightPather {
 	                int hmData = (int) contoure.getStraightPathVectors().get(hmKey);
 	                
 	                if (!tempStraingthPath.isEmpty()) {
+
 	                	
 			            if (startPoint > hmKey) {
 		                	if (hmData >= startPoint)  {

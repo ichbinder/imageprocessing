@@ -36,6 +36,7 @@ public class Contoure {
 		LinkedHashMap<Integer, Integer> bestSP = new LinkedHashMap<Integer, Integer>();
 		if (!straightPaths.isEmpty()) {
 			bestSP = straightPaths.get(0);
+
 			for (LinkedHashMap<Integer, Integer> path : straightPaths) {
 				if (path.size() < bestSP.size()) {
 					bestSP = path;
