@@ -10,6 +10,7 @@ public class Contoure {
 	final private Vector2 mainEmphasi;
 	private float countX;
 	private float countY;
+	private double [][] momente;
 	
 	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
@@ -24,9 +25,18 @@ public class Contoure {
 		this.mainEmphasi = new Vector2();
 		this.countX = 0;
 		this.countY = 0;
+		this.momente = new double[4][4];
 		calcBoundingBox();
 		calcHowManyBlackPixels();	
+//		countXY();
 		calcMainEmphasi();
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline)
+				System.out.printf("Moment(%d,%d) =%25.0f%n", i, j, this.momente[i][j]);
+			}
+		}
+		
 	}
 	
 	private void calcBoundingBox() {
@@ -47,17 +57,33 @@ public class Contoure {
 	}
 	
 	private void calcHowManyBlackPixels() {
+		int count = 0;
 		for (int y = 0; y < this.mutherImage[0].length; y++) {
 			for (int x = 0; x < this.mutherImage[1].length; x++) {
 				if (x >= this.boundingBox[0].x && y >= this.boundingBox[0].y
 						&& x < this.boundingBox[1].x && y < this.boundingBox[1].y) {
 					if (this.mutherImage[y][x] == 1) {
 						this.blackPixelCount += 1;
-						this.countX = this.countX + x;
 						this.countY = this.countY + y;
+						this.countX = this.countX + x;
+						momente(x, y);
+						
 					}
+					count++;
 				}
 			}			
+		}
+		System.out.println("Count: "+count);
+	}
+	
+	private void countXY() {
+		for (int x = 0; x < this.mutherImage[1].length; x++) {
+			if (x >= this.boundingBox[0].x && x < this.boundingBox[1].x)
+				this.countX = this.countX + x;
+		}
+		for (int y = 0; y < this.mutherImage[0].length; y++) {
+			if (y >= this.boundingBox[0].y && y < this.boundingBox[1].y)
+				this.countY = this.countY + y;
 		}
 	}
 	
@@ -65,7 +91,15 @@ public class Contoure {
 		this.mainEmphasi.x = this.countX / blackPixelCount;
 		this.mainEmphasi.y = this.countY / blackPixelCount;
 	}
-		
+	
+	private void momente(int x, int y) {
+		for (int i = 0; i < momente[0].length; i++) {
+			for (int j = 0; j < momente[1].length; j++) {
+				this.momente[i][j] = (this.momente[i][j] + (Math.pow(x, i) * Math.pow(y, j)));
+			}
+		}
+	}
+	
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
 	 * @return Ein Array aus 2D-Vektoren.*/
 	public Vector2 [] getVectors() {
