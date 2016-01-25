@@ -27,7 +27,9 @@ public class Contoure {
 		this.countY = 0;
 		this.momente = new double[4][4];
 		calcBoundingBox();
-		calcHowManyBlackPixels();	
+		calcHowManyBlackPixels2();	
+//		calcHowManyBlackPixels();	
+
 //		countXY();
 		calcMainEmphasi();
 		for (int i = 0; i < this.momente[0].length; i++) {
@@ -66,11 +68,30 @@ public class Contoure {
 						this.blackPixelCount += 1;
 						this.countY = this.countY + y;
 						this.countX = this.countX + x;
-						momente(x, y);
-						
+						momente(x, y);						
 					}
 					count++;
 				}
+			}			
+		}
+		System.out.println("Count: "+count);
+	}
+	
+	
+	
+	private void calcHowManyBlackPixels2() {
+		int count = 0;
+		for (int y = (int) this.boundingBox[0].y; y < (int ) this.boundingBox[1].y; y++) {
+			for (int x = (int) this.boundingBox[0].x; x < (int) this.boundingBox[1].x; x++) {
+//				if (x >= this.boundingBox[0].x && y >= this.boundingBox[0].y
+//						&& x < this.boundingBox[1].x && y < this.boundingBox[1].y) {								
+				if (this.mutherImage[y][x] == 1) {
+					this.blackPixelCount += 1;
+					this.countY = this.countY + y;
+					this.countX = this.countX + x;
+					momente(x, y);										
+				}
+				count++;
 			}			
 		}
 		System.out.println("Count: "+count);
