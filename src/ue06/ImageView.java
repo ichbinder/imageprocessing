@@ -407,7 +407,7 @@ public class ImageView extends JScrollPane{
 						g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom));
 						
 						g2d.setColor(Color.RED);
-						Ellipse2D circle = new Ellipse2D.Float((float)(offsetX+contoure.getMainEmphasi().x*zoom), (float) (offsetY+contoure.getMainEmphasi().y*zoom), (float) (2*zoom), (float) (2*zoom));
+						Ellipse2D circle = new Ellipse2D.Float((float)(offsetX+contoure.getMainEmphasi().x*zoom) - 0.5f , (float) (offsetY+contoure.getMainEmphasi().y*zoom) - 0.5f, (float) (0.5*10), (float) (0.5*10));
 						g2d.draw(circle);
 					}					
 					else g2d.setColor(Color.ORANGE);

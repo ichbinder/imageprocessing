@@ -4,10 +4,10 @@ import ue06.Potrace.PathDirection;
 
 public class Vector2{
 
-	public float x,y;
+	public double x,y;
 	public PathDirection lookingDirection;
 	
-	public Vector2(float x, float y){
+	public Vector2(double x, double y){
 		this.x = x;
 		this.y = y;
 	}
@@ -16,28 +16,28 @@ public class Vector2{
 		x=y=0;
 	}
 
-	public void set(float x, float y){
+	public void set(double x, double y){
 		this.x = x;
 		this.y = y;
 	}
 	
-	public void setX(float x){
+	public void setX(double x){
 		this.x = x;
 	}
 	
-	public void setY(float y){
+	public void setY(double y){
 		this.y = y;
 	}
 	
-	public float getX(){
+	public double getX(){
 		return this.x;
 	}
 	
-	public float getY(){
+	public double getY(){
 		return this.y;
 	}
 	
-	public void get (float[] dest){
+	public void get (double[] dest){
 		dest[0] = x;
 		dest[1] = y;
 	}
@@ -49,24 +49,24 @@ public class Vector2{
 		this.x -= b.x; this.y -= b.y;
 	}
 
-	public float length() {
-		return (float)Math.sqrt(this.x*this.x +this.y*this.y);
+	public double length() {
+		return (double)Math.sqrt(this.x*this.x +this.y*this.y);
 	}
 
-	public void mult(float s){
+	public void mult(double s){
 		this.x = this.x *s; this.y = this.y * s;
 	}
 	
-	public void divide(float s){
+	public void divide(double s){
 		
 		this.x = this.x / s; this.y = this.y / s;
 	}
 	
-	public float cross(Vector2 b){
+	public double cross(Vector2 b){
 		return this.x * b.y - this.y * b.x;
 	}
 
-	public float scalarProduct(Vector2 other){
+	public double scalarProduct(Vector2 other){
 		
 		return this.x * other.x + this.y * other.y;
 	}
@@ -82,7 +82,7 @@ public class Vector2{
 	}
 
 	
-	public void setLength(float f) {
+	public void setLength(double f) {
 		double factor = f / this.length();
 		x *= factor;
 		y *= factor;

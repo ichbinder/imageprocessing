@@ -213,7 +213,7 @@ public class Potrace {
 	private void removeOutline(Vector2[] path, int [][] pixels){
 
 		Vector2 lastVector2 = path[0];
-		float lastY = lastVector2.y;
+		double lastY = lastVector2.y;
 		
 		for(int i = 1; i < path.length; i++){
 

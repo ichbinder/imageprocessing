@@ -2,121 +2,148 @@ package ue06;
 
 public class Contoure {
 
-	final private int [][] mutherImage;
+	final private int [][] motherImage;
 	final private boolean isOutline;
-	final private Vector2 [] vectors;
+	final private Vector2 [] potraceContoure; 
 	final private Vector2 [] boundingBox;
 	private int blackPixelCount;
-	final private Vector2 mainEmphasi;
-	private float countX;
-	private float countY;
+	final private Vector2 mainEmphasis;
+	private double countX;
+	private double countY;
 	private double [][] momente;
+	private double [][] zentralMomente;
+
 	
 	/**Erzeugt eine Kontur . 
 	 * @param isOut Ist es eine Außenkontur?
 	 * @param ps Enthält ein Array aus Path-Points.*/
-	public Contoure(boolean isOut, Vector2 [] ps, int [][] mutherImage){
+	public Contoure(boolean isOut, Vector2 [] ps, int [][] motherImage){
 		
 		this.isOutline = isOut;
-		this.vectors = ps;
-		this.mutherImage = mutherImage;
+		this.potraceContoure = ps;
+		this.motherImage = motherImage;
 		this.boundingBox = new Vector2[2];
+		
 		this.blackPixelCount = 0;
-		this.mainEmphasi = new Vector2();
+		this.mainEmphasis = new Vector2();
 		this.countX = 0;
 		this.countY = 0;
+		
 		this.momente = new double[4][4];
-		calcBoundingBox();
-		calcHowManyBlackPixels2();	
-//		calcHowManyBlackPixels();	
-
-//		countXY();
-		calcMainEmphasi();
-		for (int i = 0; i < this.momente[0].length; i++) {
-			for (int j = 0; j < this.momente[1].length; j++) {
-				if (this.isOutline)
-				System.out.printf("Moment(%d,%d) =%25.0f%n", i, j, this.momente[i][j]);
+		this.zentralMomente = new double[4][4];
+		
+		//Start der Berechnung für die Momente und den Schwerpunkt des Objektes (der Contoure)
+		if (this.isOutline) {
+			
+			calcBoundingBox();
+			calcHowManyBlackPixels();
+			calcMainEmphasi();
+			momente();
+			zentralMoment();
+			
+			// Ausgabe der einzelenen Daten: Moment, Zentral Moment, Schwerpunkt, Anzahl Schwarzerpixel, BoundingBox
+			System.out.println("-------------- Start Contoure---------------");
+			for (int i = 0; i < this.momente[0].length; i++) {
+				for (int j = 0; j < this.momente[1].length; j++) {
+					if (this.isOutline)
+					System.out.printf("Moment(%d,%d) =%25.0f%n", i, j, this.momente[i][j]);
+				}
 			}
+			for (int i = 0; i < this.momente[0].length; i++) {
+				for (int j = 0; j < this.momente[1].length; j++) {
+					if (this.isOutline)
+					System.out.printf("Zentral Moment(%d,%d) =%25.0f%n", i, j, this.zentralMomente[i][j]);
+				}
+			}
+			System.out.println("Schwerpunkt x: " + this.mainEmphasis.x);
+			System.out.println("Schwerpunkt y: " + this.mainEmphasis.y);
+			System.out.println("Anzahl ScharzerPixel: " + this.blackPixelCount);
+			System.out.println("BoundingBox MIN: " + this.boundingBox[0]);
+			System.out.println("BoundingBox MAX: " + this.boundingBox[1]);
+			System.out.println("-------------- End Contoure------------------");
+			System.out.println(" ");
 		}
 		
 	}
 	
+	/**
+	 * Berechnung der BoundingBox aus den Kuntur-Pixeln 
+	 */
 	private void calcBoundingBox() {
 		Vector2 bbMax = new Vector2();
 		Vector2 bbMin = new Vector2(Float.MAX_VALUE, Float.MAX_VALUE);
-		for (int i = 0; i < this.vectors.length; i++) {
-			if (this.vectors[i].x > bbMax.x)
-				bbMax.setX(this.vectors[i].x);
-			if (this.vectors[i].y > bbMax.y)
-				bbMax.setY(this.vectors[i].y);
-			if (this.vectors[i].x < bbMin.x)
-				bbMin.setX(this.vectors[i].x);
-			if (this.vectors[i].y < bbMin.y)
-				bbMin.setY(this.vectors[i].y);
+		for (int i = 0; i < this.potraceContoure.length; i++) {
+			if (this.potraceContoure[i].x > bbMax.x)
+				bbMax.setX(this.potraceContoure[i].x);
+			if (this.potraceContoure[i].y > bbMax.y)
+				bbMax.setY(this.potraceContoure[i].y);
+			if (this.potraceContoure[i].x < bbMin.x)
+				bbMin.setX(this.potraceContoure[i].x);
+			if (this.potraceContoure[i].y < bbMin.y)
+				bbMin.setY(this.potraceContoure[i].y);
 		}
 		this.boundingBox[0] = bbMin;
 		this.boundingBox[1] = bbMax;
 	}
 	
+	/**
+	 * Berechnung wie viel Schwarze Pixel enthält das komplette Objekt
+	 * und das Addieren von x-Werten und y-Werten für den Schwerpunkt
+	 */
 	private void calcHowManyBlackPixels() {
-		int count = 0;
-		for (int y = 0; y < this.mutherImage[0].length; y++) {
-			for (int x = 0; x < this.mutherImage[1].length; x++) {
-				if (x >= this.boundingBox[0].x && y >= this.boundingBox[0].y
-						&& x < this.boundingBox[1].x && y < this.boundingBox[1].y) {
-					if (this.mutherImage[y][x] == 1) {
-						this.blackPixelCount += 1;
-						this.countY = this.countY + y;
-						this.countX = this.countX + x;
-						momente(x, y);						
-					}
-					count++;
+//		int count = 0;
+		for (int y = (int) this.boundingBox[0].y; y < (int ) this.boundingBox[1].y; y++) {
+			for (int x = (int) this.boundingBox[0].x; x < (int) this.boundingBox[1].x; x++) {							
+				if (this.motherImage[y][x] == 1) { // ist der aktuelle Pixel ein Schwarzer Pixel
+					this.blackPixelCount += 1;
+					this.countY = this.countY + (double)y;
+					this.countX = this.countX + (double)x;	
+//					count++;
 				}
-			}			
+
+				
+			}	
+//			System.out.println("Count: "+count);
 		}
-		System.out.println("Count: "+count);
+	}	
+
+	/**
+	 * Berechnung des Schwerpunktes 
+	 */
+	private void calcMainEmphasi() {
+		this.mainEmphasis.x =  this.countX / (double)this.blackPixelCount;
+		this.mainEmphasis.y =  this.countY / (double)this.blackPixelCount;
 	}
 	
-	
-	
-	private void calcHowManyBlackPixels2() {
-		int count = 0;
+	/**
+	 * Berechnung des Momentes
+	 */
+	private void momente() {
 		for (int y = (int) this.boundingBox[0].y; y < (int ) this.boundingBox[1].y; y++) {
 			for (int x = (int) this.boundingBox[0].x; x < (int) this.boundingBox[1].x; x++) {
-//				if (x >= this.boundingBox[0].x && y >= this.boundingBox[0].y
-//						&& x < this.boundingBox[1].x && y < this.boundingBox[1].y) {								
-				if (this.mutherImage[y][x] == 1) {
-					this.blackPixelCount += 1;
-					this.countY = this.countY + y;
-					this.countX = this.countX + x;
-					momente(x, y);										
+				if (this.motherImage[y][x] == 1) { // ist der aktuelle Pixel ein Schwarzer Pixel
+					for (int p = 0; p < this.momente[0].length; p++) {
+						for (int q = 0; q < this.momente[1].length; q++) {
+							this.momente[p][q] = (this.momente[p][q] + (Math.pow(x, p) * Math.pow(y, q)));
+						}
+					}
 				}
-				count++;
-			}			
-		}
-		System.out.println("Count: "+count);
-	}
-	
-	private void countXY() {
-		for (int x = 0; x < this.mutherImage[1].length; x++) {
-			if (x >= this.boundingBox[0].x && x < this.boundingBox[1].x)
-				this.countX = this.countX + x;
-		}
-		for (int y = 0; y < this.mutherImage[0].length; y++) {
-			if (y >= this.boundingBox[0].y && y < this.boundingBox[1].y)
-				this.countY = this.countY + y;
+			}
 		}
 	}
 	
-	private void calcMainEmphasi() {
-		this.mainEmphasi.x = this.countX / blackPixelCount;
-		this.mainEmphasi.y = this.countY / blackPixelCount;
-	}
-	
-	private void momente(int x, int y) {
-		for (int i = 0; i < momente[0].length; i++) {
-			for (int j = 0; j < momente[1].length; j++) {
-				this.momente[i][j] = (this.momente[i][j] + (Math.pow(x, i) * Math.pow(y, j)));
+	/**
+	 * Berechnung des Zentralen Momentes
+	 */
+	private void zentralMoment() {	
+		for (int y = (int) this.boundingBox[0].y; y < (int ) this.boundingBox[1].y; y++) {
+			for (int x = (int) this.boundingBox[0].x; x < (int) this.boundingBox[1].x; x++) {
+				for (int p = 0; p < this.zentralMomente[0].length; p++) {
+					for (int q = 0; q < this.zentralMomente[1].length; q++) {
+						this.zentralMomente[p][q] = (Math.pow(((double)x - this.mainEmphasis.x), (double)p) * Math.pow(((double)y - this.mainEmphasis.y), (double)q));
+					}
+				}
+			
 			}
 		}
 	}
@@ -124,7 +151,7 @@ public class Contoure {
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
 	 * @return Ein Array aus 2D-Vektoren.*/
 	public Vector2 [] getVectors() {
-		return this.vectors;
+		return this.potraceContoure;
 	}
 	
 	/**Gibt an ob es sich um eine Außen- oder Innenkontur handelt.
@@ -138,7 +165,7 @@ public class Contoure {
 	 * @return Den gesuchten Vektor
 	 * */
 	public Vector2 getVector(int index){
-		return this.vectors[index];
+		return this.potraceContoure[index];
 	}
 	
 	public Vector2[] getBoundingBox() {
@@ -146,6 +173,6 @@ public class Contoure {
 	}
 	
 	public Vector2 getMainEmphasi() {
-		return this.mainEmphasi;
+		return this.mainEmphasis;
 	}
 }
