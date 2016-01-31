@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.SystemColor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -41,12 +43,17 @@ public class ImageView extends JScrollPane{
 	private int borderY = -1;
 	private double maxViewMagnification = 1.0;		// use 0.0 to disable limits 
 	private boolean keepAspectRatio = true;
-	private boolean centered = true;
 	private double zoom = 1.0;
 	private Contoure [] contoures = new Contoure[0];
-	private boolean drawPicture, drawStraightPaths, drawStraightPathPoints, drawPaths, drawBeziersPaths, drawBezierForms, drawMiddlePoints, drawControlPoints;
+	
+	private int offsetX,  offsetY;
+	
+	private int clickPositionX = 0;
+	private int clickPositionY = 0;
 	
 	public boolean viewIsSrcView = true;
+	
+	
 	
 	private boolean grid;
 	
@@ -121,40 +128,7 @@ public class ImageView extends JScrollPane{
 	public void setContoures(Contoure [] cons){
 		
 		this.contoures = cons;
-	}	
-	
-	public void setDrawPicture(boolean drawPath){
-		this.drawPicture = drawPath;		
 	}
-	
-	public void setDrawPaths(boolean drawPath){
-		this.drawPaths = drawPath;		
-	}
-	
-	public void setDrawBezierPaths(boolean drawPath){
-		this.drawBeziersPaths = drawPath;		
-	}
-	
-	public void setDrawBezierForms(boolean drawPath){
-		this.drawBezierForms = drawPath;		
-	}
-	
-	public void setDrawStraightPaths(boolean drawStraightPath){
-		this.drawStraightPaths = drawStraightPath;		
-	}
-	
-	public void setDrawStraightPathPoints(boolean drawStraightPathPoints){
-		this.drawStraightPathPoints = drawStraightPathPoints;		
-	}
-	
-	
-	public void setDrawMiddlePoints(boolean drawMiddlePoints){
-		this.drawMiddlePoints = drawMiddlePoints;		
-	}
-	
-	public void setDrawControlPoints(boolean drawControlPoints){
-		this.drawControlPoints = drawControlPoints;		
-	}	
 	
 	public void updateScreen(){
 		
@@ -245,10 +219,6 @@ public class ImageView extends JScrollPane{
 	public void setKeepAspectRatio(boolean keep) {
 		keepAspectRatio = keep;
 	}
-	
-	public void setCentered(boolean centered) {
-		this.centered = centered;
-	}
 
 	public void printText(int x, int y, String text) {
 		Graphics2D g = screen.image.createGraphics();
@@ -304,6 +274,16 @@ public class ImageView extends JScrollPane{
 	{
 		screen = new ImageScreen(bi);
 		setViewportView(screen);
+		screen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println(e.getX());
+				System.out.println(e.getY());
+				clickPositionX = e.getX();
+				clickPositionY = e.getY();	
+				updateScreen();
+			}
+		});
 				
 		maxSize = new Dimension(getPreferredSize());
 		
@@ -361,36 +341,18 @@ public class ImageView extends JScrollPane{
 						r.width = (int)(ratioY * image.getWidth() + 0.5);
 				}
 				
-				int offsetX = 0;
-				int offsetY = 0;
+//				int offsetX = 0;
+//				int offsetY = 0;
 				
-				// set background for regions not covered by image
-				if(r.height < getBounds().height) {
-					g.setColor(SystemColor.window);
-					if(centered) 
-						offsetY = (getBounds().height - r.height)/2;
-					g.fillRect(0, 0, getBounds().width, offsetY);
-					g.fillRect(0, r.height + offsetY, getBounds().width, getBounds().height - r.height - offsetY);
-				}
-				
-				if(r.width < getBounds().width) {
-					g.setColor(SystemColor.window );
-					if(centered) 
-						offsetX = (getBounds().width - r.width)/2;
-					g.fillRect(0, offsetY, offsetX, r.height);
-					g.fillRect(r.width + offsetX, offsetY, getBounds().width - r.width - offsetX, r.height);
-				}
 				Graphics2D g2d = (Graphics2D) g.create();
 				
 				//Zeichne Originalbild
 				if(!viewIsSrcView){
-					if(drawPicture){
-						g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);				
-					}
+					g2d.drawImage(image, 0, 0, r.width, r.height, this);
 				}
 				//SRC-View soll immer gezeichnet werden
 				else{
-					g2d.drawImage(image, offsetX, offsetY, r.width, r.height, this);									
+					g2d.drawImage(image, 0, 0, r.width, r.height, this);
 				}
 				g2d.setStroke(new BasicStroke(2));
 				//Kontouren zeichnen
@@ -401,46 +363,19 @@ public class ImageView extends JScrollPane{
 						g2d.setColor(Color.GRAY);
 					
 						Vector2 bb[] = contoure.getBoundingBox();
-						g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom));
-						g2d.draw(new Line2D.Double(offsetX+bb[0].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom));
-						g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[1].y*zoom, offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom));
-						g2d.draw(new Line2D.Double(offsetX+bb[1].x*zoom, offsetY+bb[0].y*zoom, offsetX+bb[0].x*zoom, offsetY+bb[0].y*zoom));
-						
-						g2d.setColor(Color.RED);
-						Ellipse2D circle = new Ellipse2D.Float((float)(offsetX+contoure.getMainEmphasi().x*zoom) - 0.5f , (float) (offsetY+contoure.getMainEmphasi().y*zoom) - 0.5f, (float) (0.5*10), (float) (0.5*10));
-						g2d.draw(circle);
-					}					
-					else g2d.setColor(Color.ORANGE);
-
-					//Zeichne Pfade
-					if(drawPaths){
-
-						Vector2 lastVecOut = contoure.getVector(0);
-					
-						for(int j = 1; j < contoure.getVectors().length; j++){
-						
-							Vector2 nextVec = contoure.getVector(j);
-							g2d.draw(new Line2D.Double(offsetX+lastVecOut.x*zoom, offsetY+lastVecOut.y*zoom, offsetX+nextVec.x*zoom, offsetY+nextVec.y*zoom));
-							lastVecOut = nextVec;									
+						if (bb[0].x < clickPositionX && clickPositionX < bb[1].x &&
+							bb[0].y < clickPositionY && clickPositionY < bb[1].y) {
+							
+							g2d.draw(new Line2D.Double(bb[0].x*zoom, bb[0].y*zoom, bb[0].x*zoom, bb[1].y*zoom));
+							g2d.draw(new Line2D.Double(bb[0].x*zoom, bb[1].y*zoom, bb[1].x*zoom, bb[1].y*zoom));
+							g2d.draw(new Line2D.Double(bb[1].x*zoom, bb[1].y*zoom, bb[1].x*zoom, bb[0].y*zoom));
+							g2d.draw(new Line2D.Double(bb[1].x*zoom, bb[0].y*zoom, bb[0].x*zoom, bb[0].y*zoom));
+							
+							g2d.setColor(Color.RED);
+							Ellipse2D circle = new Ellipse2D.Float((float)(contoure.getMainEmphasi().x*zoom) - 0.5f , (float) (contoure.getMainEmphasi().y*zoom) - 0.5f, (float) (0.5*10), (float) (0.5*10));
+							g2d.draw(circle);	
 						}
-					}															
-
-				}
-				
-//				g2d.drawRect((int)(offsetX+1*zoom),(int)(offsetY+1*zoom),(int)(offsetX+27*zoom),(int)(offsetY+25*zoom));
-
-									
-				if (grid) {
-					if (zoom > 1) {
-						for (int i = 0; i < image.getHeight(); i++) {
-							for (int j = 0; j < image.getWidth(); j++) {
-								g2d.setStroke(new BasicStroke(1));
-								g2d.setColor(Color.gray);
-								g2d.drawLine(offsetX+0, (int)(offsetY+i*zoom), (int)(offsetX+image.getWidth()*zoom), (int)(offsetY+i*zoom));
-								g2d.drawLine((int)(offsetX+j*zoom), offsetY+0, (int)(offsetX+j*zoom), (int)(offsetY+image.getHeight()*zoom));		
-							}
-						}
-					}
+					}																		
 				}
 				g2d.dispose();
 			}

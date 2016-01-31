@@ -19,8 +19,8 @@ public class Binarize extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private static final int border = 10;
-	private static final int maxWidth = 800;
-	private static final int maxHeight = 600;
+	private static int maxWidth = 900;
+	private static int maxHeight = 500;
 	private static final File openPath = new File(".");
 	private static final String title = "Binarisierung";
 	private static final String author = "Vallentin, Andre, Jakob Warnow";
@@ -35,8 +35,8 @@ public class Binarize extends JPanel {
 
 	private JLabel statusLine; // to print some status text
 
-	private JCheckBox drawPicture;
-	private JCheckBox drawPaths;
+//	private JCheckBox drawPicture;
+//	private JCheckBox drawPaths;
 	
 
 	private JCheckBox grid;	
@@ -74,7 +74,8 @@ public class Binarize extends JPanel {
         		if(input != null) {
 	        		dstView.loadImage(input);
 	        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
-	        		dstView.setMinSize(maxWidth, maxHeight);	        		
+	        		dstView.setMinSize(maxWidth, maxHeight);	
+	        		
 	        		reset();
 	                binarizeImage();
         		}
@@ -114,6 +115,7 @@ public class Binarize extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(0,border,0,0);
         controls.add(load, c);
+
 //---------------------
       
         JPanel customControl = new JPanel();
@@ -132,24 +134,24 @@ public class Binarize extends JPanel {
         potrace = new Potrace();
         
         
-        drawPicture = new JCheckBox("Show picture");
-        drawPicture.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	
-            	dstView.setDrawPicture(drawPicture.isSelected());
-            	dstView.updateScreen();
-            }
-          });
-        drawPicture.setSelected(true);
-        
-        drawPaths = new JCheckBox("Show paths");
-        drawPaths.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	
-            	dstView.setDrawPaths(drawPaths.isSelected());
-            	dstView.updateScreen();
-            }
-          });
+//        drawPicture = new JCheckBox("Show picture");
+//        drawPicture.addItemListener(new ItemListener() {
+//            public void itemStateChanged(ItemEvent e) {
+//            	
+//            	dstView.setDrawPicture(drawPicture.isSelected());
+//            	dstView.updateScreen();
+//            }
+//          });
+//        drawPicture.setSelected(true);
+//        
+//        drawPaths = new JCheckBox("Show paths");
+//        drawPaths.addItemListener(new ItemListener() {
+//            public void itemStateChanged(ItemEvent e) {
+//            	
+//            	dstView.setDrawPaths(drawPaths.isSelected());
+//            	dstView.updateScreen();
+//            }
+//          });
        
         JPanel bezierControl = new JPanel();
         bezierControl.setLayout(new BoxLayout(bezierControl, BoxLayout.PAGE_AXIS)); //Vertikal       
@@ -163,15 +165,15 @@ public class Binarize extends JPanel {
             }
         });
 
-        JPanel leftSide = new JPanel();
-        leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal
-
-        leftSide.add(drawPicture);
-        leftSide.add(drawPaths);
-
-        leftSide.add(grid);
-        
-        bezierControl.add(leftSide);
+//        JPanel leftSide = new JPanel();
+//        leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal
+//
+//        leftSide.add(drawPicture);
+//        leftSide.add(drawPaths);
+//
+//        leftSide.add(grid);
+//        
+//        bezierControl.add(leftSide);
 
         //Slider                        
         JPanel lbSliderControl = new JPanel();
@@ -244,7 +246,7 @@ public class Binarize extends JPanel {
 		String message = "Konturfindung.";
 		statusLine.setText(message);
 
-		long startTime = System.currentTimeMillis();
+//		long startTime = System.currentTimeMillis();
 		potrace.FindContoures(dstPixels, width, height);
 		dstView.setContoures(potrace.getContoures());
 			
