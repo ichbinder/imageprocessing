@@ -51,6 +51,8 @@ public class Binarize extends JPanel {
 	public Binarize() {
         super(new BorderLayout(border, border));
         
+        Maus maus = new Maus();
+        
         // load the default image
         File input = new File(initalOpen);
         
