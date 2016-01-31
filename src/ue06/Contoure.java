@@ -1,5 +1,7 @@
 package ue06;
 
+import javax.swing.JTextPane;
+
 public class Contoure {
 
 	final private int [][] motherImage;
@@ -10,6 +12,8 @@ public class Contoure {
 	private double [][] momente;
 	private double [][] centralMoment;
 	private double [][] normCentralMoment;
+	private double width;
+	private double height;
 
 	
 	/**Erzeugt eine Kontur . 
@@ -29,12 +33,10 @@ public class Contoure {
 		this.normCentralMoment = new double[4][4];
 		
 
+		calcBoundingBox();
 		
 		//Start der Berechnung für die Momente und den Schwerpunkt des Objektes (der Contoure)
 		if (this.isOutline) {
-			
-			calcBoundingBox();
-			
 			double m00 = calcMoment(0, 0);
 			this.mainEmphasis.x = calcMoment(1, 0) / m00;
 			this.mainEmphasis.y = calcMoment(0, 1) / m00;
@@ -50,7 +52,8 @@ public class Contoure {
 			this.mainEmphasis.x = 0.0;
 			this.mainEmphasis.y = 0.0;
 		}
-		
+		this.width = this.boundingBox[1].x - this.boundingBox[0].x;	
+		this.height = this.boundingBox[1].y - this.boundingBox[0].y;	
 	}
 	
 	/**
@@ -132,6 +135,37 @@ public class Contoure {
 		System.out.println(" ");
 	}
 	
+	public void printTP(JTextPane tp) {
+		String outPut = "";
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline) 
+					outPut += String.format("Moment(%d,%d) = %30.0f%n", i, j, this.momente[i][j]);
+//					tp.setText(String.format("Moment(%d,%d) =%25.0f%n", i, j, this.momente[i][j]));
+			}
+		}
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline)
+					outPut += String.format("Zentral Moment(%d,%d) = %30.3f%n", i, j, this.centralMoment[i][j]);
+//					tp.setText(String.format("Zentral Moment(%d,%d) =%25.3f%n", i, j, this.centralMoment[i][j]));
+			}
+		}
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline)
+					outPut += String.format("Norm Zentral Moment(%d,%d) = %25.4f%n", i, j, this.normCentralMoment[i][j]);
+//					tp.setText(String.format("Norm Zentral Moment(%d,%d) =%25.4f%n", i, j, this.normCentralMoment[i][j]));
+			}
+		}
+		tp.setText(outPut);
+//		System.out.println("Schwerpunkt x: " + this.mainEmphasis.x);
+//		System.out.println("Schwerpunkt y: " + this.mainEmphasis.y);
+//		System.out.println("BoundingBox MIN: " + this.boundingBox[0]);
+//		System.out.println("BoundingBox MAX: " + this.boundingBox[1]);
+//		System.out.println("-------------- End Contoure------------------");
+//		System.out.println(" ");
+	}
 	
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
 	 * @return Ein Array aus 2D-Vektoren.*/
@@ -183,5 +217,13 @@ public class Contoure {
 				sumTemp += this.normCentralMoment[p][q];
 		return sumTemp;
 		
+	}
+	
+	public double getBBwidth() {
+		return this.width;
+	}
+	
+	public double getBBheight() {
+		return this.height;
 	}
 }

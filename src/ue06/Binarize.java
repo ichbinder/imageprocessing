@@ -83,29 +83,17 @@ public class Binarize extends JPanel {
         		}
         	}        	
         });
-         
-        magnification = new JSlider(JSlider.HORIZONTAL,10,1000,10);
+        
+        JSlider magnification = new JSlider(JSlider.HORIZONTAL, 1, 20, 1);
 
-        magnification.setMinorTickSpacing(50); //Abstände im Feinraster
-        magnification.setMajorTickSpacing(100);
+        magnification.setMajorTickSpacing(10);
+        magnification.setMinorTickSpacing(1);
         magnification.setPaintTicks(true);
-        Hashtable<Integer, JLabel> markLabels = new Hashtable<Integer, JLabel>();
-        markLabels.put(new Integer(10), new JLabel("1x"));
-        markLabels.put(new Integer(500), new JLabel("50x"));
-        markLabels.put(new Integer(1000), new JLabel("100x"));
-
-        magnification.setLabelTable(markLabels);
-        magnification.setPaintLabels(true);
-        magnification.setSnapToTicks(true);
+        magnification.setPaintLabels(false);
         
         magnification.addChangeListener(new ChangeListener() {
-			
 			public void stateChanged(ChangeEvent e) {
-				
-				currentZoom = magnification.getValue()/10;
-        		dstView.setMaxSize(new Dimension((int) (maxWidth * currentZoom), (int ) (maxHeight * currentZoom)));
-        		dstView.setMinSize(maxWidth, maxHeight);
-        		dstView.setZoom(currentZoom);
+				dstView.setSlider(magnification.getValue());
 			}
 		});
                 
@@ -134,26 +122,6 @@ public class Binarize extends JPanel {
         add(images, BorderLayout.CENTER);
         
         potrace = new Potrace();
-        
-        
-//        drawPicture = new JCheckBox("Show picture");
-//        drawPicture.addItemListener(new ItemListener() {
-//            public void itemStateChanged(ItemEvent e) {
-//            	
-//            	dstView.setDrawPicture(drawPicture.isSelected());
-//            	dstView.updateScreen();
-//            }
-//          });
-//        drawPicture.setSelected(true);
-//        
-//        drawPaths = new JCheckBox("Show paths");
-//        drawPaths.addItemListener(new ItemListener() {
-//            public void itemStateChanged(ItemEvent e) {
-//            	
-//            	dstView.setDrawPaths(drawPaths.isSelected());
-//            	dstView.updateScreen();
-//            }
-//          });
        
         JPanel bezierControl = new JPanel();
         bezierControl.setLayout(new BoxLayout(bezierControl, BoxLayout.PAGE_AXIS)); //Vertikal       
@@ -167,8 +135,11 @@ public class Binarize extends JPanel {
             }
         });
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setSize(100, 500);
+        scrollPane.setSize(50, 500);
         JTextPane txtpn = new JTextPane();
+        txtpn.setPreferredSize(new Dimension(350, 500));
+        txtpn.setMinimumSize(new Dimension(250, 500));
+        dstView.setTextPane(txtpn);
         scrollPane.setViewportView(txtpn);
         JPanel leftSide = new JPanel();
         leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal

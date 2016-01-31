@@ -7,30 +7,21 @@ package ue06;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.Font;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Set;
-
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 
 
 public class ImageView extends JScrollPane{
@@ -52,6 +43,8 @@ public class ImageView extends JScrollPane{
 	private int clickPositionY = 0;
 	
 	public boolean viewIsSrcView = true;
+	private JTextPane tp;
+	private double slider;
 	
 	
 	
@@ -125,6 +118,12 @@ public class ImageView extends JScrollPane{
 		screen.repaint();
 	}
 	
+	public void setSlider(double slider) {
+		this.slider = slider;
+		screen.revalidate();
+		screen.repaint();
+	}
+	
 	public void setContoures(Contoure [] cons){
 		
 		this.contoures = cons;
@@ -168,6 +167,10 @@ public class ImageView extends JScrollPane{
 		// if the pixels array obtained by getPixels() has been modified,
 		// call this method to make your changes visible
 		if(pixels != null) setPixels(pixels);
+	}
+	
+	public void setTextPane(JTextPane tp) {
+		this.tp = tp;
 	}
 	
 	public void setPixels(int[] pix) {
@@ -277,8 +280,6 @@ public class ImageView extends JScrollPane{
 		screen.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println(e.getX());
-				System.out.println(e.getY());
 				clickPositionX = e.getX();
 				clickPositionY = e.getY();	
 				updateScreen();
@@ -370,10 +371,23 @@ public class ImageView extends JScrollPane{
 								if(contoureNext.isOutline()) {
 									Vector2 bbNext[] = contoureNext.getBoundingBox();
 									for (int q = 0; q < contoureNext.getMomente()[0].length; q++) {
-										for (int p = 0; p < contoureNext.getMomente()[1].length; p++) {
-//											if (p == 3 && q == 3 &&
-//												contoure.getCentralMoment()[p][q] < contoureNext.getNormCentralMoment()[p][q] + 0.0005){
-											if (contoure.getNormSumCentralMoment() < (contoureNext.getNormSumCentralMoment() + 0.03) && contoure.getNormSumCentralMoment() > (contoureNext.getNormSumCentralMoment() - 0.03)) {
+										for (int p = 0; p < contoureNext.getMomente()[1].length; p++) {									
+											System.out.println(slider);
+											if (
+													
+													
+													contoure.getNormSumCentralMoment() < (contoureNext.getNormSumCentralMoment() + 0.03) && 
+													contoure.getNormSumCentralMoment() > (contoureNext.getNormSumCentralMoment() - 0.03) &&
+													
+													contoure.getBBheight() < contoureNext.getBBheight() + 3*slider &&
+													contoure.getBBheight() > contoureNext.getBBheight() - 3*slider &&
+													contoure.getBBwidth() < contoureNext.getBBwidth() + 3*slider &&
+													contoure.getBBwidth() > contoureNext.getBBwidth() - 3*slider &&
+													
+													contoure.getCentralMoment()[p][q] < contoureNext.getNormCentralMoment()[p][q] + 100*slider &&													
+													contoure.getCentralMoment()[p][q] > contoureNext.getNormCentralMoment()[p][q] - 100*slider
+													) {
+												
 												System.out.printf("Norm Zentral Moment(%d,%d) =%25.4f%n", p, q, contoure.getNormCentralMoment()[p][q]);
 												g2d.setColor(Color.GRAY);
 												g2d.draw(new Line2D.Double(bbNext[0].x*zoom, bbNext[0].y*zoom, bbNext[0].x*zoom, bbNext[1].y*zoom));
@@ -400,6 +414,7 @@ public class ImageView extends JScrollPane{
 							g2d.draw(circle);	
 							contoure.print();
 							System.out.println(contoure.getNormSumCentralMoment());
+							contoure.printTP(tp);
 						}
 					}																		
 				}
