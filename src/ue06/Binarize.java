@@ -166,16 +166,20 @@ public class Binarize extends JPanel {
             	dstView.updateScreen();
             }
         });
-
-//        JPanel leftSide = new JPanel();
-//        leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setSize(100, 500);
+        JTextPane txtpn = new JTextPane();
+        scrollPane.setViewportView(txtpn);
+        JPanel leftSide = new JPanel();
+        leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.PAGE_AXIS)); //Vertikal
+        leftSide.add(scrollPane);
 //
 //        leftSide.add(drawPicture);
 //        leftSide.add(drawPaths);
 //
 //        leftSide.add(grid);
 //        
-//        bezierControl.add(leftSide);
+        bezierControl.add(leftSide);
 
         //Slider                        
         JPanel lbSliderControl = new JPanel();
