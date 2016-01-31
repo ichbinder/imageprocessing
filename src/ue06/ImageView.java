@@ -360,12 +360,36 @@ public class ImageView extends JScrollPane{
 					
 					Contoure contoure = contoures[c];
 					if(contoure.isOutline()) {
-						g2d.setColor(Color.GRAY);
+						
 					
 						Vector2 bb[] = contoure.getBoundingBox();
 						if (bb[0].x < clickPositionX && clickPositionX < bb[1].x &&
 							bb[0].y < clickPositionY && clickPositionY < bb[1].y) {
-							
+							for(int c2 = 0; c2 < contoures.length; c2++){
+								Contoure contoureNext = contoures[c2];
+								if(contoureNext.isOutline()) {
+									Vector2 bbNext[] = contoureNext.getBoundingBox();
+									for (int q = 0; q < contoureNext.getMomente()[0].length; q++) {
+										for (int p = 0; p < contoureNext.getMomente()[1].length; p++) {
+//											if (p == 3 && q == 3 &&
+//												contoure.getCentralMoment()[p][q] < contoureNext.getNormCentralMoment()[p][q] + 0.0005){
+											if (contoure.getNormSumCentralMoment() < (contoureNext.getNormSumCentralMoment() + 0.03) && contoure.getNormSumCentralMoment() > (contoureNext.getNormSumCentralMoment() - 0.03)) {
+												System.out.printf("Norm Zentral Moment(%d,%d) =%25.4f%n", p, q, contoure.getNormCentralMoment()[p][q]);
+												g2d.setColor(Color.GRAY);
+												g2d.draw(new Line2D.Double(bbNext[0].x*zoom, bbNext[0].y*zoom, bbNext[0].x*zoom, bbNext[1].y*zoom));
+												g2d.draw(new Line2D.Double(bbNext[0].x*zoom, bbNext[1].y*zoom, bbNext[1].x*zoom, bbNext[1].y*zoom));
+												g2d.draw(new Line2D.Double(bbNext[1].x*zoom, bbNext[1].y*zoom, bbNext[1].x*zoom, bbNext[0].y*zoom));
+												g2d.draw(new Line2D.Double(bbNext[1].x*zoom, bbNext[0].y*zoom, bbNext[0].x*zoom, bbNext[0].y*zoom));
+												
+												g2d.setColor(Color.RED);
+												Ellipse2D circle = new Ellipse2D.Float((float)(contoureNext.getMainEmphasi().x*zoom) - 0.5f , (float) (contoureNext.getMainEmphasi().y*zoom) - 0.5f, (float) (0.5*10), (float) (0.5*10));
+												g2d.draw(circle);
+											}
+										}
+									}
+								}
+							}
+							g2d.setColor(Color.GRAY);
 							g2d.draw(new Line2D.Double(bb[0].x*zoom, bb[0].y*zoom, bb[0].x*zoom, bb[1].y*zoom));
 							g2d.draw(new Line2D.Double(bb[0].x*zoom, bb[1].y*zoom, bb[1].x*zoom, bb[1].y*zoom));
 							g2d.draw(new Line2D.Double(bb[1].x*zoom, bb[1].y*zoom, bb[1].x*zoom, bb[0].y*zoom));
@@ -374,6 +398,8 @@ public class ImageView extends JScrollPane{
 							g2d.setColor(Color.RED);
 							Ellipse2D circle = new Ellipse2D.Float((float)(contoure.getMainEmphasi().x*zoom) - 0.5f , (float) (contoure.getMainEmphasi().y*zoom) - 0.5f, (float) (0.5*10), (float) (0.5*10));
 							g2d.draw(circle);	
+							contoure.print();
+							System.out.println(contoure.getNormSumCentralMoment());
 						}
 					}																		
 				}

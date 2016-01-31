@@ -46,34 +46,6 @@ public class Contoure {
 					this.normCentralMoment[p][q] = calcNormCentralMoment(m00, p, q);
 				}
 			}
-			
-			
-			// Ausgabe der einzelenen Daten: Moment, Zentral Moment, Schwerpunkt, Anzahl Schwarzerpixel, BoundingBox
-			System.out.println("-------------- Start Contoure---------------");
-			for (int i = 0; i < this.momente[0].length; i++) {
-				for (int j = 0; j < this.momente[1].length; j++) {
-					if (this.isOutline)
-					System.out.printf("Moment(%d,%d) =%25.0f%n", i, j, this.momente[i][j]);
-				}
-			}
-			for (int i = 0; i < this.momente[0].length; i++) {
-				for (int j = 0; j < this.momente[1].length; j++) {
-					if (this.isOutline)
-					System.out.printf("Zentral Moment(%d,%d) =%25.3f%n", i, j, this.centralMoment[i][j]);
-				}
-			}
-			for (int i = 0; i < this.momente[0].length; i++) {
-				for (int j = 0; j < this.momente[1].length; j++) {
-					if (this.isOutline)
-					System.out.printf("Norm Zentral Moment(%d,%d) =%25.4f%n", i, j, this.normCentralMoment[i][j]);
-				}
-			}
-			System.out.println("Schwerpunkt x: " + this.mainEmphasis.x);
-			System.out.println("Schwerpunkt y: " + this.mainEmphasis.y);
-			System.out.println("BoundingBox MIN: " + this.boundingBox[0]);
-			System.out.println("BoundingBox MAX: " + this.boundingBox[1]);
-			System.out.println("-------------- End Contoure------------------");
-			System.out.println(" ");
 		} else {
 			this.mainEmphasis.x = 0.0;
 			this.mainEmphasis.y = 0.0;
@@ -118,8 +90,8 @@ public class Contoure {
 	 */
 	private double calcCentralMoment(int p, int q) {	
 		double cMpq = 0.0;
-		for (int y = (int) this.boundingBox[0].y; y <= (int ) this.boundingBox[1].y; y++) 
-			for (int x = (int) this.boundingBox[0].x; x <= (int) this.boundingBox[1].x; x++) 
+		for (int y = (int) this.boundingBox[0].y; y < (int ) this.boundingBox[1].y; y++) 
+			for (int x = (int) this.boundingBox[0].x; x < (int) this.boundingBox[1].x; x++) 
 				if (this.motherImage[y][x] == 1)
 					cMpq += Math.pow(x - this.mainEmphasis.x, p) * Math.pow(y - this.mainEmphasis.y, q);
 
@@ -130,6 +102,36 @@ public class Contoure {
 		double norm = Math.pow(m00,  0.5 * (p + q + 2));
 		return calcCentralMoment(p, q) / norm;
 	}
+	
+	public void print() {
+		// Ausgabe der einzelenen Daten: Moment, Zentral Moment, Schwerpunkt, Anzahl Schwarzerpixel, BoundingBox
+		System.out.println("-------------- Start Contoure---------------");
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline)
+				System.out.printf("Moment(%d,%d) =%25.0f%n", i, j, this.momente[i][j]);
+			}
+		}
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline)
+				System.out.printf("Zentral Moment(%d,%d) =%25.3f%n", i, j, this.centralMoment[i][j]);
+			}
+		}
+		for (int i = 0; i < this.momente[0].length; i++) {
+			for (int j = 0; j < this.momente[1].length; j++) {
+				if (this.isOutline)
+				System.out.printf("Norm Zentral Moment(%d,%d) =%25.4f%n", i, j, this.normCentralMoment[i][j]);
+			}
+		}
+		System.out.println("Schwerpunkt x: " + this.mainEmphasis.x);
+		System.out.println("Schwerpunkt y: " + this.mainEmphasis.y);
+		System.out.println("BoundingBox MIN: " + this.boundingBox[0]);
+		System.out.println("BoundingBox MAX: " + this.boundingBox[1]);
+		System.out.println("-------------- End Contoure------------------");
+		System.out.println(" ");
+	}
+	
 	
 	/**Gibt die enthaltenen Punkte (2D-Vektoren) zurück
 	 * @return Ein Array aus 2D-Vektoren.*/
@@ -157,5 +159,29 @@ public class Contoure {
 	
 	public Vector2 getMainEmphasi() {
 		return this.mainEmphasis;
+	}
+	public int[][] getMotherImage() {
+		return motherImage;
+	}
+
+	public double[][] getMomente() {
+		return momente;
+	}
+
+	public double[][] getNormCentralMoment() {
+		return normCentralMoment;
+	}
+
+	public double[][] getCentralMoment() {
+		return centralMoment;
+	}	
+	
+	public double getNormSumCentralMoment() {
+		double sumTemp = 0.0;
+		for (int q = 0; q < this.momente[0].length; q++) 
+			for (int p = 0; p < this.momente[1].length; p++) 
+				sumTemp += this.normCentralMoment[p][q];
+		return sumTemp;
+		
 	}
 }
